@@ -6,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>CALC UNIFIED</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>BT CALC</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
@@ -341,10 +344,22 @@ document.getElementById('t-btn-compare').onclick = function() {
 };
 
 document.getElementById('t-btn-copy').onclick = function() {
-    var w = gv('t-i-width'); var a = gv('t-i-aspect'); var r = gv('t-i-rim');
-    if (isNaN(w)) return;
-    var res = tCalc_calc(''); if (!res) return;
-    var text = 'TIRE DATA\nSize: ' + res.label + '\nDia: ' + res.dia.toFixed(2) + '"\nCirc: ' + res.circ.toFixed(2) + '"\nRev/Mi: ' + Math.round(res.revs);
+    var res1 = tCalc_calc(''); 
+    if (!res1) return;
+
+    var text = 'TIRE DATA\n';
+    text += '--- Primary ---\nSize: ' + res1.label + '\nDia: ' + res1.dia.toFixed(2) + '"\nCirc: ' + res1.circ.toFixed(2) + '"\nRev/Mi: ' + Math.round(res1.revs);
+
+    var res2 = tCalc_calc('2');
+    if (res2) {
+        text += '\n\n--- Comparison ---\nSize: ' + res2.label + '\nDia: ' + res2.dia.toFixed(2) + '"\nCirc: ' + res2.circ.toFixed(2) + '"\nRev/Mi: ' + Math.round(res2.revs);
+
+        var diffDia = res1.dia - res2.dia;
+        var diffPerc = (diffDia / res2.dia) * 100;
+        var diffRev = res1.revs - res2.revs;
+        text += '\n\n--- Difference ---\nDia: ' + (diffDia > 0 ? '+' : '') + diffDia.toFixed(2) + '" (' + (diffPerc > 0 ? '+' : '') + diffPerc.toFixed(1) + '%)\nRev/Mi: ' + (diffRev > 0 ? '+' : '') + Math.round(diffRev);
+    }
+
     navigator.clipboard.writeText(text).then(() => showToast('Copied!'));
 };
 
