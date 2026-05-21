@@ -1,0 +1,178 @@
+<!-- STATE 5/2026 - B-CALC v1.0 (OFFLINE MOBILE VERSION) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>B-CALC v1.0</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #181818; color: #fff; font-weight: 600; padding: 12px; min-height: 100vh; }
+        .wrap { max-width: 560px; margin: 0 auto; }
+        h2 { text-align: center; color: #74c0fc; margin-bottom: 12px; }
+        .row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .col { flex: 1; }
+        label { display: block; font-size: 0.75em; color: #aaa; margin-bottom: 3px; }
+        input[type="number"], input[type="text"] { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #444; background: #2a2a2a; color: #fff; font-size: 1em; -webkit-appearance: none; }
+        .btn { padding: 14px; border-radius: 6px; border: none; font-weight: 700; cursor: pointer; color: #fff; width: 100%; margin-top: 8px; font-size: 1em; }
+        .btn-copy { background: #5a5a5a; margin-bottom: 10px; }
+        .btn-graph { background: #40c057; margin-top: 6px; }
+        .btn-calc { background: #1c7ed6; }
+        .result-box { background: #0c2d48; padding: 16px; border-radius: 6px; text-align: center; font-size: 1.3em; margin-top: 14px; color: #a5d6ff; min-height: 60px; }
+        .traj-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.75em; }
+        .traj-table th { background: #2a2a2a; color: #aaa; padding: 8px; text-align: left; }
+        .traj-table td { padding: 8px; border-bottom: 1px solid #333; }
+        .traj-table tr.highlight td { background: #0b3d66; color: #a5d6ff; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #40c057; color: #fff; padding: 12px 24px; border-radius: 6px; font-weight: 700; display: none; z-index: 999; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h2>B-CALC v1.0</h2>
+    <button class="btn btn-copy" id="btn-copy">Copy Result</button>
+
+    <div class="row"><div class="col"><label>Weight (gr)</label><input type="number" id="i-wt" inputmode="decimal"></div></div>
+    <div class="row"><div class="col"><label>Velocity (fps)</label><input type="number" id="i-vel" inputmode="decimal"></div></div>
+    <div class="row"><label>BC (G1)</label><input type="number" id="i-bc" inputmode="decimal" value="0.2"></label></div>
+
+    <h3 style="margin-top:15px;">Atmosphere</h3>
+    <div class="row">
+        <div class="col"><label>Temp (°F)</label><input type="number" id="i-temp" value="70" inputmode="decimal"></div>
+        <div class="col"><label>Alt (ft)</label><input type="number" id="i-alt" value="4600" inputmode="decimal"></div>
+    </div>
+    <div class="row">
+        <div class="col"><label>Press (inHg)</label><input type="number" id="i-press" value="29.89" inputmode="decimal"></div>
+        <div class="col"><label>Hum (%)</label><input type="number" id="i-hum" value="25" inputmode="decimal"></div>
+    </div>
+
+    <button class="btn btn-calc" id="btn-calc">Calculate FPE</button>
+    
+    <div class="row" style="margin-top:15px;"><div class="col"><label>Range (yards)</label><input type="number" id="i-range" value="500" inputmode="decimal"></div></div>
+    <button class="btn btn-graph" id="btn-go">Show Trajectory</button>
+
+    <div class="result-box" id="d-res">Energy: 0.00 ft-lbs</div>
+
+    <div id="traj-container"></div>
+
+    <div class="toast" id="toast">Copied!</div>
+</div>
+
+<script>
+function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(function() { t.style.display = 'none'; }, 2000);
+}
+
+function gv(id) { var el = document.getElementById(id); return (el && el.value !== '') ? parseFloat(el.value) : NaN; }
+function gs(id) { var el = document.getElementById(id); return (el && el.value !== '') ? el.value : ''; }
+
+function calc() {
+    var wt = gv('i-wt');
+    var vel = gv('i-vel');
+
+    if (isNaN(wt) || isNaN(vel)) {
+        document.getElementById('d-res').innerHTML = 'Enter weight & velocity';
+        return null;
+    }
+
+    var T = gv('i-temp');
+    var P = gv('i-press');
+    var A = gv('i-alt');
+    var H = gv('i-hum');
+
+    var effP = P;
+    if (!isNaN(A) && (isNaN(P) || P === 0)) {
+        effP = 29.92 * Math.pow(1 - (0.0000068755 * A), 5.255);
+    }
+
+    var ratio = 1.0;
+    if (!isNaN(T) && !isNaN(P)) {
+        var Tk = (T + 459.67) * 5 / 9;
+        var Pk = effP * 3.38639;
+        var sTk = (59 + 459.67) * 5 / 9;
+        var sPk = 29.92 * 3.38639;
+        var cr = Pk / (287.05 * Tk);
+        var sr = sPk / (287.05 * sTk);
+        ratio = cr / sr;
+        if (!isNaN(H)) { ratio *= (1 - (H / 100 * 0.003)); }
+    }
+
+    var cVel = vel * Math.sqrt(1 / ratio);
+    var fpe = (wt * cVel * cVel) / 450436;
+
+    document.getElementById('d-res').innerHTML = '<b style="font-size:1.5em;">' + fpe.toFixed(2) + ' ft-lbs</b><br><span style="font-size:0.6em; color:#aaa;">Adj Vel: ' + cVel.toFixed(0) + ' fps</span>';
+
+    return { wt: wt, vel: cVel };
+}
+
+function buildCopyText() {
+    var wt = gv('i-wt');
+    var vel = gv('i-vel');
+    if (isNaN(wt) || isNaN(vel)) return 'No data';
+
+    var result = calc();
+    if (!result) return 'No data';
+
+    var fpe = (wt * result.vel * result.vel) / 450436;
+    var g = 32.17 * 12; 
+    var distFt = 300; 
+    var t = distFt / result.vel; 
+    var dropInches = 0.5 * g * t * t;
+
+    var bc = parseFloat(gs('i-bc')) || 0.2;
+    var dragFactor = 0.0001 / bc;
+    var velAt100 = result.vel * Math.exp(-dragFactor * distFt);
+    var fpeAt100 = (wt * velAt100 * velAt100) / 450436;
+
+    var text = 'B-CALC v1.0\nWeight: ' + wt.toFixed(2) + 'gr\nVel: ' + vel.toFixed(0) + 'fps (Adj: ' + result.vel.toFixed(0) + ')\nBC: ' + bc + '\nFPE: ' + fpe.toFixed(2) + '\n\n--- 100 YD ---\nDrop: ' + dropInches.toFixed(2) + '"\nVel @ 100: ' + velAt100.toFixed(0) + '\nFPE @ 100: ' + fpeAt100.toFixed(2);
+    return text;
+}
+
+document.getElementById('btn-copy').onclick = function() {
+    var text = buildCopyText();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
+    } else {
+        alert(text); 
+    }
+};
+
+document.getElementById('btn-calc').onclick = function() { calc(); };
+
+document.getElementById('btn-go').onclick = function() {
+    var data = calc();
+    if (!data) return;
+
+    var maxYards = parseInt(document.getElementById('i-range').value);
+    if (isNaN(maxYards) || maxYards <= 0) { maxYards = 500; }
+
+    var g = 32.17 * 12;
+    var container = document.getElementById('traj-container');
+    var step = 10;
+    if (maxYards < 50) { step = Math.max(1, Math.floor(maxYards / 5)); }
+
+    var html = '<table class="traj-table"><thead><tr><th style="width:40%">Dist</th><th style="width:30%">FPE</th><th style="width:30%">Drop</th></tr></thead><tbody>';
+
+    for (var y = 0; y <= maxYards; y += step) {
+        var distFt = y * 3;
+        var t = distFt / data.vel;
+        var dropInches = 0.5 * g * t * t;
+        var bc = parseFloat(gs('i-bc')) || 0.2;
+        var dragFactor = 0.0001 / bc;
+        var velAtY = data.vel * Math.exp(-dragFactor * distFt);
+        var fpeAtY = (data.wt * velAtY * velAtY) / 450436;
+        var highlight = (y === maxYards) ? ' class="highlight"' : '';
+
+        html += '<tr' + highlight + '><td style="width:40%">' + y + 'y</td><td style="width:30%">' + fpeAtY.toFixed(1) + '</td><td style="width:30%">' + dropInches.toFixed(2) + '"</td></tr>';
+    }
+
+    html += '</tbody></table>';
+    container.innerHTML = html;
+};
+</script>
+</body>
+</html>
