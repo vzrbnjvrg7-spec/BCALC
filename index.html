@@ -1,4 +1,4 @@
-<!-- STATE 5/2026 - BT CALC v1.0 -->
+<!-- STATE 5/2026 - BT CALC v1.1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +9,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>BT CALC</title>
+    <title>BT Calc v1.1</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
@@ -116,9 +116,9 @@
     <div id="view-bcalc" class="view active">
         <h2>B-CALC v1.0</h2>
         <button class="btn btn-copy" id="b-btn-copy">Copy Result</button>
-        <div class="row"><div class="col"><label>Weight (gr)</label><input type="number" id="b-i-wt" inputmode="decimal"></div></div>
-        <div class="row"><div class="col"><label>Velocity (fps)</label><input type="number" id="b-i-vel" inputmode="decimal"></div></div>
-        <div class="row"><label>BC (G1)</label><input type="number" id="b-i-bc" inputmode="decimal" value="0.2"></div>
+        <div class="row"><div class="col"><label>Weight (gr)</label><input type="number" id="b-i-wt" value="35" inputmode="decimal"></div></div>
+        <div class="row"><div class="col"><label>Velocity (fps)</label><input type="number" id="b-i-vel" value="4000" inputmode="decimal"></div></div>
+        <div class="row"><label>BC (G1)</label><input type="number" id="b-i-bc" value="0.5" inputmode="decimal"></div>
         <h3>Atmosphere</h3>
         <div class="row">
             <div class="col"><label>Temp (°F)</label><input type="number" id="b-i-temp" value="70" inputmode="decimal"></div>
@@ -266,31 +266,46 @@ document.getElementById('b-btn-go').onclick = function() {
 
 // --- T-CALC LOGIC (Namespaced) ---
 function tCalc_calc(prefix) {
-    var w = gv('t-i-width' + prefix);
-    var a = gv('t-i-aspect' + prefix);
-    var r = gv('t-i-rim' + prefix);
+    var w = gv('t-i-width' + prefix);  // For metric: width in mm. For inch format: overall diameter (inches)
+    var a = gv('t-i-aspect' + prefix);  // For metric: aspect ratio (%). For inch format: tire width (inches)
+    var r = gv('t-i-rim' + prefix);     // Rim diameter in inches
+
     if (isNaN(w) || isNaN(a) || isNaN(r)) return null;
 
-    var isMetric = w > 100;
-    var widthInches = isMetric ? w / 25.4 : w;
+    var isMetric = (w > 100);
+    var totalDia, circumference, revsPerMile;
 
-    var aspectInches;
-    if (a < 20) {
-        aspectInches = a;
+    if (isMetric) {
+        // Metric tire: 245/40-18 format
+        var widthInches = w / 25.4;            // Convert mm to inches
+        var sidewallHeight = widthInches * (a / 100);  // Aspect ratio: sidewall = width * (aspect%)
+        totalDia = (sidewallHeight * 2) + r;   // Sidewall * 2 + rim
     } else {
-        aspectInches = widthInches * (a / 100);
+        // Inch/Truck tire: 35x12.5-17 format
+        // The first number IS the overall diameter (inches)
+        totalDia = w;                          // Use directly — no sidewall math needed
     }
 
-    var totalDia = (aspectInches * 2) + r;
-    var circumference = Math.PI * totalDia;
-    var revsPerMile = 63360 / circumference;
+    circumference = Math.PI * totalDia;
+    revsPerMile = 63360 / circumference;
 
+    // Display primary tire results
     if (prefix === '') {
-        document.getElementById('t-d-res').innerHTML = '<b style="font-size:1.5em;">' + totalDia.toFixed(2) + '" Dia</b>';
-        document.getElementById('t-d-stats').innerHTML = 'Circ: ' + circumference.toFixed(2) + '" | Rev/Mi: ' + Math.round(revsPerMile);
+        var unitLabel = isMetric ? 'mm' : '"';
+        document.getElementById('t-d-res').innerHTML = 
+            '<b style="font-size:1.5em;">' + totalDia.toFixed(2) + ' ' + unitLabel + ' Dia</b>';
+        document.getElementById('t-d-stats').innerHTML = 
+            'Circ: ' + circumference.toFixed(2) + ' ' + unitLabel + ' | Rev/Mi: ' + Math.round(revsPerMile);
     }
 
-    return { label: w + (isMetric ? 'mm' : 'in') + '/' + a + '-' + r, dia: totalDia, circ: circumference, revs: revsPerMile, width: w };
+    return { 
+        label: w + (isMetric ? 'mm' : 'in') + '/' + a + '-' + r, 
+        dia: totalDia, 
+        circ: circumference,
+        unitLabel: isMetric ? 'mm' : '"',
+        revs: revsPerMile, 
+        width: w 
+    };
 }
 
 function updateViz(pDia, sDia, pWidth, sWidth) {
@@ -314,16 +329,18 @@ document.getElementById('t-btn-calc').onclick = function() {
     var t1 = tCalc_calc(''); 
     var t2 = tCalc_calc('2');
     
+    // Update visualizer with both tires if available
     if (t1 && t2) {
         updateViz(t1.dia, t2.dia, t1.width, t2.width);
     } else if (t1) {
         updateViz(t1.dia, 0, t1.width, '0');
     }
 
+    // Update comparison table with consistent units
     var body = document.getElementById('t-r-comp'); body.innerHTML = '';
     [t1, t2].filter(x => x !== null).forEach(item => {
         var row = document.createElement('tr');
-        row.innerHTML = '<td>' + item.label + '</td><td>' + item.dia.toFixed(2) + '"</td><td>' + item.circ.toFixed(1) + '"</td><td>' + Math.round(item.revs) + '</td>';
+        row.innerHTML = '<td>' + item.label + '</td><td>' + item.dia.toFixed(2) + ' ' + item.unitLabel + '</td><td>' + item.circ.toFixed(1) + ' ' + item.unitLabel + '</td><td>' + Math.round(item.revs) + '</td>';
         body.appendChild(row);
     });
 };
@@ -332,15 +349,22 @@ document.getElementById('t-btn-compare').onclick = function() {
     var t1 = tCalc_calc(''); 
     var t2 = tCalc_calc('2');
 
+    // Update visualizer on compare too
     if (t1 && t2) {
         updateViz(t1.dia, t2.dia, t1.width, t2.width);
     }
 
     if (!t1 || !t2) return;
-    var diffDia = t1.dia - t2.dia; var diffPerc = (diffDia / t2.dia) * 100;
+    var diffDia = t1.dia - t2.dia; 
+    var unitLabel = (t1.unitLabel === 'mm') ? 'mm' : '"';
+    var diffPerc = (diffDia / t2.dia) * 100;
     var diffRev = t1.revs - t2.revs;
+
     document.getElementById('t-d-res').innerHTML = '<b style="font-size:1.2em;">Difference</b>';
-    document.getElementById('t-d-stats').innerHTML = 'Dia: ' + (diffDia > 0 ? '+' : '') + diffDia.toFixed(2) + '" (' + (diffPerc > 0 ? '+' : '') + diffPerc.toFixed(1) + '%)\nRev/Mi: ' + (diffRev > 0 ? '+' : '') + Math.round(diffRev);
+    document.getElementById('t-d-stats').innerHTML = 
+        'Dia: ' + (diffDia > 0 ? '+' : '') + diffDia.toFixed(2) + ' ' + unitLabel + 
+        ' (' + (diffPerc > 0 ? '+' : '') + diffPerc.toFixed(1) + '%)\n' +
+        'Rev/Mi: ' + (diffRev > 0 ? '+' : '') + Math.round(diffRev);
 };
 
 document.getElementById('t-btn-copy').onclick = function() {
@@ -348,32 +372,40 @@ document.getElementById('t-btn-copy').onclick = function() {
     if (!res1) return;
 
     var text = 'TIRE DATA\n';
-    text += '--- Primary ---\nSize: ' + res1.label + '\nDia: ' + res1.dia.toFixed(2) + '"\nCirc: ' + res1.circ.toFixed(2) + '"\nRev/Mi: ' + Math.round(res1.revs);
+    text += '--- Primary ---\nSize: ' + res1.label + '\nDia: ' + res1.dia.toFixed(2) + ' ' + res1.unitLabel + '\nCirc: ' + res1.circ.toFixed(2) + ' ' + res1.unitLabel + '\nRev/Mi: ' + Math.round(res1.revs);
 
     var res2 = tCalc_calc('2');
     if (res2) {
-        text += '\n\n--- Comparison ---\nSize: ' + res2.label + '\nDia: ' + res2.dia.toFixed(2) + '"\nCirc: ' + res2.circ.toFixed(2) + '"\nRev/Mi: ' + Math.round(res2.revs);
+        text += '\n\n--- Comparison ---\nSize: ' + res2.label + '\nDia: ' + res2.dia.toFixed(2) + ' ' + res2.unitLabel + '\nCirc: ' + res2.circ.toFixed(2) + ' ' + res2.unitLabel + '\nRev/Mi: ' + Math.round(res2.revs);
 
         var diffDia = res1.dia - res2.dia;
+        var unitLabel = (res1.unitLabel === 'mm') ? 'mm' : '"';
         var diffPerc = (diffDia / res2.dia) * 100;
         var diffRev = res1.revs - res2.revs;
-        text += '\n\n--- Difference ---\nDia: ' + (diffDia > 0 ? '+' : '') + diffDia.toFixed(2) + '" (' + (diffPerc > 0 ? '+' : '') + diffPerc.toFixed(1) + '%)\nRev/Mi: ' + (diffRev > 0 ? '+' : '') + Math.round(diffRev);
+        text += '\n\n--- Difference ---\nDia: ' + (diffDia > 0 ? '+' : '') + diffDia.toFixed(2) + ' ' + unitLabel + 
+                ' (' + (diffPerc > 0 ? '+' : '') + diffPerc.toFixed(1) + '%)\nRev/Mi: ' + (diffRev > 0 ? '+' : '') + Math.round(diffRev);
     }
 
     navigator.clipboard.writeText(text).then(() => showToast('Copied!'));
 };
 
-// Pre-populate T-CALC
+// Pre-populate B-CALC and T-CALC
 window.onload = function() {
+    // Pre-populate B-CALC defaults (35gr, 4000fps, BC .5)
+    document.getElementById('b-i-wt').value = 35;
+    document.getElementById('b-i-vel').value = 4000;
+    document.getElementById('b-i-bc').value = '0.5';
+
+    // Pre-populate T-CALC defaults (35x12.5/17 and 37x12.5/17)
     document.getElementById('t-i-width').value = 35;
-    document.getElementById('t-i-aspect').value = 11.5;
+    document.getElementById('t-i-aspect').value = 12.5;
     document.getElementById('t-i-rim').value = 17;
 
     document.getElementById('t-i-width2').value = 37;
     document.getElementById('t-i-aspect2').value = 12.5;
     document.getElementById('t-i-rim2').value = 17;
 
-    // Trigger initial calculation to show visualizer
+    // Trigger initial T-CALC calculation to show visualizer
     document.getElementById('t-btn-calc').click();
 };
 </script>
