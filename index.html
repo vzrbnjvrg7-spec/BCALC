@@ -232,14 +232,14 @@ function bCalc_calc() {
     }
     var cVel = vel * Math.sqrt(1 / ratio);
     var actualFpe = (wt * vel * vel) / 450436;
-    var adjustedFpe = (wt * cVel * cVel) / 450436;
+    var slEquivFpe = (wt * cVel * cVel) / 450436;
 
     document.getElementById('b-d-res').innerHTML = 
         '<b style="font-size:1.3em;">' + actualFpe.toFixed(2) + ' ft-lbs [Actual]</b><br>' +
-        '<span style="font-size:1.1em; color:#a5d6ff;">' + adjustedFpe.toFixed(2) + ' ft-lbs [Adjusted]</span><br>' +
-        '<span style="font-size:0.65em; color:#aaa;">Actual: ' + vel.toFixed(0) + ' fps | Adj: ' + cVel.toFixed(0) + ' fps</span>';
+        '<span style="font-size:1.1em; color:#a5d6ff;">' + slEquivFpe.toFixed(2) + ' ft-lbs [SL Equiv]</span><br>' +
+        '<span style="font-size:0.65em; color:#aaa;">Actual: ' + vel.toFixed(0) + ' fps | SL Equiv: ' + cVel.toFixed(0) + ' fps</span>';
 
-    return { wt: wt, actualVel: vel, adjustedVel: cVel };
+    return { wt: wt, actualVel: vel, slEquivVel: cVel };
 }
 
 document.getElementById('b-btn-calc').onclick = bCalc_calc;
@@ -249,7 +249,7 @@ document.getElementById('b-btn-copy').onclick = function() {
     var res = bCalc_calc(); if (!res) return;
 
     var actualFpe = (wt * res.actualVel * res.actualVel) / 450436;
-    var adjustedFpe = (wt * res.adjustedVel * res.adjustedVel) / 450436;
+    var slEquivFpe = (wt * res.slEquivVel * res.slEquivVel) / 450436;
     var bc = parseFloat(gs('b-i-bc')) || 0.2;
 
     var text = 'B-CALC v1.1\n';
@@ -258,8 +258,8 @@ document.getElementById('b-btn-copy').onclick = function() {
     text += 'BC: ' + bc + '\n\n';
     text += '--- Energy ---\n';
     text += 'Actual: ' + actualFpe.toFixed(2) + ' ft-lbs\n';
-    text += 'Adjusted: ' + adjustedFpe.toFixed(2) + ' ft-lbs\n';
-    text += 'Adj Vel: ' + res.adjustedVel.toFixed(0) + ' fps';
+    text += 'SL Equiv: ' + slEquivFpe.toFixed(2) + ' ft-lbs\n';
+    text += 'SL Equiv Vel: ' + res.slEquivVel.toFixed(0) + ' fps';
 
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
