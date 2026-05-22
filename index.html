@@ -231,9 +231,15 @@ function bCalc_calc() {
         if (!isNaN(H)) { ratio *= (1 - (H / 100 * 0.003)); }
     }
     var cVel = vel * Math.sqrt(1 / ratio);
-    var fpe = (wt * cVel * cVel) / 450436;
-    document.getElementById('b-d-res').innerHTML = '<b style="font-size:1.5em;">' + fpe.toFixed(2) + ' ft-lbs</b><br><span style="font-size:0.6em; color:#aaa;">Adj Vel: ' + cVel.toFixed(0) + ' fps</span>';
-    return { wt: wt, vel: cVel };
+    var actualFpe = (wt * vel * vel) / 450436;
+    var adjustedFpe = (wt * cVel * cVel) / 450436;
+
+    document.getElementById('b-d-res').innerHTML = 
+        '<b style="font-size:1.3em;">' + actualFpe.toFixed(2) + ' ft-lbs [Actual]</b><br>' +
+        '<span style="font-size:1.1em; color:#a5d6ff;">' + adjustedFpe.toFixed(2) + ' ft-lbs [Adjusted]</span><br>' +
+        '<span style="font-size:0.65em; color:#aaa;">Actual: ' + vel.toFixed(0) + ' fps | Adj: ' + cVel.toFixed(0) + ' fps</span>';
+
+    return { wt: wt, actualVel: vel, adjustedVel: cVel };
 }
 
 document.getElementById('b-btn-calc').onclick = bCalc_calc;
@@ -241,27 +247,43 @@ document.getElementById('b-btn-copy').onclick = function() {
     var wt = gv('b-i-wt'); var vel = gv('b-i-vel');
     if (isNaN(wt) || isNaN(vel)) return;
     var res = bCalc_calc(); if (!res) return;
-    var fpe = (wt * res.vel * res.vel) / 450436;
+
+    var actualFpe = (wt * res.actualVel * res.actualVel) / 450436;
+    var adjustedFpe = (wt * res.adjustedVel * res.adjustedVel) / 450436;
     var bc = parseFloat(gs('b-i-bc')) || 0.2;
-    var text = 'B-CALC\nWeight: ' + wt.toFixed(2) + 'gr\nVel: ' + vel.toFixed(0) + 'fps (Adj: ' + res.vel.toFixed(0) + ')\nBC: ' + bc + '\nFPE: ' + fpe.toFixed(2);
-    navigator.clipboard.writeText(text).then(() => showToast('Copied!'));
+
+    var text = 'B-CALC v1.1\n';
+    text += 'Weight: ' + wt.toFixed(2) + 'gr\n';
+    text += 'Muzzle Vel: ' + res.actualVel.toFixed(0) + ' fps (Actual)\n';
+    text += 'BC: ' + bc + '\n\n';
+    text += '--- Energy ---\n';
+    text += 'Actual: ' + actualFpe.toFixed(2) + ' ft-lbs\n';
+    text += 'Adjusted: ' + adjustedFpe.toFixed(2) + ' ft-lbs\n';
+    text += 'Adj Vel: ' + res.adjustedVel.toFixed(0) + ' fps';
+
+    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
 document.getElementById('b-btn-go').onclick = function() {
     var data = bCalc_calc(); if (!data) return;
     var maxYards = parseInt(gs('b-i-range')) || 500;
-    var g = 32.17 * 12; var container = document.getElementById('b-traj-container');
+    var g = 32.17 * 12; 
+    var container = document.getElementById('b-traj-container');
     var step = maxYards < 50 ? Math.max(1, Math.floor(maxYards / 5)) : 10;
-    var html = '<table class="traj-table"><thead><tr><th style="width:40%">Dist</th><th style="width:30%">FPE</th><th style="width:30%">Drop</th></tr></thead><tbody>';
+    var html = '<table class="traj-table"><thead><tr><th style="width:35%">Dist</th><th style="width:20%">FPE (Adj)</th><th style="width:25%">Drop</th></tr></thead><tbody>';
+
     for (var y = 0; y <= maxYards; y += step) {
-        var distFt = y * 3; var t = distFt / data.vel;
+        var distFt = y * 3; 
+        var t = distFt / data.adjustedVel;
         var dropInches = 0.5 * g * t * t;
         var bc = parseFloat(gs('b-i-bc')) || 0.2;
         var dragFactor = 0.0001 / bc;
-        var velAtY = data.vel * Math.exp(-dragFactor * distFt);
+        var velAtY = data.adjustedVel * Math.exp(-dragFactor * distFt);
         var fpeAtY = (data.wt * velAtY * velAtY) / 450436;
-        html += '<tr><td>' + y + 'y</td><td>' + fpeAtY.toFixed(1) + '</td><td>' + dropInches.toFixed(2) + '"</td></tr>';
+        html += '<tr><td>' + y + 'y</td><td style="width:35%">' + fpeAtY.toFixed(1) + '</td><td>' + dropInches.toFixed(2) + '"</td></tr>';
     }
-    html += '</tbody></table>'; container.innerHTML = html;
+
+    html += '</tbody></table>'; 
+    container.innerHTML = html;
 };
 
 // --- T-CALC LOGIC (Namespaced) ---
@@ -333,24 +355,56 @@ document.getElementById('t-btn-calc').onclick = function() {
     var t1 = tCalc_calc(''); 
     var t2 = tCalc_calc('2');
 
+    // Update visualizer with both tires if available
     if (t1 && t2) {
         updateViz(t1.dia, t2.dia, t1.width, t2.width);
+    } else if (t1) {
+        updateViz(t1.dia, 0, t1.width, '0');
     }
 
-    if (!t1 || !t2) return;
-    
-    var ref = t1.isMetric ? t1 : t2;
-    var other = ref.isMetric ? t2 : t1;
-    
-    var diffDia = other.dia - ref.dia; 
-    var unitLabel = '"';
-    var diffPerc = (diffDia / ref.dia) * 100;
-    var diffRev = other.revs - ref.revs;
+    // Clear and build comparison table (regardless if both entered)
+    var body = document.getElementById('t-r-comp'); 
+    body.innerHTML = '';
+    if (t1) {
+        var row = document.createElement('tr');
+        row.innerHTML = '<td>' + t1.label + '</td><td>' + t1.dia.toFixed(2) + '"</td><td>' + t1.circ.toFixed(1) + '"</td><td>' + Math.round(t1.revs) + '</td>';
+        body.appendChild(row);
 
-    document.getElementById('t-d-res').innerHTML = '<b style="font-size:1.2em;">Difference</b>';
-    document.getElementById('t-d-stats').innerHTML = 
-        'Dia: ' + (diffDia > 0 ? '+' : '') + diffDia.toFixed(2) + '" (' + (diffPerc > 0 ? '+' : '') + diffPerc.toFixed(1) + '%)\n' +
-        'Rev/Mi: ' + (diffRev > 0 ? '+' : '') + Math.round(diffRev);
+        if (document.getElementById('t-d-res').innerHTML.indexOf('Single') !== -1) {
+            document.getElementById('t-d-res').innerHTML = 'Enter second tire';
+        }
+    }
+    if (t2) {
+        var row = document.createElement('tr');
+        row.innerHTML = '<td>' + t2.label + '</td><td>' + t2.dia.toFixed(2) + '"</td><td>' + t2.circ.toFixed(1) + '"</td><td>' + Math.round(t2.revs) + '</td>';
+        body.appendChild(row);
+
+        if (document.getElementById('t-d-res').innerHTML.indexOf('Single') !== -1) {
+            document.getElementById('t-d-res').innerHTML = 'Enter second tire';
+        }
+    }
+
+    // Show summary comparison if both tires are entered
+    if (t1 && t2) {
+        var ref = t1.isMetric ? t1 : t2;
+        var other = ref.isMetric ? t2 : t1;
+
+        var diffDia = other.dia - ref.dia;
+        var unitLabel = '"';
+        var diffPerc = (diffDia / ref.dia) * 100;
+        var diffRev = other.revs - ref.revs;
+
+        document.getElementById('t-d-res').innerHTML = '<b style="font-size:1.2em;">Difference</b>';
+        document.getElementById('t-d-stats').innerHTML = 
+            'Dia: ' + (diffDia > 0 ? '+' : '') + diffDia.toFixed(2) + '" (' + (diffPerc > 0 ? '+' : '') + diffPerc.toFixed(1) + '%)\n' +
+            'Rev/Mi: ' + (diffRev > 0 ? '+' : '') + Math.round(diffRev);
+    } else if (t1) {
+        document.getElementById('t-d-res').innerHTML = '<b style="font-size:1.2em;">Single Tire</b>';
+        document.getElementById('t-d-stats').innerHTML = 'Enter second tire for comparison';
+    } else {
+        document.getElementById('t-d-res').innerHTML = 'Enter dimensions';
+        document.getElementById('t-d-stats').innerHTML = '';
+    }
 };
 
 document.getElementById('t-btn-copy').onclick = function() {
