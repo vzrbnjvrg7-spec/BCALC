@@ -109,7 +109,7 @@
 
 <div class="nav-header">
     <button id="nav-toggle" class="nav-btn">T-CALC</button>
-</div>
+</div >
 
 <div class="wrap">
     <!-- B-CALC VIEW -->
@@ -259,7 +259,24 @@ document.getElementById('b-btn-copy').onclick = function() {
     text += '--- Energy ---\n';
     text += 'Actual: ' + actualFpe.toFixed(2) + ' ft-lbs\n';
     text += 'SL Equiv: ' + slEquivFpe.toFixed(2) + ' ft-lbs\n';
-    text += 'SL Equiv Vel: ' + res.slEquivVel.toFixed(0) + ' fps';
+    text += 'SL Equiv Vel: ' + res.slEquivVel.toFixed(0) + ' fps\n\n';
+    text += '--- Trajectory ---\n';
+
+    var g = 32.17 * 12;
+    var bc_val = parseFloat(gs('b-i-bc')) || 0.2;
+    var dragFactor = 0.0001 / bc_val;
+
+    function getTrajLine(yards) {
+        var distFt = yards * 3;
+        var velAtY = res.actualVel * Math.exp(-dragFactor * distFt);
+        var t = distFt / velAtY;
+        var dropInches = 0.5 * g * t * t;
+        var fpeAtY = (wt * velAtY * velAtY) / 450436;
+        return yards + 'y: ' + fpeAtY.toFixed(1) + ' ft-lbs, ' + dropInches.toFixed(2) + '" drop';
+    }
+
+    text += getTrajLine(0) + '\n';
+    text += getTrajLine(100);
 
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
@@ -273,13 +290,13 @@ document.getElementById('b-btn-go').onclick = function() {
 
     for (var y = 0; y <= maxYards; y += step) {
         var distFt = y * 3; 
-        var t = distFt / data.adjustedVel;
-        var dropInches = 0.5 * g * t * t;
         var bc = parseFloat(gs('b-i-bc')) || 0.2;
         var dragFactor = 0.0001 / bc;
-        var velAtY = data.adjustedVel * Math.exp(-dragFactor * distFt);
+        var velAtY = data.actualVel * Math.exp(-dragFactor * distFt);
+        var t = distFt / velAtY;
+        var dropInches = 0.5 * g * t * t;
         var fpeAtY = (data.wt * velAtY * velAtY) / 450436;
-        html += '<tr><td>' + y + 'y</td><td style="width:35%">' + fpeAtY.toFixed(1) + '</td><td>' + dropInches.toFixed(2) + '"</td></tr>';
+        html += '<tr><td>' + y + 'y</td><td style="width:35%">' + fpeAtY.toFixed(1) + '</td><td style="width:25%">' + dropInches.toFixed(2) + '"</td></tr>';
     }
 
     html += '</tbody></table>'; 
@@ -367,7 +384,7 @@ document.getElementById('t-btn-calc').onclick = function() {
     body.innerHTML = '';
     if (t1) {
         var row = document.createElement('tr');
-        row.innerHTML = '<td>' + t1.label + '</td><td>' + t1.dia.toFixed(2) + '"</td><td>' + t1.circ.toFixed(1) + '"</td><td>' + Math.round(t1.revs) + '</td>';
+        row.innerHTML = '<td>' + t1.label + '</td><td style="width:20%">' + t1.dia.toFixed(2) + '"</td><td style="width:20%">' + t1.circ.toFixed(1) + '"</td><td style="width:20%">' + Math.round(t1.revs) + '</td>';
         body.appendChild(row);
 
         if (document.getElementById('t-d-res').innerHTML.indexOf('Single') !== -1) {
@@ -376,7 +393,7 @@ document.getElementById('t-btn-calc').onclick = function() {
     }
     if (t2) {
         var row = document.createElement('tr');
-        row.innerHTML = '<td>' + t2.label + '</td><td>' + t2.dia.toFixed(2) + '"</td><td>' + t2.circ.toFixed(1) + '"</td><td>' + Math.round(t2.revs) + '</td>';
+        row.innerHTML = '<td>' + t2.label + '</td><td style="width:20%">' + t2.dia.toFixed(2) + '"</td><td style="width:20%">' + t2.circ.toFixed(1) + '"</td><td style="width:20%">' + Math.round(t2.revs) + '</td>';
         body.appendChild(row);
 
         if (document.getElementById('t-d-res').innerHTML.indexOf('Single') !== -1) {
