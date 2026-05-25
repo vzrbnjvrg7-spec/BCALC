@@ -1,125 +1,99 @@
-<!-- STATE 5/2026 - BT CALC v1.1 -->
+<!-- STATE 5/2026 - SWAT CALC v1.3 (refined) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>BT Calc v1.1</title>
+    <title>SWAT CALC</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            background: #181818; 
-            color: #fff; 
-            font-weight: 600;
-            margin: 0;
-            padding: 0; 
-            height: 100vh; 
-            width: 100vw;
-            overflow: hidden;
-        }
-        .wrap { 
-            max-width: 560px; 
-            margin: 0 auto; 
-            height: 100%;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding: 12px;
-            padding-top: calc(50px + env(safe-area-inset-top)); 
-            padding-bottom: calc(40px + env(safe-area-inset-bottom));
-        }
-
-        /* Navigation */
-        .nav-header { position: fixed; top: 10px; right: 15px; z-index: 1000; }
-        .nav-btn { 
-            background: rgba(116, 192, 252, 0.15); 
-            color: #74c0fc; 
-            border: 1px solid rgba(116, 192, 252, 0.4); 
-            padding: 8px 16px;
-            border-radius: 6px; 
-            font-size: 0.85em;
-            cursor: pointer; 
-        }
-
-        /* View Management */
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #181818; color: #fff; font-weight: 600; margin: 0; padding: 0; height: 100vh; width: 100vw; overflow: hidden; font-size: 16px; }
+        .wrap { max-width: 560px; margin: 0 auto; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px; padding-top: calc(50px + env(safe-area-inset-top)); padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
+        .nav-header { position: fixed; top: 10px; right: 15px; z-index: 1000; width: auto }
+        .nav-btn { background: rgba(116, 192, 252, 0.15); color: #74c0fc; border: 1px solid rgba(116, 192, 252, 0.4); padding: 8px 12px; border-radius: 6px; font-size: 0.9em; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation }
         .view { display: none; width: 100%; }
         .view.active { display: block; }
-
-        /* Typography */
         h2 { text-align: center; color: #74c0fc; margin-bottom: 12px; font-size: 1.4em; }
         h3 { margin-top: 15px; font-size: 0.9em; color: #aaa; }
-
-        /* Form Elements */
         .row { display: flex; gap: 8px; margin-bottom: 10px; }
-        .col { flex: 1; }
-        label { display: block; font-size: 0.7em; color: #aaa; margin-bottom: 3px; }
-        input[type="number"], input[type="text"] { 
-            width: 100%; padding: 12px; border-radius: 6px; 
-            border: 1px solid #444; background: #2a2a2a; 
-            color: #fff; font-size: 16px; -webkit-appearance: none; 
-        }
-        input::placeholder { color: #555; }
-
-        /* Buttons */
-        .btn { 
-            padding: 14px; border-radius: 6px; border: none; 
-            font-weight: 700; cursor: pointer; color: #fff; 
-            width: 100%; margin-top: 8px; font-size: 1em;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
+        .col { flex: 1; min-width: 0; }
+        label { display: block; font-size: 0.85em; color: #aaa; margin-bottom: 4px; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #444; background: #2a2a2a; color: #fff; font-size: 16px; -webkit-appearance: none; touch-action: manipulation; }
+        input[type="number"] { -moz-appearance:textfield; }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        select { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #444; background: #2a2a2a; color: #fff; font-size: 16px; -webkit-appearance: none; touch-action: manipulation; }
+        .btn { padding: 14px; border-radius: 6px; border: none; font-weight: 700; cursor: pointer; color: #fff; width: 100%; margin-top: 8px; font-size: 1em; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         .btn:active { transform: scale(0.98); opacity: 0.85; }
         .btn-copy { background: #5a5a5a; margin-bottom: 10px; }
         .btn-calc { background: #1c7ed6; }
         .btn-graph { background: #40c057; margin-top: 6px; }
         .btn-compare { background: #fab005; color: #000; }
-
-        /* Result Displays */
-        .result-box { background: #0c2d48; padding: 16px; border-radius: 6px; text-align: center; font-size: 1.2em; margin-top: 14px; color: #a5d6ff; min-height: 60px; }
-
-        /* Toast */
+        .result-box { background: #0c2d48; padding: 16px; border-radius: 6px; text-align: center; font-size: 1.2em; margin-top: 14px; color: #a5d6ff; min-height: 60px; word-break: break-word; }
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #40c057; color: #fff; padding: 12px 24px; border-radius: 6px; font-weight: 700; display: none; z-index: 2000; }
-
-        /* B-CALC Specific */
-        .traj-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.75em; }
-        .traj-table th { background: #2a2a2a; color: #aaa; padding: 8px; text-align: left; }
-        .traj-table td { padding: 8px; border-bottom: 1px solid #333; }
-        .traj-table tr.highlight td { background: #0b3d66; color: #a5d6ff; }
-
-        /* T-CALC Specific */
-        .viz-container { margin-top: 20px; background: #2a2a2a; padding: 20px; border-radius: 12px; display: flex; justify-content: center; align-items: center; height: 220px; position: relative; overflow: hidden; }
+        .traj-table, .comp-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.85em; }
+        .traj-table th, .comp-table th { background: #2a2a2a; color: #aaa; padding: 8px; text-align: left; }
+        .traj-table td, .comp-table td { padding: 8px; border-bottom: 1px solid #333; }
+        .viz-container { margin-top: 20px; background: #2a2a2a; padding: 20px; border-radius: 12px; display: flex; justify-content: center; align-items: center; height: 250px; position: relative; overflow: hidden; }
         .tire-layer { border-radius: 50%; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; position: absolute; }
         .tire-primary { border: 12px solid #333; z-index: 2; }
         .tire-secondary { border: 8px dashed #74c0fc; opacity: 0.6; z-index: 1; }
         .tire-rim { width: 40%; height: 40%; background: #666; border-radius: 50%; border: 4px solid #888; }
-        .tire-label { position: absolute; bottom: 10px; font-size: 0.7em; color: #aaa; width: 100%; text-align: center; }
-        .comp-section { margin-top: 20px; }
-        .comp-table { width: 100%; border-collapse: collapse; font-size: 0.75em; margin-top: 10px; }
-        .comp-table th { background: #2a2a2a; color: #aaa; padding: 8px; text-align: left; }
-        .comp-table td { padding: 8px; border-bottom: 1px solid #333; }
-        .comp-table tr.active td { background: #0b3d66; color: #a5d6ff; }
+        .tire-label { position: absolute; bottom: 10px; font-size: 0.85em; color: #aaa; text-align: center; width: 100%; }
+        .truth-table-container { overflow-x: auto; margin-top: 10px; border: 1px solid #444; }
+        .truth-table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        .truth-table th, .truth-table td { border: 1px solid #444; padding: 6px; text-align: center; }
+        .truth-table tr.highlight { background: #0b3d66; color: #a5d6ff; }
+        .complexity-box { background: #2a2a2a; padding: 10px; border-radius: 6px; margin-top: 8px; font-size: 0.9em; }
+        .comp-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #444; }
+        .comp-label { color: #aaa; }
+        .comp-value { color: #74c0fc; font-weight: 700; }
+        .prime-imp { padding: 6px 10px; margin-top: 4px; background: #1c4a2d; border-left: 3px solid #40c057; font-size: 0.9em; color: #40c057; word-break: break-word; }
+        .history-box { background: #2a2a2a; padding: 8px; border-radius: 6px; margin-top: 8px; max-height: 120px; overflow-y: auto; font-size: 0.85em; }
+        .hist-item { padding: 4px 0; border-bottom: 1px solid #444; color: #aaa; cursor: pointer; }
+        .hist-item:hover { color: #74c0fc; }
+        .row-cya-conv { display: none; }
+        .row-cya-conv.visible { display: flex; }
+
+        details summary { list-style: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+        details summary::-webkit-details-marker { display: none; }
+        details summary::before { content: '▸ '; color: #74c0fc; }
+        details[open] summary::before { content: '▾ '; }
+
+        /* Calculator Navigation Bar */
+        .calc-nav { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+        .calc-nav-btn { padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(116, 192, 252, 0.4); background: rgba(116, 192, 252, 0.1); color: #74c0fc; font-size: 0.8em; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: all 0.15s ease; min-width: 48px; }
+        .calc-nav-btn:hover, .calc-nav-btn.active { background: rgba(116, 192, 252, 0.25); color: #fff; }
+        .calc-nav-btn:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
-
+<!-- Legacy nav-header (replaced by per-view calc-nav rows) -->
+<!--
 <div class="nav-header">
-    <button id="nav-toggle" class="nav-btn">T-CALC</button>
-</div >
-
+    <button id="nav-toggle" class="nav-btn">A-CALC</button>
+</div>
+-->
 <div class="wrap">
-    <!-- B-CALC VIEW -->
+
+    <!-- B-CALC -->
     <div id="view-bcalc" class="view active">
-        <h2>B-CALC v1.0</h2>
+        <nav class="calc-nav">
+            <button class="calc-nav-btn" data-view="scalc">S</button>
+            <button class="calc-nav-btn" data-view="wcalc">W</button>
+            <button class="calc-nav-btn" data-view="acalc">A</button>
+            <button class="calc-nav-btn" data-view="tcalc">T</button>
+            <button class="calc-nav-btn" data-view="pcalc">P</button>
+            <button class="calc-nav-btn active" data-view="bcalc">B</button>
+        </nav>
+        <h2>B-CALC v1.2</h2>
         <button class="btn btn-copy" id="b-btn-copy">Copy Result</button>
-        <div class="row"><div class="col"><label>Weight (gr)</label><input type="number" id="b-i-wt" value="35" inputmode="decimal"></div></div>
-        <div class="row"><div class="col"><label>Velocity (fps)</label><input type="number" id="b-i-vel" value="4000" inputmode="decimal"></div></div>
-        <div class="row"><label>BC (G1)</label><input type="number" id="b-i-bc" value="0.2" inputmode="decimal"></div>
-        <h3>Atmosphere</h3>
+        <div class="row"><div class="col"><label>Weight (gr)</label><input type="number" id="b-i-wt" inputmode="decimal" value="35"></div></div>
+        <div class="row"><div class="col"><label>Velocity (fps)</label><input type="number" id="b-i-vel" inputmode="decimal" value="4000"></div></div>
+        <div class="row"><label>BC (G1)</label><input type="number" id="b-i-bc" inputmode="decimal" value="0.2"></div>
+        <h3 style="margin-top:15px;">Atmosphere</h3>
         <div class="row">
             <div class="col"><label>Temp (°F)</label><input type="number" id="b-i-temp" value="70" inputmode="decimal"></div>
             <div class="col"><label>Alt (ft)</label><input type="number" id="b-i-alt" value="4600" inputmode="decimal"></div>
@@ -135,364 +109,2174 @@
         <div id="b-traj-container"></div>
     </div>
 
-    <!-- T-CALC VIEW -->
-    <div id="view-tcalc" class="view">
-        <h2>T-CALC v1.0</h2>
-        <button class="btn btn-copy" id="t-btn-copy">Copy Data</button>
-    <div class="row"><div class="col"><label>Overall Diameter (in)</label><input type="number" id="t-i-width" placeholder="e.g. 35 or 245mm" inputmode="decimal"></div></div>
-    <div class="row"><div class="col"><label>Tire Width (in) / Aspect (%)</label><input type="number" id="t-i-aspect" placeholder="e.g. 12.5 or 40" inputmode="decimal"></div></div>
-    <div class="row"><div class="col"><label>Rim Diameter (in)</label><input type="number" id="t-i-rim" placeholder="e.g. 17" inputmode="decimal"></div></div>
+    <!-- A-CALC -->
+    <div id="view-acalc" class="view">
+        <nav class="calc-nav">
+            <button class="calc-nav-btn" data-view="scalc">S</button>
+            <button class="calc-nav-btn" data-view="wcalc">W</button>
+            <button class="calc-nav-btn active" data-view="acalc">A</button>
+            <button class="calc-nav-btn" data-view="tcalc">T</button>
+            <button class="calc-nav-btn" data-view="pcalc">P</button>
+            <button class="calc-nav-btn" data-view="bcalc">B</button>
+        </nav>
+        <h2>A-CALC v1.2</h2>
+        <button class="btn btn-copy" id="a-btn-copy">Copy Result</button>
+        <div class="row"><div class="col"><label>Expression (e.g. AB or A ` B or !A)</label><input type="text" id="a-i-expr" placeholder="AB or A ^ B or !A"></div></div>
+        <h3 style="margin-top:15px;">Syntax Reference (per grammar)</h3>
+        <table class="truth-table">
+            <thead><tr><th style="width:30px;">#</th><th>Operation</th><th>Syntax</th><th>Grammar Rule</th></tr></thead>
+            <tbody id="input-ref-body">
+                <tr><td>1</td><td>Parentheses</td><td style="color:#a5d6ff">(expr)</td><td>primary := "(" expr ")"</td></tr>
+                <tr><td>2</td><td>VARIABLE</td><td style="color:#a5d6ff">A, B, C...</td><td>primary := VARIABLE</td></tr>
+                <tr><td>3</td><td>NOT (prefix)</td><td style="color:#a5d6ff">!A, ~A, NOT A</td><td>unary := NOT unary</td></tr>
+                <tr><td>4</td><td>NOT (postfix)</td><td style="color:#a5d6ff">A'</td><td>unary := primary "'"</td></tr>
+                <tr><td>5</td><td>AND (explicit)</td><td style="color:#a5d6ff">A & B</td><td>and_expr := unary "&" unary</td></tr>
+                <tr><td>6</td><td>AND (implicit)</td><td style="color:#a5d6ff">AB</td><td>and_expr := unary unary (adjacent)</td></tr>
+                <tr><td>7</td><td>XOR</td><td style="color:#a5d6ff">A ^ B, XOR(A,B)</td><td>xor_expr := and_expr "^" and_expr</td></tr>
+                <tr><td>8</td><td>OR</td><td style="color:#a5d6ff">A ` B (backtick)</td><td>or_expr := xor_expr "`" xor_expr</td></tr>
+                <tr><td>9</td><td>Implication</td><td style="color:#a5d6ff">A -> B (right-assoc)</td><td>implication := or_expr "->" implication</td></tr>
+                <tr><td>10</td><td>Functions</td><td style="color:#a5d6ff">NAND(A,B), NOR(A,B)</td><td>primary := FUNCTION</td></tr>
+            </tbody>
+        </table>
+        <div style="font-size:0.8em;color:#aaa;margin-top:6px;line-height:1.5;">
+            Precedence (high to low): () → NOT (~,!,NOT,A') → AND (& + implicit) → XOR (^) → OR (`) → Implication (->). Up to 6 variables.
+        </div>
+        <button class="btn btn-calc" id="a-btn-eval">Evaluate</button>
+        <h3 style="margin-top:15px;">Simplified Result (DNF)</h3>
+        <div class="result-box" id="a-d-simp" style="font-size: 1em; text-align: left;">Enter expression</div>
+        <h3 style="margin-top:15px;">Truth Table</h3>
+        <div class="result-box" id="a-d-res" style="font-size: 1em; text-align: left;">Enter expression</div>
+        <div id="a-table-container" class="truth-table-container"></div>
+        <h3 style="margin-top:15px;">Complexity Analysis</h3>
+        <div class="complexity-box" id="a-complexity"></div>
+        <h3 style="margin-top:15px;">Logic Circuit Structure</h3>
+        <div class="complexity-box" id="a-circuit"></div>
+        <h3 style="margin-top:15px;">Prime Implicants</h3>
+        <div id="a-prime-implicants"></div>
+        <h3 style="margin-top:15px;">History</h3>
+        <div class="history-box" id="a-history"></div>
+    </div>
 
-    <h3 style="margin-top:15px;">Comparison Tire</h3>
-    <div class="row"><div class="col"><label>Overall Diameter (in)</label><input type="number" id="t-i-width2" placeholder="e.g. 37 or 245mm" inputmode="decimal"></div></div>
-    <div class="row"><div class="col"><label>Tire Width (in) / Aspect (%)</label><input type="number" id="t-i-aspect2" placeholder="e.g. 12.5 or 40" inputmode="decimal"></div></div>
-    <div class="row"><div class="col"><label>Rim Diameter (in)</label><input type="number" id="t-i-rim2" placeholder="e.g. 17" inputmode="decimal"></div></div>
+    <!-- T-CALC -->
+    <div id="view-tcalc" class="view">
+        <nav class="calc-nav">
+            <button class="calc-nav-btn" data-view="scalc">S</button>
+            <button class="calc-nav-btn" data-view="wcalc">W</button>
+            <button class="calc-nav-btn" data-view="acalc">A</button>
+            <button class="calc-nav-btn active" data-view="tcalc">T</button>
+            <button class="calc-nav-btn" data-view="pcalc">P</button>
+            <button class="calc-nav-btn" data-view="bcalc">B</button>
+        </nav>
+        <h2>T-CALC v1.2</h2>
+        <button class="btn btn-copy" id="t-btn-copy">Copy Data</button>
+        <div class="row"><div class="col"><label>Tire Width (inches) — or AT size like 33x12.5</label><input type="text" id="t-i-width" placeholder='35 or 33x12.5' value='35'></div></div>
+        <div class="row"><div class="col"><label>Aspect Ratio (%)</label><input type="number" id="t-i-aspect" placeholder='0 for AT' value='0' min="15" max="90" step="any"></div></div>
+        <div class="row"><div class="col"><label>Rim Diameter (inches)</label><input type="number" id="t-i-rim" placeholder='17' value='17' min="0" step="any"></div></div>
+        <h3 style="margin-top:15px;">Comparison Tire</h3>
+        <div class="row"><div class="col"><label>Tire Width (inches) — or AT size like 37x12.5</label><input type="text" id="t-i-width2" placeholder='37 or 37x12.5' value='37'></div></div>
+        <div class="row"><div class="col"><label>Aspect Ratio (%)</label><input type="number" id="t-i-aspect2" placeholder='0 for AT' value='0' min="15" max="90" step="any"></div></div>
+        <div class="row"><div class="col"><label>Rim Diameter (inches)</label><input type="number" id="t-i-rim2" placeholder='17' value='17' min="0" step="any"></div></div>
         <button class="btn btn-calc" id="t-btn-calc">Calculate</button>
         <button class="btn btn-compare" id="t-btn-compare">Compare Two Tires</button>
-        <div class="result-box" id="t-d-res">Enter dimensions</div>
-        <div class="result-box" id="t-d-stats" style="font-size: 0.8em; min-height: 40px; background: transparent; color: #aaa;"></div>
-    <div class="viz-container">
-        <div id="t-tire-primary" class="tire-layer tire-primary"><div class="tire-rim"></div></div>
-        <div id="t-tire-secondary" class="tire-layer tire-secondary"><div class="tire-rim"></div></div>
-        <div class="tire-label" id="t-viz-label">Tire Comparison</div>
-    </div>
-        <div class="comp-section">
-            <h3>Live Comparison</h3>
-            <table class="comp-table" id="t-comp-table">
-                <thead><tr><th style="width:40%">Tire</th><th style="width:20%">Dia</th><th style="width:20%">Circ.</th><th style="width:20%">Rev/Mi</th></tr></thead>
-                <tbody id="t-r-comp"></tbody>
-            </table>
+        <div class="result-box" id="t-d-res">Enter tire sizes</div>
+        <div class="result-box" id="t-d-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
+        <h3 style="margin-top:15px;">Comparison Summary</h3>
+        <div class="result-box" id="t-d-comp" style="font-size: 0.9em; text-align: left;"></div>
+        <table class="comp-table" id="t-comp-table">
+            <thead><tr><th></th><th>Diameter</th><th>Circumference</th><th>Rev/Mi</th></tr></thead>
+            <tbody id="t-r-comp"></tbody>
+        </table>
+        <div class="viz-container">
+            <div id="t-tire-primary" class="tire-layer tire-primary"><div class="tire-rim"></div></div>
+            <div id="t-tire-secondary" class="tire-layer tire-secondary"><div class="tire-rim"></div></div>
+            <div class="tire-label" id="t-viz-label">Tire Comparison</div>
         </div>
     </div>
-</div>
+
+    <!-- S-CALC -->
+    <div id="view-scalc" class="view">
+        <nav class="calc-nav">
+            <button class="calc-nav-btn active" data-view="scalc">S</button>
+            <button class="calc-nav-btn" data-view="wcalc">W</button>
+            <button class="calc-nav-btn" data-view="acalc">A</button>
+            <button class="calc-nav-btn" data-view="tcalc">T</button>
+            <button class="calc-nav-btn" data-view="pcalc">P</button>
+            <button class="calc-nav-btn" data-view="bcalc">B</button>
+        </nav>
+        <h2>S-CALC v1.3</h2>
+        <button class="btn btn-copy" id="s-btn-copy">Copy Result</button>
+        <h3 style="margin-top:15px;">Servo Torque</h3>
+        <div class="row">
+            <div class="col"><label>Stall Torque (in-lbf)</label><input type="number" id="s-i-torque" placeholder="e.g. 250" value="250"></div>
+            <div class="col"><label>Arm Length (in)</label><input type="number" id="s-i-arm" placeholder="e.g. 2.5" value="2.5"></div>
+        </div>
+        <div class="row">
+            <div class="col"><label>Continuous Torque (in-lbf, optional)</label><input type="number" id="s-i-contTorque" placeholder="e.g. 80 (leave blank if unknown)" value=""></div>
+            <div class="col"><label>Linkage Ratio (output force : servo force)</label><input type="number" id="s-i-ma" placeholder="e.g. 1 (direct drive)" value="1"></div>
+        </div>
+        <h3 style="margin-top:15px;">Joint Moment (auto)</h3>
+        <div class="row">
+            <div class="col"><label>Horn / Bracket Moment Rating (in-lbf, optional)</label><input type="number" id="s-i-momentRating" placeholder="e.g. 500 (leave blank if unknown)" value=""></div>
+        </div>
+        <h3 style="margin-top:15px;">Structural Stress Analysis</h3>
+        <div class="row">
+            <div class="col"><label>Material</label><select id="s-i-material">
+                <option value="steel" data-yld="36000">Steel (36 ksi)</option>
+                <option value="aluminum" data-yld="35000">Aluminum (35 ksi)</option>
+                <option value="titanium" data-yld="130000" selected>Titanium (130 ksi)</option>
+                <option value="brass" data-yld="20000">Brass (20 ksi)</option>
+                <option value="abs" data-yld="7000">ABS Plastic (7 ksi)</option>
+                <option value="pla" data-yld="10000">PLA 3D Print (10 ksi)</option>
+            </select></div>
+            <div class="col"><label>Cross Section Area (in²)</label><input type="number" id="s-i-crosssec" placeholder="e.g. 0.25" value="0.25"></div>
+        </div>
+        <div class="row">
+            <div class="col"><label>Bending Moment (in-lbf)</label><input type="number" id="s-i-bend" placeholder="auto = F × r (editable)" value="0"></div>
+            <div class="col"><label>Section Modulus (in³)</label><input type="number" id="s-i-smod" placeholder="e.g. 0.05 (rect: bd²/6)" value="0" step="any"></div>
+        </div>
+        <button class="btn btn-calc" id="s-btn-calc">Calculate</button>
+        <div class="result-box" id="s-d-res">Enter values</div>
+        <div class="result-box" id="s-d-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
+    </div>
+
+    <!-- W-CALC -->
+    <div id="view-wcalc" class="view">
+        <nav class="calc-nav">
+            <button class="calc-nav-btn" data-view="scalc">S</button>
+            <button class="calc-nav-btn active" data-view="wcalc">W</button>
+            <button class="calc-nav-btn" data-view="acalc">A</button>
+            <button class="calc-nav-btn" data-view="tcalc">T</button>
+            <button class="calc-nav-btn" data-view="pcalc">P</button>
+            <button class="calc-nav-btn" data-view="bcalc">B</button>
+        </nav>
+        <h2>W-CALC v1.3</h2>
+        <button class="btn btn-copy" id="w-btn-copy">Copy Heat Input</button>
+        <h3 style="margin-top:15px;">Weld Heat Input</h3>
+        <div class="row">
+            <div class="col"><label>Voltage (V)</label><input type="number" id="w-i-volts" placeholder="e.g. 18" value="18"></div>
+            <div class="col"><label>Amperage (A)</label><input type="number" id="w-i-amps" placeholder="e.g. 120" value="120"></div>
+        </div>
+        <div class="row">
+            <div class="col"><label>Travel Speed (in/min)</label><input type="number" id="w-i-speed" placeholder="e.g. 30" value="25"></div>
+            <div class="col"><label>Efficiency (η)</label><input type="number" id="w-i-eff" placeholder="MIG=0.85, TIG=0.7" value="0.85"></div>
+        </div>
+        <h3 style="margin-top:15px;">Material Thickness</h3>
+        <div class="row"><div class="col">
+            <label>Material</label><select id="w-i-material">
+                <option value="mildsteel" selected>Mild Steel</option>
+                <option value="stainless">Stainless Steel</option>
+                <option value="aluminum">Aluminum</option>
+            </select></div>
+            <div class="col"><label>Thickness (in)</label><input type="number" id="w-i-thick" placeholder="e.g. 0.125 (1/8)" value="0.125" step="any"></div>
+        </div>
+        <button class="btn btn-calc" id="w-btn-calc">Calculate Heat Input</button>
+        <div class="result-box" id="w-d-res">Enter parameters</div>
+        <div class="result-box" id="w-d-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
+        <h3 style="margin-top:15px;">MIG Wire Feed Speed (Estimate)</h3>
+        <div class="row">
+            <div class="col"><label>Wire Diameter</label><select id="w-i-wiredia">
+                <option value="0.023">0.023" (23 ga)</option>
+                <option value="0.030">0.030" (30 ga)</option>
+                <option value="0.035" selected>.035" (Most common MIG)</option>
+                <option value="0.045">0.045" (Heavy duty)</option>
+                <option value="0.052">0.052" (1/16")</option>
+                <option value="0.063">0.063" (5/64")</option>
+                <option value="0.080">0.080" (3/32")</option>
+            </select></div>
+            <div class="col"><label>Desired Amperage (A)</label><input type="number" id="w-i-targetamps" placeholder="e.g. 120" value="120"></div>
+        </div>
+        <button class="btn btn-calc" id="w-btn-wfs">Estimate Wire Feed</button>
+        <div class="result-box" id="w-d-wfs">Enter wire dia & amps</div>
+    </div>
+
+    <!-- P-CALC -->
+    <div id="view-pcalc" class="view">
+        <nav class="calc-nav">
+            <button class="calc-nav-btn" data-view="scalc">S</button>
+            <button class="calc-nav-btn" data-view="wcalc">W</button>
+            <button class="calc-nav-btn" data-view="acalc">A</button>
+            <button class="calc-nav-btn" data-view="tcalc">T</button>
+            <button class="calc-nav-btn active" data-view="pcalc">P</button>
+            <button class="calc-nav-btn" data-view="bcalc">B</button>
+        </nav>
+        <h2>P-CALC v1.2</h2>
+        <button class="btn btn-copy" id="p-btn-copy">Copy Result</button>
+        <h3 style="margin-top:15px;">Pool Chemical Dosage</h3>
+        <div class="row"><div class="col"><label>Pool Volume (gallons)</label><input type="number" id="p-i-gal" placeholder="e.g. 15000" value="15000"></div></div>
+        <div class="row">
+            <div class="col"><label>Target Change</label><input type="number" id="p-i-target" placeholder="e.g. 10 ppm or pH points" value="10"></div>
+            <div class="col"><label>Chemical</label><select id="p-i-chem">
+                <option value="cyanuric" data-type="cya_custom" data-base="7.5" data-sideffects="">CYA Stabilizer (custom below)</option>
+                <option value="borax" data-type="oz_ppm" data-factor="0.75" data-sideffects="TA +0.6 ppm/oz·10k gal, pH +0.03/oz·10k gal">Borax (raises TA & pH too)</option>
+                <option value="salt" data-type="oz_ppm" data-factor="12.9" data-sideffects="Salt +0.36 ppm/oz·10k gal">Pool Salt (NaCl)</option>
+                <option value="muriatic" data-type="pt_ph" data-factor="1.0" data-sideffects="TA -1 ppm/oz·10k gal, pH ↓">Muriatic Acid (lower TA by X ppm)</option>
+                <option value="baking" data-type="oz_ppm" data-factor="14.4" data-sideffects="TA +0.6 ppm/oz·10k gal, pH ↑">Baking Soda (raise TA by X ppm)</option>
+                <option value="chlor" data-type="lb_ppm" data-factor="8.0" data-sideffects="Calcium +3.5 ppm/oz·10k gal">Calcium Hypochlorite (1 lb → ~8ppm)</option>
+                <option value="dichlor" data-type="gal_ppm" data-factor="10.6" data-sideffects="CYA +0.7 ppm/oz·10k gal">Dichlor (raises CYA)</option>
+                <option value="liquid" data-type="gal_ppm" data-factor="10.6" data-sideffects="Salt +0.25 ppm/oz·10k gal">Liquid Chlorine (1 gal → ~10.6ppm)</option>
+                <option value="sodcarbonate" data-type="lb_ph" data-factor="12.0" data-sideffects="TA +0.5 ppm/oz·10k gal">Soda Ash (pH Up, ~12lb → +0.1 pH)</option>
+            </select></div>
+        </div>
+        <div class="row" id="p-row-cya-conv">
+            <div class="col"><label>Conversion (oz per 10k gal → +50 ppm CYA)</label><input type="number" id="p-i-cyaconv" placeholder="e.g. 12" value="12" min="0.01" step="any" inputmode="decimal"></div>
+        </div>
+        <button class="btn btn-calc" id="p-btn-dose">Calculate Dosage</button>
+        <div class="result-box" id="p-d-res">Enter volume & target</div>
+        <div class="result-box" id="p-d-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
+        <h3 style="margin-top:15px;">Alkalinity Check</h3>
+        <div class="row">
+            <div class="col"><label>Measured TA (ppm as CaCO₃)</label><input type="number" id="p-i-measTA" placeholder="e.g. 120" value="120"></div>
+            <div class="col"><label>pH</label><input type="number" id="p-i-pH" placeholder="e.g. 7.4" value="7.4"></div>
+        </div>
+        <div class="row">
+            <div class="col"><label>CYA (ppm)</label><input type="number" id="p-i-cya" placeholder="e.g. 30" value="30"></div>
+            <div class="col"><label>Borates (ppm, optional)</label><input type="number" id="p-i-borates" placeholder="e.g. 30 (0 = skip)" value="0"></div>
+        </div>
+        <button class="btn btn-calc" id="p-btn-tacorr">Check Alkalinity</button>
+        <div class="result-box" id="p-d-tacorr">Enter TA & pH</div>
+        <div class="result-box" id="p-d-tacorr-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
+        <details id="p-tacorr-advanced" style="display:none;">
+            <summary style="cursor:pointer;color:#74c0fc;font-size:0.9em;margin-top:8px;">Show calculation (optional)</summary>
+            <div id="p-d-tacorr-adv" style="font-size:0.85em;color:#aaa;margin-top:6px;"></div>
+        </details>
+        <h3 style="margin-top:15px;">Chlorine Shock (Rule of Thumb)</h3>
+        <div class="row">
+            <div class="col"><label>Free Chlorine (ppm)</label><input type="number" id="p-i-fc" placeholder="e.g. 2" value="2"></div>
+            <div class="col"><label>Total Chlorine (ppm)</label><input type="number" id="p-i-tc" placeholder="e.g. 4" value="4"></div>
+        </div>
+        <button class="btn btn-calc" id="p-btn-demand">Calculate Shock Level</button>
+        <div class="result-box" id="p-d-demand">Enter FC & TC readings</div>
+        <details id="p-shock-advanced" style="display:none;">
+            <summary style="cursor:pointer;color:#74c0fc;font-size:0.9em;margin-top:8px;">Show calculation (optional)</summary>
+            <div id="p-d-shock-adv" style="font-size:0.85em;color:#aaa;margin-top:6px;"></div>
+        </details>
+    </div>
+
+</div><!-- /.wrap -->
 
 <div class="toast" id="toast">Copied!</div>
 
 <script>
-// --- SHARED UTILS ---
+'use strict';
+(function() {
+
+// === SHARED UTILS ===
 function showToast(msg) {
     var t = document.getElementById('toast');
+    if (!t) return;
     t.textContent = msg;
     t.style.display = 'block';
-    setTimeout(function() { t.style.display = 'none'; }, 2000);
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function() { t.style.display = 'none'; }, 2000);
 }
-function gv(id) { var el = document.getElementById(id); return (el && el.value !== '') ? parseFloat(el.value) : NaN; }
+function gv(id) {
+    var v = parseFloat(document.getElementById(id).value);
+    return isNaN(v) ? NaN : v;
+}
 function gs(id) { var el = document.getElementById(id); return (el && el.value !== '') ? el.value : ''; }
+function gbyId(id) { return document.getElementById(id); }
 
-// --- NAVIGATION LOGIC ---
-var currentView = 'bcalc';
-var navBtn = document.getElementById('nav-toggle');
-
-function toggleView(e) {
-    if (e) e.preventDefault(); // Prevent any default behavior
-    
-    if (currentView === 'bcalc') {
-        document.getElementById('view-bcalc').classList.remove('active');
-        document.getElementById('view-tcalc').classList.add('active');
-        navBtn.textContent = 'B-CALC';
-        currentView = 'tcalc';
-    } else {
-        document.getElementById('view-tcalc').classList.remove('active');
-        document.getElementById('view-bcalc').classList.add('active');
-        navBtn.textContent = 'T-CALC';
-        currentView = 'bcalc';
-    }
+// Safe expression evaluator (uses Function constructor for boolean expressions)
+function fnEval(code) {
+    var c = code.replace(/\btrue\b/g, '1').replace(/\bfalse\b/g, '0');
+    var fn = new Function('return (' + c.replace(/\b\d+\s*\^\s*\d+/g, function(m) {
+        // JS ^ is bitwise XOR; for boolean truth-table work this is fine since 0/1
+        return m;
+    }) + ')');
+    return fn();
 }
 
-// Use both click and touchstart for maximum mobile compatibility
-navBtn.addEventListener('click', toggleView);
-navBtn.addEventListener('touchstart', toggleView, {passive: false});
+// === QUIEN-MCCLUSKEY ALGORITHM (DNF simplification) ===
+var QM = {
 
-// --- B-CALC LOGIC (Namespaced) ---
+    _maskToExpr: function(mask, dontCare, vars) {
+        var parts = [];
+        for (var i = 0; i < vars.length; i++) {
+            if ((dontCare & (1 << (vars.length - 1 - i))) !== 0) continue;
+            if ((mask & (1 << (vars.length - 1 - i))) !== 0) {
+                parts.push(vars[i]);
+            } else {
+                parts.push('!' + vars[i]);
+            }
+        }
+        return parts.length > 0 ? parts.join(' & ') : 'false';
+    },
+
+    _countSetBits: function(n) { var c = 0; while (n > 0) { if (n & 1) c++; n >>= 1; } return c; },
+
+    findPrimes: function(minterms, numVars) {
+        var total = 1 << numVars;
+
+        var ones = [];
+        for (var i = 0; i < total; i++) {
+            if ((minterms & (1 << i)) !== 0) {
+                ones.push({ bits: QM._countSetBits(i), mask: i, dontCare: 0 });
+            }
+        }
+
+        if (ones.length === 0) return { primes: [], selected: [] };
+
+        var primeImplicants = [];
+        var currentGroup = ones.slice();
+
+        while (currentGroup.length > 0) {
+            var nextGroup = [];
+            var combinedMaskBits = new Array(currentGroup.length).fill(0);
+
+            for (var i = 0; i < currentGroup.length; i++) {
+                if (combinedMaskBits[i]) continue;
+
+                for (var j = i + 1; j < currentGroup.length; j++) {
+                    if (combinedMaskBits[j]) continue;
+
+                    var diff = currentGroup[i].mask ^ currentGroup[j].mask;
+                    if ((diff & (diff - 1)) === 0) {
+                        var newMask = currentGroup[i].mask & currentGroup[j].mask;
+                        var bitPos = QM._countSetBits(diff - 1);
+                        var newDontCare = currentGroup[i].dontCare | (1 << (numVars - 1 - bitPos));
+
+                        nextGroup.push({ bits: currentGroup[i].bits, mask: newMask, dontCare: newDontCare });
+                        combinedMaskBits[i] = true;
+                        combinedMaskBits[j] = true;
+                    }
+                }
+
+                if (!combinedMaskBits[i]) {
+                    primeImplicants.push({ mask: currentGroup[i].mask, dontCare: currentGroup[i].dontCare });
+                }
+            }
+
+            var seen = {};
+            var deduped = [];
+            for (var i = 0; i < nextGroup.length; i++) {
+                var key = nextGroup[i].mask + ',' + nextGroup[i].dontCare;
+                if (!seen[key]) { seen[key] = true; deduped.push(nextGroup[i]); }
+            }
+            currentGroup = deduped;
+        }
+
+        if (primeImplicants.length === 0) return { primes: [], selected: [] };
+
+        var piCover = [];
+        for (var p = 0; p < primeImplicants.length; p++) {
+            var coverBits = 0;
+            for (var m = 0; m < total; m++) {
+                if ((minterms & (1 << m)) !== 0) {
+                    var mask = primeImplicants[p].mask;
+                    var dc = primeImplicants[p].dontCare;
+                    if ((m & (~dc)) === mask) {
+                        coverBits |= (1 << m);
+                    }
+                }
+            }
+            primeImplicants[p].coverBits = coverBits;
+        }
+
+        var essential = [];
+        for (var p = 0; p < primeImplicants.length; p++) {
+            var isEssential = false;
+            for (var m = 0; m < total; m++) {
+                if ((minterms & (1 << m)) === 0) continue;
+                if ((primeImplicants[p].coverBits & (1 << m)) === 0) continue;
+                var coveredByOther = false;
+                for (var q = 0; q < primeImplicants.length; q++) {
+                    if (q === p) continue;
+                    if ((primeImplicants[q].coverBits & (1 << m)) !== 0) { coveredByOther = true; break; }
+                }
+                if (!coveredByOther) { isEssential = true; break; }
+            }
+            primeImplicants[p].essential = isEssential;
+            if (isEssential) essential.push(p);
+        }
+
+        var selected = essential.slice();
+        var coveredMinterms = 0;
+        for (var i = 0; i < essential.length; i++) { coveredMinterms |= primeImplicants[essential[i]].coverBits; }
+
+        var remaining = [];
+        for (var p = 0; p < primeImplicants.length; p++) { if (!essential.includes(p)) remaining.push(p); }
+
+        while (coveredMinterms !== minterms) {
+            var bestIdx = -1, bestCount = 0;
+            for (var i = 0; i < remaining.length; i++) {
+                var p = remaining[i];
+                var uncov = primeImplicants[p].coverBits & (~coveredMinterms);
+                var count = QM._countSetBits(uncov);
+                if (count > bestCount) { bestCount = count; bestIdx = i; }
+            }
+            if (bestIdx === -1 || bestCount === 0) break;
+            var p = remaining[bestIdx];
+            selected.push(p);
+            coveredMinterms |= primeImplicants[p].coverBits;
+            remaining.splice(bestIdx, 1);
+        }
+
+        return { primes: primeImplicants, selected: selected, minterms: minterms, numVars: numVars };
+    }
+};
+
+// === NAVIGATION (B → A → T → S) ===
+var currentView = 'bcalc';
+
+function switchView(viewId) {
+    var views = document.querySelectorAll('.view');
+    for (var i = 0; i < views.length; i++) views[i].classList.remove('active');
+    var target = gbyId('view-' + viewId);
+    if (target) {
+        target.classList.add('active');
+        var wrap = document.querySelector('.wrap');
+        if (wrap) wrap.scrollTop = 0;
+    }
+    // Legacy nav-toggle label update (commented out — button removed)
+    /*
+    var names = ['bcalc', 'acalc', 'tcalc', 'scalc', 'wcalc', 'pcalc'];
+    var labels = ['B-CALC', 'A-CALC', 'T-CALC', 'S-CALC', 'W-CALC', 'P-CALC'];
+    var nextIdx = (names.indexOf(viewId) + 1) % names.length;
+    document.getElementById('nav-toggle').textContent = labels[nextIdx];
+    */
+    currentView = viewId;
+}
+
+// Legacy nav-toggle cycle button (commented out — replaced by per-view calc-nav rows)
+/*
+gbyId('nav-toggle').onclick = function() {
+    var sequence = ['bcalc', 'acalc', 'tcalc', 'scalc', 'wcalc', 'pcalc'];
+    var idx = sequence.indexOf(currentView);
+    switchView(sequence[(idx + 1) % sequence.length]);
+};
+
+// Legacy nav-toggle label update inside switchView (commented out)
+*/
+
+// Direct navigation via nav buttons at top of each view
+document.querySelectorAll('.calc-nav-btn').forEach(function(btn) {
+    btn.onclick = function() {
+        var targetView = this.getAttribute('data-view');
+        switchView(targetView);
+    };
+});
+
+// === NAV LABELS (B → A → T → S → W → P) ===
+var navLabels = ['B-CALC', 'A-CALC', 'T-CALC', 'S-CALC', 'W-CALC', 'P-CALC'];
+
+// === B-CALC: Ballistic Energy Calculator (cached) ===
+var _bResult = null;
+
 function bCalc_calc() {
-    var wt = gv('b-i-wt');
-    var vel = gv('b-i-vel');
-    if (isNaN(wt) || isNaN(vel)) {
-        document.getElementById('b-d-res').innerHTML = 'Enter weight & velocity';
-        return null;
-    }
-    var T = gv('b-i-temp');
-    var P = gv('b-i-press');
-    var A = gv('b-i-alt');
-    var H = gv('b-i-hum');
+    var wt = gv('b-i-wt'); var vel = gv('b-i-vel');
+    if (isNaN(wt) || isNaN(vel)) { gbyId('b-d-res').innerHTML = 'Enter weight & velocity'; _bResult = null; return null; }
+
+    var T = gv('b-i-temp'); var P = gv('b-i-press'); var A = gv('b-i-alt'); var H = gv('b-i-hum');
     var effP = P;
-    if (!isNaN(A) && (isNaN(P) || P === 0)) {
-        effP = 29.92 * Math.pow(1 - (0.0000068755 * A), 5.255);
-    }
+
+    if (!isNaN(A) && (isNaN(P) || P === 0)) { effP = 29.92 * Math.pow(1 - (0.0000068755 * A), 5.255); }
+
     var ratio = 1.0;
     if (!isNaN(T) && !isNaN(P)) {
-        var Tk = (T + 459.67) * 5 / 9;
-        var Pk = effP * 3.38639;
-        var sTk = (59 + 459.67) * 5 / 9;
-        var sPk = 29.92 * 3.38639;
-        var cr = Pk / (287.05 * Tk);
-        var sr = sPk / (287.05 * sTk);
-        ratio = cr / sr;
-        if (!isNaN(H)) { ratio *= (1 - (H / 100 * 0.003)); }
+        var Tk = (T + 459.67) * 5 / 9; var Pk = effP * 3.38639;
+        var sTk = (59 + 459.67) * 5 / 9; var sPk = 29.92 * 3.38639;
+        ratio = (Pk / (287.05 * Tk)) / (sPk / (287.05 * sTk));
+        if (!isNaN(H)) { ratio *= (1 + (H / 100 * 0.003)); }
     }
+
     var cVel = vel * Math.sqrt(1 / ratio);
     var actualFpe = (wt * vel * vel) / 450436;
     var slEquivFpe = (wt * cVel * cVel) / 450436;
 
-    document.getElementById('b-d-res').innerHTML = 
-        '<b style="font-size:1.3em;">' + actualFpe.toFixed(2) + ' ft-lbs [Actual]</b><br>' +
-        '<span style="font-size:1.1em; color:#a5d6ff;">' + slEquivFpe.toFixed(2) + ' ft-lbs [SL Equiv]</span><br>' +
-        '<span style="font-size:0.65em; color:#aaa;">Actual: ' + vel.toFixed(0) + ' fps | SL Equiv: ' + cVel.toFixed(0) + ' fps</span>';
+    _bResult = { wt: wt, actualVel: vel, slEquivVel: cVel, actualFpe: actualFpe, slEquivFpe: slEquivFpe };
 
-    return { wt: wt, actualVel: vel, slEquivVel: cVel };
+    gbyId('b-d-res').innerHTML =
+        '<b style="font-size:1.3em;">' + actualFpe.toFixed(2) + ' ft-lbs [Actual]</b>' +
+        '<br><span style="font-size:1.1em; color:#a5d6ff;">' + slEquivFpe.toFixed(2) + ' ft-lbs [SL Equiv]</span>' +
+        '<br><span style="font-size:0.85em; color:#aaa;">Actual: ' + vel.toFixed(0) + ' fps | SL Equiv: ' + cVel.toFixed(0) + ' fps</span>';
+
+    return _bResult;
 }
 
-document.getElementById('b-btn-calc').onclick = bCalc_calc;
-document.getElementById('b-btn-copy').onclick = function() {
-    var wt = gv('b-i-wt'); var vel = gv('b-i-vel');
-    if (isNaN(wt) || isNaN(vel)) return;
-    var res = bCalc_calc(); if (!res) return;
+gbyId('b-btn-calc').onclick = bCalc_calc;
 
-    var actualFpe = (wt * res.actualVel * res.actualVel) / 450436;
-    var slEquivFpe = (wt * res.slEquivVel * res.slEquivVel) / 450436;
-    var bc = parseFloat(gs('b-i-bc')) || 0.2;
+gbyId('b-btn-copy').onclick = function() {
+    var res = _bResult; if (!res) { bCalc_calc(); res = _bResult; }
+    if (!res) return;
 
-    var text = 'B-CALC v1.1\n';
-    text += 'Weight: ' + wt.toFixed(2) + 'gr\n';
-    text += 'Muzzle Vel: ' + res.actualVel.toFixed(0) + ' fps (Actual)\n';
-    text += 'BC: ' + bc + '\n\n';
-    text += '--- Energy ---\n';
-    text += 'Actual: ' + actualFpe.toFixed(2) + ' ft-lbs\n';
-    text += 'SL Equiv: ' + slEquivFpe.toFixed(2) + ' ft-lbs\n';
-    text += 'SL Equiv Vel: ' + res.slEquivVel.toFixed(0) + ' fps\n\n';
-    text += '--- Trajectory ---\n';
-
-    var g = 32.17 * 12;
-    var bc_val = parseFloat(gs('b-i-bc')) || 0.2;
-    var dragFactor = 0.0001 / bc_val;
-
-    function getTrajLine(yards) {
-        var distFt = yards * 3;
-        var velAtY = res.actualVel * Math.exp(-dragFactor * distFt);
-        var t = distFt / velAtY;
-        var dropInches = 0.5 * g * t * t;
-        var fpeAtY = (wt * velAtY * velAtY) / 450436;
-        return yards + 'y: ' + fpeAtY.toFixed(1) + ' ft-lbs, ' + dropInches.toFixed(2) + '" drop';
-    }
-
-    text += getTrajLine(0) + '\n';
-    text += getTrajLine(100);
-
+    var bc = parseFloat(gs('b-i-bc')); if (isNaN(bc)) bc = 0.2;
+    var text = 'B-CALC v1.2\nWeight: ' + res.wt.toFixed(2) + 'gr\nVel: ' + res.actualVel.toFixed(0) + 'fps (Actual)\nBC: ' + bc + '\n\n--- Energy ---\nActual: ' + res.actualFpe.toFixed(2) + ' ft-lbs\nSL Equiv: ' + res.slEquivFpe.toFixed(2) + ' ft-lbs\nSL Equiv Vel: ' + res.slEquivVel.toFixed(0) + ' fps';
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
-document.getElementById('b-btn-go').onclick = function() {
-    var data = bCalc_calc(); if (!data) return;
-    var maxYards = parseInt(gs('b-i-range')) || 500;
-    var g = 32.17 * 12; 
-    var container = document.getElementById('b-traj-container');
+
+gbyId('b-btn-go').onclick = function() {
+    var data = _bResult; if (!data) { bCalc_calc(); data = _bResult; }
+    if (!data) return;
+    var maxYards = parseInt(gs('b-i-range')); if (isNaN(maxYards)) maxYards = 500;
+    var g = 32.17 * 12; var container = gbyId('b-traj-container');
     var step = maxYards < 50 ? Math.max(1, Math.floor(maxYards / 5)) : 10;
-    var html = '<table class="traj-table"><thead><tr><th style="width:35%">Dist</th><th style="width:20%">FPE (Adj)</th><th style="width:25%">Drop</th></tr></thead><tbody>';
+    var bc = parseFloat(gs('b-i-bc')); if (isNaN(bc)) bc = 0.2;
+    var dragFactor = 0.0001 / bc;
 
+    var html = '<table class="traj-table"><thead><tr><th style="width:40%">Dist</th><th style="width:30%">FPE</th><th style="width:30%">Drop</th></tr></thead><tbody>';
     for (var y = 0; y <= maxYards; y += step) {
-        var distFt = y * 3; 
-        var bc = parseFloat(gs('b-i-bc')) || 0.2;
-        var dragFactor = 0.0001 / bc;
-        var velAtY = data.actualVel * Math.exp(-dragFactor * distFt);
-        var t = distFt / velAtY;
+        var distFt = y * 3;
+        var t = distFt / data.actualVel;
         var dropInches = 0.5 * g * t * t;
+        var velAtY = data.actualVel * Math.exp(-dragFactor * distFt);
         var fpeAtY = (data.wt * velAtY * velAtY) / 450436;
-        html += '<tr><td>' + y + 'y</td><td style="width:35%">' + fpeAtY.toFixed(1) + '</td><td style="width:25%">' + dropInches.toFixed(2) + '"</td></tr>';
+        html += '<tr><td>' + y + 'y</td><td>' + fpeAtY.toFixed(1) + '</td><td>' + dropInches.toFixed(2) + '"</td></tr>';
     }
-
-    html += '</tbody></table>'; 
+    html += '</tbody></table>';
     container.innerHTML = html;
 };
 
-// --- T-CALC LOGIC (Namespaced) ---
-function tCalc_calc(prefix) {
-    var w = gv('t-i-width' + prefix);  // For metric: width in mm. For truck: overall diameter (inches)
-    var a = gv('t-i-aspect' + prefix);  // For metric: aspect ratio (%). For truck: tire width (inches)
-    var r = gv('t-i-rim' + prefix);     // Rim diameter in inches
+// =========================================
+// === A-CALC: Grammar-Faithful Parser     ===
+// =========================================
 
-    if (isNaN(w) || isNaN(a) || isNaN(r)) return null;
+var TOK = { VAR:'v', IMPLIES:'->', XOR:'^', XORKW:'XOR', AND:'&', NOTPRE: 'n', OR:'`', FNKWD:'f', LPAREN:'(', RPAREN:')', APOS:"'" };
+var FUNC_KEYWORDS = ['NAND', 'NOR', 'XNOR', 'XOR'];
+var IS_UPPER = /^[A-Za-z]$/;
 
-    var isMetric = (w > 100);
-    var totalDia, circumference, revsPerMile;
-    var labelStr;
+function tokenize(expr) {
+    var tokens = [];
+    var expr = expr.replace(/\s/g, '');
 
-    if (isMetric) {
-        // Metric tire: 245/40-17 format (width in mm, aspect %)
-        var widthInches = w / 25.4;            // Convert mm to inches
-        var sidewallHeight = widthInches * (a / 100);  // Aspect ratio: sidewall = width * (aspect%)
-        totalDia = (sidewallHeight * 2) + r;   // Sidewall * 2 + rim
-        labelStr = w + '/' + a + 'R' + r;      // Standard metric format: 245/40-17
-    } else {
-        // Truck tire: 35x12.5-17 format (overall diameter, tire width, rim)
-        totalDia = w;                          // Use directly — first number IS the diameter
-        circumference = Math.PI * totalDia;
-        revsPerMile = 63360 / circumference;
-        labelStr = w + 'x' + a + '-' + r;      // Standard truck format: 35x12.5-17
+    for (var i = 0; i < expr.length; ) {
+        var ch = expr[i];
+
+        if (ch === '-' && i + 1 < expr.length && expr[i+1] === '>') {
+            tokens.push({ type: TOK.IMPLIES, val: '->', pos: i });
+            i += 2; continue;
+        }
+        if (ch === '^') { tokens.push({ type: TOK.XOR, val: '^', pos: i }); i++; continue; }
+        if (ch === '&') { tokens.push({ type: TOK.AND, val: '&', pos: i }); i++; continue; }
+        if (ch === '`') { tokens.push({ type: TOK.OR, val: '`', pos: i }); i++; continue; }
+        if (ch === "'") { tokens.push({ type: TOK.APOS, val: "'", pos: i }); i++; continue; }
+
+        if (ch === '!' || ch === '~') {
+            tokens.push({ type: TOK.NOTPRE, val: ch, pos: i });
+            i++; continue;
+        }
+        if (ch.toUpperCase() === 'N' && expr.substr(i, 3).toUpperCase() === 'NOT') {
+            tokens.push({ type: TOK.NOTPRE, val: 'NOT', pos: i });
+            i += 3; continue;
+        }
+
+        for (var f = 0; f < FUNC_KEYWORDS.length; f++) {
+            var kwlen = FUNC_KEYWORDS[f].length;
+            if (expr.substr(i, kwlen).toUpperCase() === FUNC_KEYWORDS[f] && i + kwlen < expr.length && expr[i+kwlen] === '(') {
+                tokens.push({ type: TOK.FNKWD, val: FUNC_KEYWORDS[f] + '(', pos: i });
+                i += kwlen; continue;
+            }
+        }
+
+        if (ch === '(') { tokens.push({ type: TOK.LPAREN, val: '(', pos: i }); i++; continue; }
+        if (ch === ')') { tokens.push({ type: TOK.RPAREN, val: ')', pos: i }); i++; continue; }
+        if (/[A-Za-z]/.test(ch)) { tokens.push({ type: TOK.VAR, val: ch.toUpperCase(), pos: i }); i++; continue; }
+
+        i++; // Skip unknown
     }
 
-    circumference = Math.PI * totalDia;
-    revsPerMile = 63360 / circumference;
-
-    // Display primary tire results
-    if (prefix === '') {
-        document.getElementById('t-d-res').innerHTML = 
-            '<b style="font-size:1.5em;">' + totalDia.toFixed(2) + '" Dia</b>';
-        document.getElementById('t-d-stats').innerHTML = 
-            'Circ: ' + circumference.toFixed(2) + '" | Rev/Mi: ' + Math.round(revsPerMile);
-    }
-
-    return { 
-        label: labelStr, 
-        dia: totalDia, 
-        circ: circumference,
-        unitLabel: '"',  // All truck tires are in inches
-        revs: revsPerMile, 
-        width: w,
-        isMetric: isMetric
-    };
+    return tokens;
 }
 
-function updateViz(pDia, sDia, pWidth, sWidth) {
-    var pViz = document.getElementById('t-tire-primary');
-    var sViz = document.getElementById('t-tire-secondary');
-    var label = document.getElementById('t-viz-label');
+var pc = 0, tokens = [];
+
+function peek() { return pc < tokens.length ? tokens[pc] : null; }
+function advance() { var tok = tokens[pc]; pc++; return tok; }
+
+function parseExpr() {
+    var tree = parseImplication();
+    if (!tree) return null;
+    if (pc < tokens.length) return null;
+    return tree;
+}
+
+function parseImplication() {
+    var left = parseOrExpr();
+    if (!left) return null;
+
+    while (pc < tokens.length && tokens[pc].type === TOK.IMPLIES) {
+        advance();
+        var right = parseImplication();
+        if (!right) break;
+        left = { op: 'IMPLIES', l: left, r: right };
+    }
+
+    return left;
+}
+
+function parseOrExpr() {
+    var left = parseXorExpr();
+    if (!left) return null;
+
+    while (pc < tokens.length && tokens[pc].type === TOK.OR) {
+        advance();
+        var right = parseXorExpr();
+        if (!right) break;
+        left = { op: 'OR', l: left, r: right };
+    }
+
+    return left;
+}
+
+function parseXorExpr() {
+    var left = parseAndExpr();
+    if (!left) return null;
+
+    while (pc < tokens.length && tokens[pc].type === TOK.XOR) {
+        advance();
+        var right = parseAndExpr();
+        if (!right) break;
+        left = { op: 'XOR', l: left, r: right };
+    }
+
+    return left;
+}
+
+function parseAndExpr() {
+    var left = parseUnary();
+    if (!left) return null;
+
+    while (pc < tokens.length) {
+        if (tokens[pc].type === TOK.AND) {
+            advance();
+            var right = parseUnary();
+            if (!right) break;
+            left = { op: 'AND', l: left, r: right };
+        } else if (IS_UPPER.test(tokens[pc].val)) {
+            var right = parseUnary();
+            if (!right) break;
+            left = { op: 'AND', l: left, r: right };
+        } else if (tokens[pc].type === TOK.FNKWD) {
+            break;  // Don't treat function keywords as implicit AND operands
+        } else { break; }
+    }
+
+    return left;
+}
+
+function parseUnary() {
+    var notCount = 0;
+
+    while (pc < tokens.length && tokens[pc].type === TOK.NOTPRE) {
+        notCount++;
+        advance();
+    }
+
+    var result = parseAtom();
+    if (!result) {
+        // If we consumed NOTs but found no operand, it's an error
+        if (notCount > 0) return null;
+        return null;
+    }
+
+    var tree = result;
+    for (var i = 0; i < notCount; i++) {
+        tree = { op: 'NOT', l: tree, r: null };
+    }
+
+    while (pc < tokens.length && tokens[pc].type === TOK.APOS) {
+        advance();
+        tree = { op: 'NOT', l: tree, r: null };
+    }
+
+    return tree;
+}
+
+function parseAtom() {
+    var tok = peek();
+    if (!tok) return null;
+
+    if (tok.type === TOK.LPAREN) {
+        advance();
+        var expr = parseExpr();
+        if (!expr) return null;
+
+        var close = peek();
+        if (close && close.type === TOK.RPAREN) { advance(); return expr; }
+        return null;
+    }
+
+    if (tok.type === TOK.VAR) {
+        advance();
+        return { op: 'VAR', name: tok.val };
+    }
+
+    if (tok.type === TOK.XORKW) {
+        advance();
+        return parseFunctionCall('XOR', 2);
+    }
+
+    for (var f = 0; f < FUNC_KEYWORDS.length; f++) {
+        if (tok.type === TOK.FNKWD && tok.val.indexOf(FUNC_KEYWORDS[f]) === 0) {
+            advance();
+            if (FUNC_KEYWORDS[f] === 'NAND') return parseFunctionCall('NOT-AND', 2);
+            if (FUNC_KEYWORDS[f] === 'NOR') return parseFunctionCall('NOT-OR', 2);
+            if (FUNC_KEYWORDS[f] === 'XNOR') return parseFunctionCall('NOT-XOR', 2);
+        }
+    }
+
+    return null;
+}
+
+function parseFunctionCall(funcName, expectedArgs) {
+    var args = [];
+
+    while (pc < tokens.length && !(tokens[pc].type === TOK.RPAREN)) {
+        var arg = parseOrExpr();
+        if (!arg && args.length === 0) return null;
+        if (arg) args.push(arg);
+
+        if (pc < tokens.length && tokens[pc].val === ',') {
+            advance();
+        } else break;
+    }
+
+    var close = peek();
+    if (!close || close.type !== TOK.RPAREN) return null;
+    advance();
+
+    if (args.length === 0) return null;
+
+    var tree = args[0];
+    for (var i = 1; i < args.length; i++) {
+        tree = { op: 'AND', l: tree, r: args[i] };
+    }
+
+    switch (funcName) {
+        case 'XOR': 
+            var xorTree = args[0];
+            for (var m = 1; m < args.length; m++) {
+                xorTree = { op: 'XOR', l: xorTree, r: args[m] };
+            }
+            return xorTree;
+        case 'NOT-AND': return { op: 'NOT', l: tree, r: null };
+        case 'NOT-OR': 
+            var orTree = args[0];
+            for (var j = 1; j < args.length; j++) {
+                orTree = { op: 'OR', l: orTree, r: args[j] };
+            }
+            return { op: 'NOT', l: orTree, r: null };
+        case 'NOT-XOR': 
+            var xnorTree = args[0];
+            for (var k = 1; k < args.length; k++) {
+                xnorTree = { op: 'XOR', l: xnorTree, r: args[k] };
+            }
+            return { op: 'NOT', l: xnorTree, r: null };
+        default: return tree;
+    }
+}
+
+function compileTree(tree) {
+    if (!tree) return 'false';
+
+    switch (tree.op) {
+        case 'VAR': return tree.name;
+        case 'AND': return '(' + compileTree(tree.l) + '&' + compileTree(tree.r) + ')';
+        case 'OR': return '(' + compileTree(tree.l) + '|' + compileTree(tree.r) + ')';
+        case 'XOR': return '(' + compileTree(tree.l) + '^' + compileTree(tree.r) + ')';
+        case 'NOT': return '(' + '!(' + compileTree(tree.l) + '))';
+        case 'IMPLIES': return '(' + '!(' + compileTree(tree.l) + ')' + '|' + compileTree(tree.r) + ')';
+        default: return 'false';
+    }
+}
+
+function extractVarsFromTree(tree, vars) {
+    if (!tree) return;
+    if (tree.op === 'VAR') {
+        var name = tree.name.toUpperCase();
+        if (vars.indexOf(name) === -1) vars.push(name);
+    } else {
+        extractVarsFromTree(tree.l, vars);
+        if (tree.r) extractVarsFromTree(tree.r, vars);
+    }
+}
+
+function evalCompiled(compiledStr, varValues) {
+    try {
+        // Replace variable names with boolean literals (true/false) before fnEval
+        var substituted = compiledStr;
+        var sortedKeys = Object.keys(varValues).sort(function(a, b) { return b.length - a.length; });
+        for (var i = 0; i < sortedKeys.length; i++) {
+            var key = sortedKeys[i];
+            var val = varValues[key] ? 'true' : 'false';
+            var regex = new RegExp('\\b' + key.toUpperCase() + '\\b', 'g');
+            substituted = substituted.replace(regex, val);
+        }
+        var evaluated = !!fnEval(substituted);  // Now receives "( ( true ) & ( false ) )" not raw vars
+        return evaluated ? 1 : 0;
+    } catch (e) {
+        return -1;
+    }
+}
+
+function evaluateTruthTable(exprStr) {
+    exprStr = exprStr.trim();
+
+    if (exprStr.indexOf(',') >= 0) {
+        var parts = exprStr.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+        if (parts.length >= 2) {
+            return evaluateMultiOutput(parts);
+        } else if (parts.length === 1) {
+            return evaluateSingleExpression(parts[0]);
+        }
+    }
+
+    return evaluateSingleExpression(exprStr);
+}
+
+function evaluateSingleExpression(exprStr) {
+    exprStr = exprStr.trim();
+    if (!exprStr) return null;
+
+    tokens = tokenize(exprStr);
+    if (tokens.length === 0) return null;
+
+    pc = 0;
+    var tree = parseExpr();
+
+    if (!tree) return { error: "Invalid Expression", vars: [] };
+
+    var vars = [];
+    extractVarsFromTree(tree, vars);
+
+    if (vars.length === 0) return null;
+    if (vars.length > 6) return { error: "Maximum 6 variables supported", vars: [] };
+
+    var compiled = compileTree(tree);
+    var numRows = Math.pow(2, vars.length);
+    var tableData = [];
+    var minterms = 0;
+
+    for (var i = 0; i < numRows; i++) {
+        var values = {};
+        for (var vIdx = 0; vIdx < vars.length; vIdx++) {
+            values[vars[vIdx]] = !!(i & (1 << (vars.length - 1 - vIdx)));
+        }
+
+        var result = evalCompiled(compiled, values);
+        if (result === -1) return { error: "Invalid Expression", vars: [] };
+
+        var isTrue = result === 1;
+        tableData.push({ values: values, result: isTrue });
+        if (isTrue) minterms |= (1 << i);
+    }
+
+    var html = '<table class="truth-table"><thead><tr>';
+    vars.forEach(function(v) { html += '<th>' + v + '</th>'; });
+    html += '<th>Result</th></tr></thead><tbody>';
+
+    tableData.forEach(function(row) {
+        html += '<tr class="' + (row.result ? 'highlight' : '') + '">';
+        vars.forEach(function(v) { html += '<td>' + (row.values[v] ? 'T' : 'F') + '</td>'; });
+        html += '<td>' + (row.result ? 'T' : 'F') + '</td></tr>';
+    });
+
+    html += '</tbody></table>';
+
+    return { html: html, vars: vars, minterms: minterms, tableData: tableData };
+}
+
+function evaluateMultiOutput(parts) {
+    var outputLabels = [];
+    var expressions = [];
+
+    parts.forEach(function(part) {
+        var eqIdx = part.indexOf('=');
+        if (eqIdx > 0) { outputLabels.push(part.substring(0, eqIdx).trim()); expressions.push(part.substring(eqIdx + 1).trim()); }
+        else { outputLabels.push('F' + (outputLabels.length + 1)); expressions.push(part); }
+    });
+
+    var globalVars = [];
+    expressions.forEach(function(expr) {
+        var cleaned = expr.toUpperCase().replace(/\b(NAND|XNOR|NOR|NOT|XOR|AND|IMPLIES)\b/g, '');
+        var matches = cleaned.match(/[A-Z]/g);
+        if (matches) { for (var i = 0; i < matches.length; i++) { if (globalVars.indexOf(matches[i]) === -1) globalVars.push(matches[i]); } }
+    });
+
+    if (globalVars.length > 6) return { error: "Maximum 6 variables across all expressions", vars: [] };
+
+    var numRows = Math.pow(2, globalVars.length);
+    var html = '<table class="truth-table"><thead><tr>';
+    globalVars.forEach(function(v) { html += '<th>' + v + '</th>'; });
+    outputLabels.forEach(function(label) { html += '<th>' + label + '</th>'; });
+    html += '</tr></thead><tbody>';
+
+    // Pre-compute variable substitutions per expression (avoid repeated regex creation in row loop)
+    var exprVarSets = [];
+    for (var eIdx = 0; eIdx < expressions.length; eIdx++) {
+        var cleaned = expressions[eIdx].toUpperCase().replace(/\b(NAND|XNOR|NOR|NOT|XOR|AND|IMPLIES)\b/g, '');
+        var matches = cleaned.match(/[A-Z]/g);
+        exprVarSets[eIdx] = matches ? Array.from(new Set(matches)) : [];
+    }
+
+    for (var i = 0; i < numRows; i++) {
+        var values = {};
+        for (var gIdx = 0; gIdx < globalVars.length; gIdx++) {
+            values[globalVars[gIdx]] = !!(i & (1 << (globalVars.length - 1 - gIdx)));
+        }
+
+        html += '<tr>';
+        globalVars.forEach(function(v) { html += '<td>' + (values[v] ? 'T' : 'F') + '</td>'; });
+
+        for (var eIdx = 0; eIdx < expressions.length; eIdx++) {
+            var es = expressions[eIdx].toUpperCase()
+                .replace(/\bXOR\(([^)]+)\)/g, function(m, args) { return '(' + args.split(',').map(function(a){return a.trim();}).join(' ^ ') + ')'; })
+                .replace(/\bNAND\(([^)]+)\)/g, function(m, args) { return '!' + '(' + args.replace(/,/g,' && ') + ')'; })
+                .replace(/\bNOR\(([^)]+)\)/g, function(m, args) { return '!' + '(' + args.replace(/,/g,' || ') + ')'; })
+                .replace(/\bAND\b/g, '&&').replace(/\bOR\b/g, '||')
+                .replace(/([A-Z]+)\s*->\s*([A-Z]+)/g, '!$1 || $2')
+                .replace(/(?<!&)&(?!&)/g, '&&').replace(/(?<![|])\|(?!])/g, '||');
+
+            var singles = exprVarSets[eIdx];
+
+            for (var s = 0; s < singles.length; s++) {
+                var regex2 = new RegExp('\\b' + singles[s] + '\\b', 'g');
+                es = es.replace(regex2, values[singles[s]] ? 'true' : 'false');
+            }
+
+            try {
+                var result = !!fnEval(es);
+                html += '<td>' + (result ? 'T' : 'F') + '</td>';
+            } catch(e) { html += '<td style="color:#ff6b6b">Error</td>'; }
+        }
+
+        html += '</tr>';
+    }
+
+    html += '</tbody></table>';
+    return { html: html, vars: globalVars };
+}
+
+/** Count gates and estimate circuit depth in a single pass. */
+function countGatesAndDepth(exprStr) {
+    var upperExpr = exprStr.toUpperCase();
+
+    // Pre-compile all gate regexes once instead of per-gate
+    var gateOrder = ['NAND', 'XNOR', 'NOR', 'NOT', 'XOR', 'AND', 'OR'];
+    var gateRegexes = {};
+    for (var gi = 0; gi < gateOrder.length; gi++) {
+        gateRegexes[gateOrder[gi]] = new RegExp('\\b' + gateOrder[gi] + '\\b', 'g');
+    }
+
+    var counts = { AND: 0, OR: 0, NOT: 0, XOR: 0, NAND: 0, NOR: 0, XNOR: 0, BACKTICK_OR: 0, IMPLIES: 0 };
+
+    for (var i = 0; i < gateOrder.length; i++) {
+        var matches = upperExpr.match(gateRegexes[gateOrder[i]]);
+        if (matches) counts[gateOrder[i]] += matches.length;
+    }
+
+    var cleaned = upperExpr.replace(/\b(NAND|XNOR|NOR|NOT|XOR|AND|IMPLIES)\b/g, '');
+    cleaned = cleaned.replace(/&&/g, '');
+    counts.AND += (cleaned.match(/&/g) || []).length;
+
+    cleaned = upperExpr.replace(/\b(NAND|XNOR|NOR|NOT|XOR|AND|IMPLIES)\b/g, '');
+    cleaned = cleaned.replace(/\|\|/g, '');
+    counts.OR += (cleaned.match(/\|/g) || []).length;
+
+    cleaned = upperExpr.replace(/\b(NAND|XNOR|NOR|NOT|XOR|AND|IMPLIES)\b/g, '');
+    counts.NOT += (cleaned.match(/!/g) || []).length;
+
+    counts.NOT += (exprStr.match(/~/g) || []).length;
+    counts.NOT += (exprStr.match(/'/g) || []).length;
+
+    counts.XOR += (upperExpr.match(/\^/g) || []).length;
+    counts.BACKTICK_OR += (exprStr.match(/`/g) || []).length;
+    counts.IMPLIES = (upperExpr.match(/->/g) || []).length;
+
+    var cleanForImplicit = upperExpr.replace(/[\s&|^!()~`',\-\+*\/]/g, ' ').replace(/\b(NAND|XNOR|NOR|NOT|XOR|AND|IMPLIES)\b/g, ' ');
+    var pairs = cleanForImplicit.match(/[A-Z]\s+[A-Z]/g);
+    if (pairs) counts.AND += pairs.length;
+
+    // Depth estimation (single pass)
+    var notCount = counts.NOT;
+    var xorCount = (upperExpr.match(/\^/g) || []).length;
+    var backtickOrCount = (exprStr.match(/`/g) || []).length;
+    var impliesCount = (upperExpr.match(/->/g) || []).length;
+
+    var namedGatesMatch = upperExpr.match(/\b(NAND|XNOR|NOR)\b/g);
+    var funcOps = namedGatesMatch ? namedGatesMatch.length : 0;
+
+    var opCount = notCount + counts.AND + counts.OR + xorCount + backtickOrCount + impliesCount;
+    var maxParens = 0, currentParens = 0;
+    for (var i = 0; i < exprStr.length; i++) {
+        if (exprStr[i] === '(') currentParens++;
+        else if (exprStr[i] === ')') currentParens--;
+        if (currentParens > maxParens) maxParens = currentParens;
+    }
+
+    var depth = (opCount > 0) ? Math.min(Math.ceil(Math.log2(opCount + 1)) + maxParens, opCount) : 0;
+
+    return { counts: counts, depth: Math.max(depth, 1), ops: opCount + funcOps };
+}
+
+function computeComplexity(exprStr, vars, tableData) {
+    if (!vars || vars.length === 0) return '';
+
+    var totalRows = tableData ? tableData.length : Math.pow(2, vars.length);
+    var trueCount = 0;
+    var falseCount = 0;
+
+    if (tableData) { for (var i = 0; i < tableData.length; i++) { if (tableData[i].result) trueCount++; else falseCount++; } }
+
+    var gateInfo = countGatesAndDepth(exprStr);
+    var c = gateInfo.counts;
+    var cleanExpr = exprStr.replace(/[^a-zA-Z0-9&|^!()'\s,-`]/g, '');
+    var tokenCount = cleanExpr.split(/\s+/).filter(Boolean).length;
+
+    return '<div class="comp-row"><span class="comp-label">Variables (Inputs)</span><span class="comp-value">' + vars.length + '</span></div>' +
+           '<div class="comp-row"><span class="comp-label">Total Combinations</span><span class="comp-value">' + totalRows + '</span></div>' +
+           '<div class="comp-row"><span class="comp-label">True Rows (Minterms)</span><span class="comp-value">' + trueCount + '</span></div>' +
+           '<div class="comp-row"><span class="comp-label">False Rows (Maxterms)</span><span class="comp-value">' + falseCount + '</span></div>' +
+           '<div class="comp-row"><span class="comp-label">True Ratio</span><span class="comp-value">' + (trueCount / totalRows * 100).toFixed(1) + '%</span></div>' +
+           '<hr style="border-color:#444; margin:6px 0;">' +
+           '<div class="comp-row"><span class="comp-label">AND gates</span><span class="comp-value">' + (c.AND + c.NAND) + '</span></div>' +
+           '<div class="comp-row"><span class="comp-label">OR gates</span><span class="comp-value">' + (c.OR + c.NOR) + '</span></div>' +
+           '<div class="comp-row"><span class="comp-label">NOT gates</span><span class="comp-value">' + c.NOT + '</span></div>' +
+           '<div class="comp-row"><span class="comp-label">XOR gates</span><span class="comp-value">' + c.XOR + '</span></div>' +
+           '<div class="comp-row"><span class="comp-label">Backtick ORs</span><span class="comp-value">' + c.BACKTICK_OR + '</span></div>' +
+           '<div class="comp-row"><span class="comp-label">Implications</span><span class="comp-value">' + c.IMPLIES + '</span></div>' +
+           '<div class="comp-row"><span class="comp-label">Total Gate Ops</span><span class="comp-value">' + (c.AND + c.OR + c.NOT + c.XOR) + '</span></div>' +
+           '<div class="comp-row"><span class="comp-label">Tokens</span><span class="comp-value">' + tokenCount + '</span></div>';
+}
+
+function analyzeCircuit(exprStr, vars) {
+    if (!vars || vars.length === 0) return '';
+
+    var gateInfo = countGatesAndDepth(exprStr);
+    var c = gateInfo.counts;
+
+    var usedGates = [];
+    var gateNames = ['NAND', 'XNOR', 'NOR', 'NOT', 'XOR', 'AND', 'OR'];
+    for (var i = 0; i < gateNames.length; i++) { if (c[gateNames[i]] > 0) usedGates.push(gateNames[i] + ' ×' + c[gateNames[i]]); }
+
+    var gateList = usedGates.length > 0 ? usedGates.join(', ') : 'None (implicit AND via adjacency)';
+
+    var html = '<div class="comp-row"><span class="comp-label">Inputs</span><span class="comp-value">' + vars.join(', ') + '</span></div>';
+    html += '<div class="comp-row"><span class="comp-label">Input Count</span><span class="comp-value">' + vars.length + '</span></div>';
+    html += '<div class="comp-row"><span class="comp-label">Gates Used</span><span class="comp-value">' + gateList + '</span></div>';
+    html += '<div class="comp-row"><span class="comp-label">Total Gates</span><span class="comp-value">' + gateInfo.ops + '</span></div>';
+    html += '<div class="comp-row"><span class="comp-label">Est. Depth</span><span class="comp-value">' + gateInfo.depth + ' layer' + (gateInfo.depth !== 1 ? 's' : '') + '</span></div>';
+
+    var gateTypes = '';
+    if (c.AND > 0) gateTypes += c.AND + ' AND';
+    if (c.OR > 0 || c.BACKTICK_OR > 0) gateTypes += ' ' + (c.OR + c.BACKTICK_OR) + ' OR';
+    if (c.NOT > 0) gateTypes += ' ' + c.NOT + ' NOT';
+    if (c.XOR > 0) gateTypes += ' ' + c.XOR + ' XOR';
+    if (c.NAND > 0) gateTypes += ' ' + c.NAND + ' NAND';
+    if (c.NOR > 0) gateTypes += ' ' + c.NOR + ' NOR';
+    if (c.XNOR > 0) gateTypes += ' ' + c.XNOR + ' XNOR';
+    if (c.IMPLIES > 0) gateTypes += ' ' + c.IMPLIES + ' ->';
+    html += '<div class="comp-row"><span class="comp-label">Gate Types</span><span class="comp-value">' + (gateTypes || '-') + '</span></div>';
+
+    var upperExpr = exprStr.toUpperCase();
+    var topo = 'Output';
+    if (upperExpr.indexOf('->') >= 0) topo = '(Input -> Output) Implication';
+    else if (upperExpr.indexOf(',') >= 0) topo = '(Multi-output via ,)';
+    else if (upperExpr.indexOf("'") >= 0) topo = '(Apostrophe NOT cascade -> Output)';
+    else if (upperExpr.indexOf('AND') >= 0 || upperExpr.indexOf('OR') >= 0) {
+        var hasNested = (upperExpr.match(/\(/g) || []).length > 1;
+        topo = hasNested ? '(Nested -> Output)' : '(Flat AND/OR chain';
+    }
+
+    html += '<div class="comp-row"><span class="comp-label">Topology</span><span class="comp-value">' + topo + '</span></div>';
+
+    return html;
+}
+
+function displayPrimeImplicants(exprStr, vars) {
+    if (!vars || vars.length === 0) return '';
+
+    var result = evaluateSingleExpression(exprStr);
+    if (!result || !result.minterms) return '<div class="prime-imp">No minterms found</div>';
+
+    var qmResult = QM.findPrimes(result.minterms, vars.length);
+
+    if (!qmResult.primes || qmResult.primes.length === 0) return '<div class="prime-imp">No prime implicants found</div>';
+
+    var html = '';
+    for (var i = 0; i < qmResult.primes.length; i++) {
+        var pi = qmResult.primes[i];
+        var expr = QM._maskToExpr(pi.mask, pi.dontCare, vars);
+        var isEssential = pi.essential ? ' <span style="color:#ff6b6b;">★ Essential</span>' : '';
+        html += '<div class="prime-imp">' + expr + isEssential + '</div>';
+    }
+
+    var selectedExprs = [];
+    for (var j = 0; j < qmResult.selected.length; j++) {
+        var pi = qmResult.primes[qmResult.selected[j]];
+        selectedExprs.push(QM._maskToExpr(pi.mask, pi.dontCare, vars));
+    }
+
+    var dnfExpr = selectedExprs.join(' | ');
+    gbyId('a-d-simp').innerHTML = '<b>DNF:</b> ' + dnfExpr;
+
+    return html;
+}
+
+function addToHistory(expr) {
+    var historyEl = gbyId('a-history');
+    if (!historyEl) return;
+
+    var existing = historyEl.querySelectorAll('.hist-item');
+    for (var i = 0; i < existing.length; i++) { if (existing[i].textContent === expr) return; }
+
+    var item = document.createElement('div');
+    item.className = 'hist-item';
+    item.textContent = expr;
+    item.onclick = function() { gbyId('a-i-expr').value = expr; };
+
+    if (historyEl.firstChild) historyEl.insertBefore(item, historyEl.firstChild);
+    else historyEl.appendChild(item);
+
+    while (historyEl.children.length > 20) historyEl.removeChild(historyEl.lastChild);
+}
+
+var aCalcTimeout = null;
+
+function triggerEval() {
+    clearTimeout(aCalcTimeout);
+    aCalcTimeout = setTimeout(function() {
+        var expr = gbyId('a-i-expr').value;
+
+        function clearAll() {
+            gbyId('a-d-simp').innerHTML = 'Enter expression';
+            gbyId('a-d-res').innerHTML = 'Enter expression';
+            gbyId('a-table-container').innerHTML = '';
+            gbyId('a-complexity').innerHTML = '';
+            gbyId('a-circuit').innerHTML = '';
+            gbyId('a-prime-implicants').innerHTML = '';
+        }
+
+        if (!expr) { clearAll(); return; }
+
+        var result = evaluateTruthTable(expr);
+
+        if (!result || !result.vars) {
+            var errorMsg = result && result.error ? '<span style="color:#ff6b6b;">' + result.error + '</span>' : 'Enter expression';
+            gbyId('a-d-simp').innerHTML = errorMsg;
+            gbyId('a-d-res').innerHTML = errorMsg;
+            clearAll(); return;
+        }
+
+        gbyId('a-d-res').innerHTML = 'Table Generated';
+        gbyId('a-table-container').innerHTML = result.html;
+
+        gbyId('a-complexity').innerHTML = computeComplexity(expr, result.vars, result.tableData);
+        gbyId('a-circuit').innerHTML = analyzeCircuit(expr, result.vars);
+
+        displayPrimeImplicants(expr, result.vars);
+
+        addToHistory(expr);
+    }, 150);
+}
+
+gbyId('a-i-expr').oninput = triggerEval;
+gbyId('a-btn-eval').onclick = function() { gbyId('a-i-expr').dispatchEvent(new Event('input')); };
+
+gbyId('a-btn-copy').onclick = function() {
+    var expr = gs('a-i-expr'); if (!expr) return;
+    navigator.clipboard.writeText('Expression: ' + expr).then(function() { showToast('Copied!'); });
+};
+
+// === T-CALC: Tire Diameter & Comparison Calculator (cached) ===
+var _tResult = [null, null];
+
+function tCalc_get(prefix) {
+    var widthRaw = gs('t-i-width' + prefix);
+    var a = gv('t-i-aspect' + prefix);
+    if (isNaN(a)) return null;
+    var r = gv('t-i-rim' + prefix);
+    if (isNaN(r)) return null;
+
+    var totalDia, tireWidthMM;
+
+    // Detect AT-style input: "33x12.5" in the width field
+    var atMatch = widthRaw.match(/^(\d+\.?\d*)\s*x\s*(\d+\.?\d*)$/i);
+    if (atMatch) {
+        totalDia = parseFloat(atMatch[1]);
+        tireWidthMM = parseFloat(atMatch[2]) * 25.4; // store width in mm for label
+        a = null; // aspect ratio not used for AT tires
+    } else {
+        tireWidthMM = gv('t-i-width' + prefix); // original mm width
+        if (isNaN(tireWidthMM)) return null;
+        if (a != null && a >= 20 && a <= 85) {
+            var sidewall_in = (tireWidthMM * a / 100) / 25.4;
+            totalDia = (2 * sidewall_in) + r;
+        } else {
+            // Fallback: treat width input as diameter (inches)
+            totalDia = tireWidthMM;
+        }
+    }
+
+    var circumference = Math.PI * totalDia;
+    var revsPerMile = 63360 / circumference;
+
+    if (prefix === '') {
+        gbyId('t-d-res').innerHTML = '<b style="font-size:1.5em;">' + totalDia.toFixed(2) + '" Dia</b>';
+        gbyId('t-d-stats').innerHTML = 'Circ: ' + circumference.toFixed(2) + '" | Rev/Mi: ' + Math.round(revsPerMile);
+    }
+
+    var label;
+    if (atMatch) {
+        label = atMatch[1] + 'x' + atMatch[2] + '/' + r;
+    } else {
+        label = tireWidthMM + '/' + (a != null ? a.toFixed(0) : '?') + '-' + r;
+    }
+
+    return { label: label, dia: totalDia, circ: circumference, revs: revsPerMile, width: tireWidthMM, aspect: a, rim: r };
+}
+
+function updateViz() {
+    var pViz = gbyId('t-tire-primary'); 
+    var sViz = gbyId('t-tire-secondary');
+    var label = gbyId('t-viz-label');
+
     if (!pViz || !sViz || !label) return;
 
-    var maxDia = Math.max(pDia, sDia);
+    var t1 = _tResult[0];
+    var t2 = _tResult[1];
+
+    if (!t1) return;
+
+    var maxDia = Math.max(t1.dia, (t2 && t2.dia > 0) ? t2.dia : 0); 
+    if (maxDia === 0) return;
+
     var scale = 140 / maxDia; 
+    pViz.style.width = (t1.dia * scale) + 'px';
+    pViz.style.height = (t1.dia * scale) + 'px';
 
-    pViz.style.width = (pDia * scale) + 'px';
-    pViz.style.height = (pDia * scale) + 'px';
-    sViz.style.width = (sDia * scale) + 'px';
-    sViz.style.height = (sDia * scale) + 'px';
+    if (t2 && t2.dia > 0) {
+        sViz.style.width = (t2.dia * scale) + 'px'; 
+        sViz.style.height = (t2.dia * scale) + 'px';
+    } else {
+        sViz.style.width = '0px'; 
+        sViz.style.height = '0px';
+    }
 
-    label.textContent = pWidth + ' vs ' + sWidth;
+    label.textContent = t1.dia.toFixed(1) + '" vs ' + (t2 && t2.dia > 0 ? t2.dia.toFixed(1) : '-') + '"';
 }
 
-document.getElementById('t-btn-calc').onclick = function() {
-    var t1 = tCalc_calc(''); 
-    var t2 = tCalc_calc('2');
+function computeTireDelta(t1, t2) {
+    var diffDia = t2.dia - t1.dia; 
+    var diffPerc = (diffDia / t1.dia) * 100;
+    var diffCirc = t2.circ - t1.circ;
+    var diffCircPerc = (diffCirc / t1.circ) * 100;
+    var diffRev = t2.revs - t1.revs;
+    return { dia: diffDia, perc: diffPerc, circ: diffCirc, circPerc: diffCircPerc, rev: diffRev };
+}
 
-    // Update visualizer with both tires if available
-    if (t1 && t2) {
-        updateViz(t1.dia, t2.dia, t1.width, t2.width);
-    } else if (t1) {
-        updateViz(t1.dia, 0, t1.width, '0');
-    }
+function runTireCalc() {
+    var r = [_tResult[0] = tCalc_get(''), _tResult[1] = tCalc_get('2')];
+    var t1 = r[0], t2 = r[1];
 
-    // Clear and build comparison table (regardless if both entered)
-    var body = document.getElementById('t-r-comp'); 
-    body.innerHTML = '';
+    updateViz();
+
+    var tableHtml = '';
     if (t1) {
-        var row = document.createElement('tr');
-        row.innerHTML = '<td>' + t1.label + '</td><td style="width:20%">' + t1.dia.toFixed(2) + '"</td><td style="width:20%">' + t1.circ.toFixed(1) + '"</td><td style="width:20%">' + Math.round(t1.revs) + '</td>';
-        body.appendChild(row);
-
-        if (document.getElementById('t-d-res').innerHTML.indexOf('Single') !== -1) {
-            document.getElementById('t-d-res').innerHTML = 'Enter second tire';
-        }
+        tableHtml += '<tr><td><b>Current</b></td><td>' + t1.dia.toFixed(2) + '"</td><td>' + t1.circ.toFixed(2) + '"</td><td>' + Math.round(t1.revs) + '</td></tr>';
     }
     if (t2) {
-        var row = document.createElement('tr');
-        row.innerHTML = '<td>' + t2.label + '</td><td style="width:20%">' + t2.dia.toFixed(2) + '"</td><td style="width:20%">' + t2.circ.toFixed(1) + '"</td><td style="width:20%">' + Math.round(t2.revs) + '</td>';
-        body.appendChild(row);
+        tableHtml += '<tr><td><b>Prospect</b></td><td>' + t2.dia.toFixed(2) + '"</td><td>' + t2.circ.toFixed(2) + '"</td><td>' + Math.round(t2.revs) + '</td></tr>';
+    }
+    gbyId('t-r-comp').innerHTML = tableHtml;
 
-        if (document.getElementById('t-d-res').innerHTML.indexOf('Single') !== -1) {
-            document.getElementById('t-d-res').innerHTML = 'Enter second tire';
+    var compDiv = gbyId('t-d-comp');
+    if (t1 && t2) {
+        var delta = computeTireDelta(t1, t2);
+
+        gbyId('t-d-res').innerHTML = '<b style="font-size:1.2em;">' + (Math.abs(delta.dia).toFixed(2) + '" ' + (delta.dia > 0 ? '+' : '') + (delta.dia > 0 ? 'Taller' : 'Shorter')) + '</b>';
+        gbyId('t-d-stats').innerHTML = 
+            'Dia: ' + (delta.dia > 0 ? '+' : '') + delta.dia.toFixed(2) + '" (' + (delta.perc > 0 ? '+' : '') + delta.perc.toFixed(1) + '%)\n' +
+            'Circ: ' + (delta.circ > 0 ? '+' : '') + delta.circ.toFixed(2) + '" (' + (delta.circPerc > 0 ? '+' : '') + delta.circPerc.toFixed(1) + '%)\n' +
+            'Rev/Mi: ' + (delta.rev > 0 ? '+' : '') + delta.rev;
+
+        compDiv.innerHTML = 
+            '<div class="comp-row"><span class="comp-label">Current Tire</span><span class="comp-value">' + t1.label + '</span></div>' +
+            '<div class="comp-row"><span class="comp-label">Prospect Tire</span><span class="comp-value">' + t2.label + '</span></div>' +
+            '<div class="comp-row"><span class="comp-label">Diff Dia</span><span class="comp-value">' + (delta.dia > 0 ? '+' : '') + delta.dia.toFixed(2) + '" (' + (delta.perc > 0 ? '+' : '') + delta.perc.toFixed(1) + '%)</span></div>' +
+            '<div class="comp-row"><span class="comp-label">Diff Circ</span><span class="comp-value">' + (delta.circ > 0 ? '+' : '') + delta.circ.toFixed(2) + '" (' + (delta.circPerc > 0 ? '+' : '') + delta.circPerc.toFixed(1) + '%)</span></div>' +
+            '<div class="comp-row"><span class="comp-label">Diff Rev/Mi</span><span class="comp-value">' + (delta.rev > 0 ? '+' : '') + delta.rev + '</span></div>' +
+            '<div class="comp-row"><span class="comp-label">Speedo</span><span class="comp-value">' + (delta.perc > 0 ? 'Reads slower than actual' : delta.perc < 0 ? 'Reads faster than actual' : 'No change') + '</span></div>';
+    } else {
+        gbyId('t-d-res').innerHTML = 'Enter both tires';
+        gbyId('t-d-stats').innerHTML = '';
+        compDiv.innerHTML = 'Enter two tires for comparison';
+    }
+}
+
+gbyId('t-btn-calc').onclick = runTireCalc;
+gbyId('t-btn-compare').onclick = function() { gbyId('t-btn-calc').click(); };
+
+gbyId('t-btn-copy').onclick = function() {
+    var t1 = _tResult[0] || tCalc_get(''); if (!t1) return;
+
+    var t2 = _tResult[1] || tCalc_get('2');
+    var delta = t2 ? computeTireDelta(t1, t2) : null;
+
+    var text = 'TIRE DATA\n--- Current ---\nSize: ' + t1.label + '\nDia: ' + t1.dia.toFixed(2) + '"\nCirc: ' + t1.circ.toFixed(2) + '"\nRev/Mi: ' + Math.round(t1.revs);
+    if (t2 && delta) {
+        text += '\n\n--- Prospect ---\nSize: ' + t2.label + '\nDia: ' + t2.dia.toFixed(2) + '"\nCirc: ' + t2.circ.toFixed(2) + '"\nRev/Mi: ' + Math.round(t2.revs);
+        text += '\n\n--- Delta ---\nDia: ' + (delta.dia > 0 ? '+' : '') + delta.dia.toFixed(2) + '" (' + (delta.perc > 0 ? '+' : '') + delta.perc.toFixed(1) + '%)\nRev/Mi: ' + (delta.rev > 0 ? '+' : '') + delta.rev;
+    }
+    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
+};
+
+// === S-CALC: Servo Stall + Material Stress Calculator (cached) ===
+var MATERIAL_DATA = {
+    steel:    { yield: 36000, name: 'Steel' },
+    aluminum: { yield: 35000, name: 'Aluminum' },
+    titanium: { yield: 130000, name: 'Titanium' },
+    brass:    { yield: 20000, name: 'Brass' },
+    abs:      { yield: 7000, name: 'ABS Plastic' },
+    pla:      { yield: 10000, name: 'PLA' }
+};
+
+var _sResult = null;
+
+function sCalc_calc() {
+    var torque = gv('s-i-torque');
+    var arm = gv('s-i-arm');
+
+    if (isNaN(torque) || isNaN(arm)) {
+        gbyId('s-d-res').innerHTML = 'Enter torque & arm'; _sResult = null; return null;
+    }
+
+    var contTorque = gv('s-i-contTorque'); // continuous torque (optional)
+    var ma = gv('s-i-ma');
+    if (isNaN(ma) || ma === 0) ma = 1;
+
+    var forceLb = (torque / arm) / ma;
+    var jointMoment = forceLb * arm; // M = F × r — equals servo torque at the horn
+
+    var matSel = gbyId('s-i-material');
+    var crossSec = gv('s-i-crosssec');
+
+    // Bending moment — auto-computed from force × arm, but user can override
+    var bendMomentInput = gv('s-i-bend');
+    var momentRating = gv('s-i-momentRating');
+    var sModulus = gv('s-i-smod');
+
+    // Auto-fill bending moment if user entered 0
+    var bendMoment;
+    if (isNaN(bendMomentInput) || bendMomentInput === 0) {
+        bendMoment = jointMoment; // F × r is the primary bending driver at horn root
+    } else {
+        bendMoment = bendMomentInput;
+    }
+
+    // Continuous torque design check (SF ≥ 2 vs stall)
+    var contTorque = gv('s-i-contTorque'); // continuous torque (optional)
+    var ma = gv('s-i-ma');
+    if (isNaN(ma) || ma === 0) ma = 1;
+
+    var contDesignOK = true;
+    if (!isNaN(contTorque) && contTorque > 0) {
+        var sfContDesign = torque / contTorque;
+        if (sfContDesign < 2.0) {
+            contDesignOK = false;
         }
     }
 
-    // Show summary comparison if both tires are entered
-    if (t1 && t2) {
-        var ref = t1.isMetric ? t1 : t2;
-        var other = ref.isMetric ? t2 : t1;
+    var stressInfoParts = [];
+    var isSafe = true;
 
-        var diffDia = other.dia - ref.dia;
-        var unitLabel = '"';
-        var diffPerc = (diffDia / ref.dia) * 100;
-        var diffRev = other.revs - ref.revs;
+    // === LAYER 1: Servo limit check ===
+    var servoLines = [];
+    servoLines.push('<b>1. Servo Limit Check</b><br>');
+    servoLines.push('Servo stall torque available: ' + torque.toFixed(0) + ' in·lbf (short-duration peak)<br>');
+    servoLines.push('Required joint torque: ' + bendMoment.toFixed(1) + ' in·lbf (F × r = (T/arm/MA) × arm)<br>');
+    servoLines.push('Arm length: ' + arm.toFixed(2) + '"<br>');
+    servoLines.push('Linkage ratio: ' + ma.toFixed(2) + ':1 (force multiplication)<br>');
 
-        document.getElementById('t-d-res').innerHTML = '<b style="font-size:1.2em;">Difference</b>';
-        document.getElementById('t-d-stats').innerHTML = 
-            'Dia: ' + (diffDia > 0 ? '+' : '') + diffDia.toFixed(2) + '" (' + (diffPerc > 0 ? '+' : '') + diffPerc.toFixed(1) + '%)\n' +
-            'Rev/Mi: ' + (diffRev > 0 ? '+' : '') + Math.round(diffRev);
-    } else if (t1) {
-        document.getElementById('t-d-res').innerHTML = '<b style="font-size:1.2em;">Single Tire</b>';
-        document.getElementById('t-d-stats').innerHTML = 'Enter second tire for comparison';
+    if (!isNaN(contTorque) && contTorque > 0) {
+        var contForce = (contTorque / arm) / ma;
+        servoLines.push('Continuous torque: ' + contTorque.toFixed(0) + ' in·lbf<br>');
+        servoLines.push('Continuous force: ~' + contForce.toFixed(1) + ' lbf<br>');
+        var sfCont = torque / contTorque;
+        servoLines.push('Stall/continuous ratio: ' + sfCont.toFixed(1) + ':1<br>');
+        if (sfCont < 2.0) {
+            servoLines.push('⚠ Continuous torque too close to stall — undersized for sustained duty');
+        } else {
+            servoLines.push('✓ Continuous torque well within stall limit (SF ≥ 2)');
+        }
     } else {
-        document.getElementById('t-d-res').innerHTML = 'Enter dimensions';
-        document.getElementById('t-d-stats').innerHTML = '';
+        servoLines.push('Continuous torque: unknown — check servo datasheet<br>');
+    }
+
+    // === LAYER 2: Joint moment check ===
+    var jointLines = [];
+    jointLines.push('<b>2. Joint Moment (M = F × r)</b><br>');
+    jointLines.push('Moment at horn root: ' + jointMoment.toFixed(1) + ' in·lbf<br>');
+    if (!isNaN(momentRating) && momentRating > 0) {
+        var sfMoment = momentRating / jointMoment;
+        var momentSafe = sfMoment >= 1.0;
+        jointLines.push('Horn/bracket rating: ' + momentRating.toFixed(0) + ' in·lbf<br>');
+        jointLines.push('Safety factor: ' + sfMoment.toFixed(2) + (sfMoment >= 2 ? ' — adequate' : sfMoment >= 1.25 ? ' — marginal' : ' ⚠ FAIL'));
+        jointLines.push('<span style="color:' + (momentSafe ? '#40c057' : '#ff6b6b') + '">' + (momentSafe ? '✓ Rating not exceeded' : '✗ FAIL — moment exceeds rating') + '</span><br>');
+    } else {
+        jointLines.push('Horn/bracket rating: unknown — enter to check<br>');
+    }
+
+    // === LAYER 3: Structural stress modes ===
+    var structLines = [];
+    if (matSel && !isNaN(crossSec) && crossSec > 0) {
+        var matKey = matSel.value || 'titanium';
+        var matData = MATERIAL_DATA[matKey];
+        if (matData) {
+            structLines.push('<b>3. Structural Stress Analysis</b><br>');
+            structLines.push('Material: ' + matData.name + '<br>');
+            structLines.push('Cross Section Area: ' + crossSec.toFixed(3) + ' in²<br>');
+
+            // Bending stress (primary failure driver at horn root)
+            if (!isNaN(sModulus) && sModulus > 0) {
+                var bendStressPsi = bendMoment / sModulus;
+                var bendKsi = bendStressPsi / 1000;
+                structLines.push('Bending stress (primary): ' + bendKsi.toFixed(2) + ' ksi (' + bendStressPsi.toFixed(0) + ' psi)<br>');
+
+                // Shear stress (secondary — full cross section in shear)
+                var shearStress = forceLb / crossSec; // conservative — full area in shear
+                var shearKsi = shearStress / 1000;
+                structLines.push('Shear stress (secondary): ' + shearKsi.toFixed(2) + ' ksi (' + shearStress.toFixed(0) + ' psi)<br>');
+
+                // Axial stress (minor — force distributed over cross section)
+                var axialStressPsi = forceLb / crossSec;
+                var axialKsi = axialStressPsi / 1000;
+                structLines.push('Axial stress (minor): ' + axialKsi.toFixed(2) + ' ksi (' + axialStressPsi.toFixed(0) + ' psi)<br>');
+
+                // Combined stress (bending dominant — worst case at horn root)
+                var combinedStress = bendStressPsi + axialStressPsi;
+                var combinedKsi = combinedStress / 1000;
+                var yieldPsi = matData.yield;
+                var sfCombined = yieldPsi / combinedStress;
+
+                structLines.push('Combined stress (bend + axial): ' + combinedKsi.toFixed(2) + ' ksi<br>');
+                structLines.push('Safety factor: ' + sfCombined.toFixed(2) + '<br>');
+                structLines.push('<span style="color:' + (sfCombined >= 1.0 ? '#40c057' : '#ff6b6b') + '">' + (sfCombined >= 1.0 ? '✓ Yield not exceeded' : '✗ FAIL — exceeds yield') + '</span><br>');
+
+                // SF interpretation
+                if (sfCombined >= 4) {
+                    structLines.push('Very overbuilt');
+                } else if (sfCombined >= 2) {
+                    structLines.push('Good safety margin');
+                } else if (sfCombined >= 1.25) {
+                    structLines.push('Adequate for static load');
+                } else if (sfCombined >= 1) {
+                    structLines.push('⚠ Marginal — dynamic loads may cause failure');
+                } else {
+                    structLines.push('⚠ FAIL — immediate risk under stall');
+                }
+
+                // Recommended max working load (SF=3)
+                var recommendedMaxForce = (yieldPsi / 3) * crossSec;
+                structLines.push('Recommended max working load (SF=3): ' + recommendedMaxForce.toFixed(1) + ' lbf<br>');
+            } else {
+                // No section modulus — axial only (least informative)
+                var yieldPsi = matData.yield;
+                var sfAxial = yieldPsi / axialStressPsi;
+                structLines.push('⚠ No section modulus — bending stress not calculated<br>');
+                structLines.push('Safety factor (axial only, incomplete): ' + sfAxial.toFixed(2) + '<br>');
+                structLines.push('<span style="color:' + (sfAxial >= 1.0 ? '#40c057' : '#ff6b6b') + '">' + (sfAxial >= 1.0 ? '✓ Axial yield not exceeded' : '✗ FAIL — axial stress exceeds yield') + '</span><br>');
+                structLines.push('⚠ Enter section modulus for full bending + shear analysis<br>');
+            }
+        }
+    }
+
+    // === LAYER 4: System failure warning (dominant real-world outcome) ===
+    var failLines = [];
+    failLines.push('<b>4. System Failure Mode</b><br>');
+
+    // Specific failure modes in order of likelihood
+    if (torque > 50) {
+        failLines.push('⚠ Most likely: servo/gearbox strip or motor burnout (weak link)<br>');
+    } else if (torque > 20) {
+        failLines.push('⚠ Possible: horn/bracket yield or fastener pullout<br>');
+    } else {
+        failLines.push('✓ All components rated well — failure unlikely in normal use<br>');
+    }
+
+    if (!isNaN(sModulus) && sModulus > 0) {
+        failLines.push('Horn root: bending fatigue possible under repeated cycling<br>');
+    }
+
+    // PLA specific warning
+    if (matKey === 'pla') {
+        failLines.push('⚠ PLA softens above ~50°C — servo heat may reduce yield by 50%+<br>');
+    }
+
+    // ABS specific warning
+    if (matKey === 'abs') {
+        failLines.push('⚠ ABS is viscoelastic — creep under sustained load, may loosen over time<br>');
+    }
+
+    // Dynamic loading warning
+    if (forceLb > 50) {
+        failLines.push('⚠ Shock/impact loading can exceed static loads by 2–3× (gear stripping, screw shear)<br>');
+    }
+
+    // Continuous stall warning
+    if (!isNaN(contTorque) && contTorque > 0 && forceLb >= contForce * ma) {
+        failLines.push('⚠ Running at or near stall will overheat servo — duty cycle limited<br>');
+    }
+
+    // Hub/clevis crack warning for high cycles
+    if (!isNaN(sModulus) && sModulus > 0 && bendMoment > torque * 0.8) {
+        failLines.push('⚠ High bending stress at horn root — watch for fatigue cracks at connection points');
+    } else if (failLines.length > 1) {
+        failLines.push('Monitor horn/bracket for deformation under sustained load');
+    } else {
+        failLines.push('Monitor horn/bracket for deformation under sustained load');
+    }
+
+    stressInfoParts.push(servoLines.join(''));
+    stressInfoParts.push(jointLines.join(''));
+    stressInfoParts.push(structLines.join(''));
+    stressInfoParts.push(failLines.join(''));
+
+    // Display force prominently
+    gbyId('s-d-res').innerHTML = 
+        '<div style="text-align:left;">' +
+        '<b>Output Force</b><br>' +
+        'Linear Force at Arm: <span style="font-size:1.4em;color:#74c0fc;">' + forceLb.toFixed(2) + ' lbf</span>' +
+        '<br><span style="font-size:0.9em; color:#aaa;">Joint Moment (F × r): ' + jointMoment.toFixed(1) + ' in·lbf</span>' +
+        '</div>';
+
+    gbyId('s-d-stats').innerHTML = stressInfoParts.join('\n');
+
+    _sResult = { torque: torque, arm: arm, ma: ma, forceLb: forceLb, jointMoment: jointMoment };
+    return _sResult;
+}
+
+gbyId('s-btn-calc').onclick = sCalc_calc;
+
+gbyId('s-btn-copy').onclick = function() {
+    var result = _sResult; if (!result) { sCalc_calc(); result = _sResult; }
+    if (!result) return;
+
+    var matSel = gbyId('s-i-material');
+    var crossSec = gv('s-i-crosssec');
+
+    var stressLine = '';
+    if (matSel && !isNaN(crossSec) && crossSec > 0) {
+        var matKey = matSel.value || 'titanium';
+        var matData = MATERIAL_DATA[matKey];
+        if (matData) {
+            var stressPsi = result.forceLb / crossSec;
+            var safetyFactor = matData.yield / stressPsi;
+            var sfLabel = safetyFactor >= 4 ? 'Very overbuilt' : (safetyFactor >= 2 ? 'Good margin' : (safetyFactor >= 1.25 ? 'Adequate' : 'Marginal'));
+            stressLine = '\n--- Material Stress ---\n' + matData.name + '\nCross Section: ' + crossSec.toFixed(3) + ' in²\nStress: ' + (stressPsi / 1000).toFixed(2) + ' ksi\nYield: ' + (matData.yield / 1000).toFixed(2) + ' ksi\nSafety Factor: ' + safetyFactor.toFixed(2) + ' (' + sfLabel + ')';
+        }
+    }
+
+    var text = 'S-CALC v1.3\n--- Servo Stall ---\nTorque: ' + result.torque.toFixed(0) + ' in-lbf\nArm Length: ' + result.arm.toFixed(2) + '"\nMechanical Advantage: ' + result.ma.toFixed(2) + '\n\n--- Output Force ---\nLinear Force: ' + result.forceLb.toFixed(2) + ' lbf' + stressLine;
+    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
+};
+
+// === W-CALC: Welding Heat Input + Wire Feed Calculator (cached) ===
+var _wResult = null;
+
+// Material thickness presets for burn-through / distortion risk assessment
+var WELD_THICK_RANGES = {
+    mildsteel: {
+        thin:  [{ max: 0.0625, label: 'Very thin (<1/16")', burnRisk: 'High — low heat input required' },
+                { min: 0.0625, max: 0.125, label: 'Thin (1/16"–3/16")', burnRisk: 'Moderate — watch heat input' },
+                { min: 0.125, max: 0.25, label: 'Medium (3/16"–1/4")', burnRisk: 'Low' },
+                { min: 0.25, label: 'Thick (>1/4")', burnRisk: 'Very low' }],
+        recommendedHI: { min: 0.5, max: 3.0 } // kJ/in typical range
+    },
+    stainless: {
+        thin:  [{ max: 0.0625, label: 'Very thin (<1/16")', burnRisk: 'High — low heat input required' },
+                { min: 0.0625, max: 0.125, label: 'Thin (1/16"–3/16")', burnRisk: 'Moderate — watch heat input' },
+                { min: 0.125, max: 0.25, label: 'Medium (3/16"–1/4")', burnRisk: 'Low' },
+                { min: 0.25, label: 'Thick (>1/4")', burnRisk: 'Very low' }],
+        recommendedHI: { min: 0.4, max: 2.5 } // stainless is more heat-sensitive
+    },
+    aluminum: {
+        thin:  [{ max: 0.0625, label: 'Very thin (<1/16")', burnRisk: 'High — very heat sensitive' },
+                { min: 0.0625, max: 0.125, label: 'Thin (1/16"–3/16")', burnRisk: 'Moderate — watch heat input' },
+                { min: 0.125, max: 0.25, label: 'Medium (3/16"–1/4")', burnRisk: 'Low' },
+                { min: 0.25, label: 'Thick (>1/4")', burnRisk: 'Very low' }],
+        recommendedHI: { min: 1.0, max: 5.0 } // aluminum needs more heat
     }
 };
 
-document.getElementById('t-btn-copy').onclick = function() {
-    var res1 = tCalc_calc(''); 
-    if (!res1) return;
+function wCalc_heat() {
+    var volts = gv('w-i-volts');
+    var amps = gv('w-i-amps');
+    var speed = gv('w-i-speed');
+    var eff = gv('w-i-eff');
 
-    var text = 'TIRE DATA\n';
-    text += '--- Primary ---\nSize: ' + res1.label + '\nDia: ' + res1.dia.toFixed(2) + '"\nCirc: ' + res1.circ.toFixed(2) + '"\nRev/Mi: ' + Math.round(res1.revs);
-
-    var res2 = tCalc_calc('2');
-    if (res2) {
-        text += '\n\n--- Comparison ---\nSize: ' + res2.label + '\nDia: ' + res2.dia.toFixed(2) + '"\nCirc: ' + res2.circ.toFixed(2) + '"\nRev/Mi: ' + Math.round(res2.revs);
-
-        var ref = res1.isMetric ? res1 : res2;
-        var other = ref.isMetric ? res2 : res1;
-        
-        var diffDia = other.dia - ref.dia;
-        var unitLabel = '"';
-        var diffPerc = (diffDia / ref.dia) * 100;
-        var diffRev = other.revs - ref.revs;
-        text += '\n\n--- Difference ---\nDia: ' + (diffDia > 0 ? '+' : '') + diffDia.toFixed(2) + '" (' + (diffPerc > 0 ? '+' : '') + diffPerc.toFixed(1) + '%)\nRev/Mi: ' + (diffRev > 0 ? '+' : '') + Math.round(diffRev);
+    if (isNaN(volts) || isNaN(amps) || isNaN(speed)) {
+        gbyId('w-d-res').innerHTML = 'Enter V, A & speed'; _wResult = null; return null;
     }
 
-    navigator.clipboard.writeText(text).then(() => showToast('Copied!'));
-};
+    if (isNaN(eff) || eff <= 0) eff = 0.85;
 
-// Compare Two Tires button handler (sets t-btn-compare)
-document.getElementById('t-btn-compare').onclick = function() {
-    var t1 = tCalc_calc(''); 
-    var t2 = tCalc_calc('2');
+    // Heat input in J/in: HI = (60 * V * A * η) / travel_speed(in/min)
+    var heatInputJPerIn = (60 * volts * amps * eff) / speed;
+    // Convert to kJ/in and BTU/in (exact: 1 BTU = 1055.06 J, 1 in = 0.0254 m)
+    var heatInputKJPerIn = heatInputJPerIn / 1000;
+    var heatInputBTUPerIn = heatInputJPerIn / 1055.06;
 
-    if (t1 && t2) {
-        updateViz(t1.dia, t2.dia, t1.width, t2.width);
+    _wResult = {
+        volts: volts, amps: amps, speed: speed, eff: eff,
+        heatInputJPerIn: heatInputJPerIn,
+        heatInputKJPerIn: heatInputKJPerIn,
+        heatInputBTUPerIn: heatInputBTUPerIn
+    };
+
+    // Burn-through risk based on material thickness
+    var matKey = gs('w-i-material') || 'mildsteel';
+    var thick = gv('w-i-thick');
+    var burnRiskLabel = 'Unknown — specify material thickness';
+    var recRangeStr = '';
+
+    if (!isNaN(thick) && thick > 0 && WELD_THICK_RANGES[matKey]) {
+        var ranges = WELD_THICK_RANGES[matKey].thin;
+        for (var r = 0; r < ranges.length; r++) {
+            if (ranges[r].max && thick <= ranges[r].max) {
+                burnRiskLabel = 'Burn-through risk: ' + ranges[r].label;
+                break;
+            } else if (ranges[r].min && thick >= ranges[r].min) {
+                burnRiskLabel = 'Burn-through risk: ' + ranges[r].label;
+                break;
+            }
+        }
+        var rec = WELD_THICK_RANGES[matKey].recommendedHI;
+        recRangeStr = ' Recommended HI range: ' + rec.min + '–' + rec.max + ' kJ/in';
     }
 
-    if (!t1 || !t2) return;
-    
-    var ref = t1.isMetric ? t1 : t2;
-    var other = ref.isMetric ? t2 : t1;
-    
-    var diffDia = other.dia - ref.dia; 
-    var unitLabel = '"';
-    var diffPerc = (diffDia / ref.dia) * 100;
-    var diffRev = other.revs - ref.revs;
+    // Heat input adequacy rating
+    var heatRating = '';
+    if (heatInputKJPerIn < 0.5) {
+        heatRating = 'Very low — may not penetrate';
+    } else if (heatInputKJPerIn < 1.5) {
+        heatRating = 'Good penetration range';
+    } else if (heatInputKJPerIn < 4.0) {
+        heatRating = 'Moderate — watch distortion';
+    } else if (heatInputKJPerIn < 8.0) {
+        heatRating = 'High — slow travel, watch distortion';
+    } else {
+        heatRating = 'Very high — risk of burn-through on thin metal';
+    }
 
-    document.getElementById('t-d-res').innerHTML = '<b style="font-size:1.2em;">Difference</b>';
-    document.getElementById('t-d-stats').innerHTML = 
-        'Dia: ' + (diffDia > 0 ? '+' : '') + diffDia.toFixed(2) + '" (' + (diffPerc > 0 ? '+' : '') + diffPerc.toFixed(1) + '%)\n' +
-        'Rev/Mi: ' + (diffRev > 0 ? '+' : '') + Math.round(diffRev);
+    // Travel speed band indicator (MIG baseline: 25–35 in/min)
+    var speedBand = '';
+    if (speed < 10) {
+        speedBand = '<span style="color:#ff6b6b;">⚠ Very slow travel — high heat input</span>';
+    } else if (speed < 20) {
+        speedBand = '<span style="color:#fab005;">Slow — typical for thick sections or TIG</span>';
+    } else if (speed <= 45) {
+        speedBand = '<span style="color:#40c057;">✓ Typical MIG range</span>';
+    } else if (speed <= 60) {
+        speedBand = '<span style="color:#fab005;">Fast — good for thin metal or high-speed</span>';
+    } else {
+        speedBand = '<span style="color:#ff6b6b;">Very fast — may lack penetration</span>';
+    }
+
+    gbyId('w-d-res').innerHTML =
+        '<b style="font-size:1.3em;">' + heatInputKJPerIn.toFixed(1) + ' kJ/in</b>' +
+        '<br><span style="font-size:1.1em; color:#a5d6ff;">' + heatInputBTUPerIn.toFixed(1) + ' BTU/in</span>' +
+        '<br><span style="font-size:0.85em; color:#aaa;">' + heatRating + '</span>' +
+        '<br><span style="font-size:0.85em; color:#aaa;">' + speedBand + '</span>';
+
+    gbyId('w-d-stats').innerHTML =
+        'Power: ' + (volts * amps).toFixed(0) + ' W' + recRangeStr +
+        '\nTravel: ' + speed.toFixed(1) + '"/min | η: ' + eff.toFixed(2) +
+        '\nHeat Input (60×V×A×η/speed): ' + heatInputKJPerIn.toFixed(1) + ' kJ/in' +
+        '\n\nBurn-through risk: ' + burnRiskLabel;
+
+    return _wResult;
+}
+
+gbyId('w-btn-calc').onclick = wCalc_heat;
+
+function wCalc_wire() {
+    var wireDia = gv('w-i-wiredia');
+    var targetAmps = gv('w-i-targetamps');
+
+    if (isNaN(wireDia) || isNaN(targetAmps)) {
+        gbyId('w-d-wfs').innerHTML = 'Enter wire dia & amps'; return;
+    }
+
+    // Realistic MIG WFS: ~2.0 ipm/A for .035 ER70S-6 wire (industry standard)
+    // Scales by wire diameter: thinner wire → faster feed needed for same amps
+    var baseWFS = targetAmps * 2.0; // ipm at .035"
+    var diaCorrection = Math.pow(0.035 / wireDia, 1.8);
+    var ipm = baseWFS * diaCorrection;
+
+    // Safety: cap at realistic max
+    var maxIPM = 600;
+    if (ipm > maxIPM) ipm = maxIPM;
+
+    var ftMin = ipm / 12;
+    var wfsDisplay = '~' + Math.round(ipm) + ' ipm';
+
+    gbyId('w-d-wfs').innerHTML =
+        '<b style="font-size:1.3em;">' + wfsDisplay + '</b>' +
+        '<br><span style="font-size:1.1em; color:#a5d6ff;">' + ftMin.toFixed(1) + ' ft/min</span>' +
+        '<br><span style="font-size:0.85em; color:#aaa;">Wire: ' + wireDia.toFixed(3) + '" | Target: ' + targetAmps.toFixed(0) + ' A</span>' +
+        '<br><span style="font-size:0.85em; color:#aaa;">Starting point only — tune by arc sound and bead appearance</span>';
+}
+
+gbyId('w-btn-wfs').onclick = wCalc_wire;
+
+gbyId('w-btn-copy').onclick = function() {
+    var res = _wResult; if (!res) { wCalc_heat(); res = _wResult; }
+    if (!res) return;
+
+    var matKey = gs('w-i-material') || 'mildsteel';
+    var thick = gv('w-i-thick');
+
+    var text = 'W-CALC v1.3\n--- Heat Input ---\nVoltage: ' + res.volts.toFixed(0) + ' V\nAmperage: ' + res.amps.toFixed(0) + ' A\nTravel Speed: ' + res.speed.toFixed(1) + '"/min | η: ' + res.eff.toFixed(2) + '\n\n' +
+        res.heatInputKJPerIn.toFixed(1) + ' kJ/in\n' + res.heatInputBTUPerIn.toFixed(1) + ' BTU/in' +
+        '\n\nMaterial: ' + matKey + (isNaN(thick) ? '' : ' | Thick: ' + thick.toFixed(3) + '"');
+    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
 
-// Pre-populate B-CALC and T-CALC
+// === P-CALC: Pool Chemical Dosage Calculator (cached) ===
+var _pResult = null;
+
+function pCalc_dose() {
+    var gal = gv('p-i-gal');
+    var target = gv('p-i-target');
+
+    if (isNaN(gal) || isNaN(target)) {
+        gbyId('p-d-res').innerHTML = 'Enter volume & target'; _pResult = null; return null;
+    }
+
+    var sel = gbyId('p-i-chem');
+    var chemType = sel.options[sel.selectedIndex].getAttribute('data-type') || 'oz_ppm';
+    var factor = parseFloat(sel.options[sel.selectedIndex].getAttribute('data-factor')) || 10;
+    var chemName = sel.options[sel.selectedIndex].text.split('(')[0].trim();
+    var sideEffects = sel.options[sel.selectedIndex].getAttribute('data-sideffects') || '';
+
+    var ozNeeded, lbsNeeded;
+    var display = '';
+    var statsInfoParts = [];
+
+    // Safety rails
+    var warnings = [];
+    if (gal > 50000) {
+        warnings.push('⚠ Large pool (>50k gal) — verify volume estimate');
+    }
+    if (target > 100 && chemType === 'cya_custom') {
+        warnings.push('⚠ Target increase > 100 ppm — split across multiple treatments');
+    }
+
+    // CYA warning for current pool level if user also enters CYA elsewhere
+    var cyaInput = gv('p-i-cya');
+    if (!isNaN(cyaInput) && cyaInput > 200 && chemType === 'cya_custom') {
+        warnings.push('⚠ Extremely high CYA detected (' + cyaInput.toFixed(0) + ' ppm > 200 ppm) — recommended partial drain/refill');
+    }
+
+    statsInfoParts.push('<b>Dosage Calculation</b><br>');
+    statsInfoParts.push('Volume: ' + gal.toFixed(0) + ' gallons<br>');
+    statsInfoParts.push('Target change: +' + target.toFixed(1) + ' ppm<br>');
+
+    switch (chemType) {
+        case 'cya_custom':
+            var cyaConv = gv('p-i-cyaconv'); // oz per 10k gal to raise CYA by 50 ppm
+            if (isNaN(cyaConv) || cyaConv <= 0) {
+                gbyId('p-d-res').innerHTML = 'Enter CYA conversion factor'; _pResult = null; return null;
+            }
+            var ozPerPpm = cyaConv / 50;
+            // Show the math: (target ppm) × (gal/10k gal) × (ozPerPpm oz/ppm)
+            var mathLine = '(' + target.toFixed(0) + ' × ' + (gal/10000).toFixed(2) + ') × ' + ozPerPpm.toFixed(3);
+            ozNeeded = (target * gal / 10000) * ozPerPpm;
+            lbsNeeded = ozNeeded / 16;
+
+            statsInfoParts.push('<br><b>Formula</b><br>');
+            statsInfoParts.push('Conversion: ' + cyaConv.toFixed(1) + ' oz/10k gal → +50 ppm CYA<br>');
+            statsInfoParts.push('~' + ozPerPpm.toFixed(3) + ' oz raises 10k gal by 1 ppm CYA<br>');
+            statsInfoParts.push('Math: ' + mathLine + ' = ' + ozNeeded.toFixed(1) + ' oz<br>');
+
+            if (lbsNeeded >= 1) {
+                display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
+            } else {
+                display = '<b style="font-size:1.3em;">' + ozNeeded.toFixed(2) + ' oz</b>';
+            }
+
+            if (target > 30 && chemType === 'cya_custom') {
+                warnings.push('⚠ Large CYA increase (>30 ppm at once) — add slowly over 24-48 hrs');
+            }
+            break;
+
+        case 'oz_ppm':
+            // Show math: (target × gal) / (10000 × factor)
+            var ozMath = '(' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / (10000 × ' + factor.toFixed(2) + ')';
+            ozNeeded = (target * gal) / (10000 * factor);
+            lbsNeeded = ozNeeded / 16;
+
+            statsInfoParts.push('<br><b>Formula</b><br>');
+            statsInfoParts.push('Factor: ' + factor.toFixed(2) + ' ppm per oz/10k gal<br>');
+            statsInfoParts.push('Math: (target × gal) / (10000 × factor)<br>');
+            statsInfoParts.push('      = (' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / ' + (10000 * factor).toFixed(0) + '<br>');
+            statsInfoParts.push('      = ' + ozNeeded.toFixed(1) + ' oz<br>');
+
+            if (lbsNeeded >= 1) {
+                display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
+            } else {
+                display = '<b style="font-size:1.3em;">' + ozNeeded.toFixed(2) + ' oz</b>';
+            }
+            break;
+
+        case 'pt_ph':
+            // Muriatic acid: oz = (target × gal) / factor
+            var ptMath = '(' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / ' + factor.toFixed(1);
+            ozNeeded = (target * gal) / factor;
+            lbsNeeded = ozNeeded / 16;
+
+            statsInfoParts.push('<br><b>Formula</b><br>');
+            statsInfoParts.push('Factor: ' + factor.toFixed(1) + ' oz/10k gal per ppm TA drop<br>');
+            statsInfoParts.push('Math: (target × gal) / factor = ' + ptMath + '<br>');
+            statsInfoParts.push('      = ' + ozNeeded.toFixed(1) + ' fl oz<br>');
+
+            if (lbsNeeded >= 1) {
+                display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
+            } else {
+                display = '<b style="font-size:1.3em;">' + ozNeeded.toFixed(2) + ' fl oz</b>';
+            }
+
+            if (ozNeeded > 64) {
+                warnings.push('⚠ Large acid addition (>32 oz) — add slowly with pump running');
+            }
+            break;
+
+        case 'lb_ppm':
+            // Cal hypo: lbs = (target × gal) / (10000 × factor)
+            var lbMath = '(' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / (10000 × ' + factor.toFixed(1) + ')';
+            lbsNeeded = (target * gal) / (10000 * factor);
+            ozNeeded = lbsNeeded * 16;
+
+            statsInfoParts.push('<br><b>Formula</b><br>');
+            statsInfoParts.push('Factor: ' + factor.toFixed(1) + ' ppm per lb/10k gal<br>');
+            statsInfoParts.push('Math: (target × gal) / (10000 × factor)<br>');
+            statsInfoParts.push('      = ' + lbsNeeded.toFixed(1) + ' lbs<br>');
+
+            display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
+
+            // SLAM/shock warning
+            if (target >= 10) {
+                warnings.push('⚠ Shock/SLAM level — maintain FC 10× normal for 24 hrs');
+            }
+            break;
+
+        case 'gal_ppm':
+            ozNeeded = (target * gal) / (10000 * factor);
+            lbsNeeded = ozNeeded / 16;
+
+            statsInfoParts.push('<br><b>Formula</b><br>');
+            statsInfoParts.push('Factor: ' + factor.toFixed(1) + ' ppm per oz/10k gal<br>');
+            statsInfoParts.push('Math: (target × gal) / (10000 × factor)<br>');
+            statsInfoParts.push('      = ' + ozNeeded.toFixed(1) + ' oz<br>');
+
+            if (lbsNeeded >= 1) {
+                display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
+            } else {
+                display = '<b style="font-size:1.3em;">' + ozNeeded.toFixed(2) + ' fl oz</b>';
+            }
+
+            // Dichlor dual output (FC increase + CYA increase)
+            if (chemType === 'gal_ppm' && chemName.indexOf('Dichlor') !== -1) {
+                var fcIncrease = ozNeeded * factor / gal * 10000;
+                var cyaIncrease = fcIncrease * 0.9; // Dichlor adds ~0.7 ppm CYA per 1 ppm FC
+                display += '<br><span style="font-size:0.9em; color:#a5d6ff;">FC increase: +' + fcIncrease.toFixed(1) + ' ppm</span>';
+                display += '<br><span style="font-size:0.9em; color:#fab005;">CYA increase: +' + cyaIncrease.toFixed(1) + ' ppm</span>';
+                warnings.push('⚠ Dichlor increases CYA — long-term use will raise stabilizer levels');
+            } else if (chemType === 'gal_ppm' && chemName.indexOf('Liquid') !== -1) {
+                var fcIncreaseLiq = ozNeeded * factor / gal * 10000;
+                var saltIncreaseLiq = fcIncreaseLiq * 0.25 / 0.7; // approximate salt increase
+                display += '<br><span style="font-size:0.9em; color:#a5d6ff;">FC increase: +' + fcIncreaseLiq.toFixed(1) + ' ppm</span>';
+                display += '<br><span style="font-size:0.9em; color:#aaa;">Salt increase: ~+' + saltIncreaseLiq.toFixed(1) + ' ppm</span>';
+            }
+
+            break;
+
+        case 'lb_ph':
+            lbsNeeded = (target * gal) / factor;
+            ozNeeded = lbsNeeded * 16;
+
+            statsInfoParts.push('<br><b>Formula</b><br>');
+            statsInfoParts.push('Factor: ' + factor.toFixed(1) + ' lbs/10k gal per 0.1 pH<br>');
+            statsInfoParts.push('Math: (target × gal) / factor = (' + target.toFixed(1) + ' × ' + gal.toFixed(0) + ') / ' + factor.toFixed(0) + '<br>');
+            statsInfoParts.push('      = ' + lbsNeeded.toFixed(1) + ' lbs<br>');
+
+            display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
+
+            if (target > 0.5) {
+                warnings.push('⚠ Large pH increase (>0.5) — add slowly, retest after 4 hrs');
+            }
+            break;
+
+        default:
+            ozNeeded = (target * gal) / (10000 * factor);
+            lbsNeeded = ozNeeded / 16;
+            display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
+    }
+
+    // Side effects
+    if (sideEffects) {
+        statsInfoParts.push('<br><b>Side Effects</b><br>');
+        var effects = sideEffects.split(', ');
+        for (var i = 0; i < effects.length; i++) {
+            statsInfoParts.push('&nbsp;&nbsp;' + effects[i] + '<br>');
+        }
+    }
+
+    // Warnings
+    if (warnings.length > 0) {
+        statsInfoParts.push('<br><b>Warnings</b><br>');
+        for (var j = 0; j < warnings.length; j++) {
+            statsInfoParts.push('&nbsp;&nbsp;' + warnings[j] + '<br>');
+        }
+    }
+
+    gbyId('p-d-res').innerHTML = display +
+        '<br><span style="font-size:1.1em; color:#a5d6ff;">' + chemName + '</span>' +
+        '<br><span style="font-size:0.9em; color:#aaa;">Goal: eliminate contamination</span>';
+
+    gbyId('p-d-stats').innerHTML = statsInfoParts.join('');
+
+    _pResult = { gal: gal, target: target, chemName: chemName, lbsNeeded: lbsNeeded || 0, ozNeeded: ozNeeded || 0 };
+    return _pResult;
+}
+
+gbyId('p-btn-dose').onclick = pCalc_dose;
+
+// Show/hide CYA conversion row based on chemical selection
+gbyId('p-i-chem').onchange = function() {
+    var type = this.options[this.selectedIndex].getAttribute('data-type');
+    var row = gbyId('p-row-cya-conv');
+    if (type === 'cya_custom') { row.classList.add('visible'); } else { row.classList.remove('visible'); }
+};
+
+// === P-CALC: Factor table interpolation helpers (advanced) ===
+function interpLookup(pHs, factors, pH) {
+    if (pH <= pHs[0]) return factors[0];
+    if (pH >= pHs[pHs.length - 1]) return factors[factors.length - 1];
+    for (var i = 0; i < pHs.length - 1; i++) {
+        if (pH >= pHs[i] && pH <= pHs[i + 1]) {
+            var t = (pH - pHs[i]) / (pHs[i + 1] - pHs[i]);
+            return factors[i] + t * (factors[i + 1] - factors[i]);
+        }
+    }
+    return factors[factors.length - 1];
+}
+
+var _CYA_FACTOR_PHS = [6.5, 7.0, 7.2, 7.4, 7.6, 7.8, 8.0, 8.5];
+var _CYA_FACTORS = [0.11, 0.22, 0.26, 0.30, 0.33, 0.35, 0.36, 0.38];
+
+var _BORATE_FACTOR_PHS = [6.5, 7.0, 7.2, 7.4, 7.6, 7.8, 8.0, 8.5];
+var _BORATE_FACTORS = [0.05, 0.08, 0.10, 0.13, 0.17, 0.24, 0.34, 0.83];
+
+function pCalc_taCorrection() {
+    var measTA = gv('p-i-measTA');
+    var pH = gv('p-i-pH');
+    var cya = gv('p-i-cya');
+    var borates = gv('p-i-borates');
+
+    if (isNaN(measTA)) {
+        gbyId('p-d-tacorr').innerHTML = 'Enter TA'; return;
+    }
+
+    if (isNaN(pH)) pH = 7.4;
+    if (isNaN(cya)) cya = 0;
+    if (isNaN(borates)) borates = 0;
+
+    // --- ADVANCED: pH-dependent factor lookups (hidden) ---
+    var cyaF = 0, borF = 0;
+    if (cya > 0) { cyaF = interpLookup(_CYA_FACTOR_PHS, _CYA_FACTORS, pH); }
+    if (borates > 0) { borF = interpLookup(_BORATE_FACTOR_PHS, _BORATE_FACTORS, pH); }
+
+    var cyaAdj = 0, borAdj = 0;
+    if (cya > 0) { cyaAdj = Math.round(cya * cyaF); }
+    if (borates > 0 && borates > 30) { borAdj = Math.round(borates * borF); }
+
+    // CYA-adjusted TA (the "more detail" estimate)
+    var adjTA = measTA - cyaAdj;
+
+    // Status based on measured TA (homeowner-friendly)
+    var status, statusColor;
+    if (measTA < 80) { status = 'LOW — add baking soda'; statusColor = '#ff6b6b'; }
+    else if (measTA <= 120) { status = 'OK'; statusColor = '#40c057'; }
+    else if (measTA <= 150) { status = 'HIGH — consider lowering'; statusColor = '#fab005'; }
+    else { status = 'VERY HIGH — significant risk'; statusColor = '#ff6b6b'; }
+
+    // --- BASIC display (always shown) ---
+    var mainHTML = '<b style="font-size:1.3em;">' + status + '</b>';
+    mainHTML += '<br><span style="font-size:0.9em; color:#aaa;">Goal: pH stability</span>';
+    mainHTML += '<br><span style="font-size:1.0em; color:#a5d6ff;">Measured TA: ' + measTA.toFixed(0) + ' ppm</span>';
+
+    if (cya > 0) {
+        mainHTML += '<br><span style="font-size:0.9em; color:#aaa;">CYA effect on alkalinity: −' + cyaAdj + ' ppm (estimated)</span>';
+    }
+
+    if (borates > 0 && borates <= 30) {
+        mainHTML += '<br><span style="font-size:0.85em; color:#aaa;">Borates: not significant (≤30 ppm)</span>';
+    } else if (borates > 30) {
+        mainHTML += '<br><span style="font-size:0.9em; color:#aaa;">Borates: significant — show calculation for details</span>';
+    }
+
+    if (cya > 0) {
+        mainHTML += '<br><span style="font-size:1.0em; color:#a5d6ff;">Adjusted TA: ~' + adjTA.toFixed(0) + ' ppm (for scaling estimate only)</span>';
+    }
+
+    gbyId('p-d-tacorr').innerHTML = mainHTML;
+
+    // --- STATS (basic recommendations + action items) ---
+    var statsLines = [];
+    if (measTA < 80) {
+        var poolVol = gv('p-i-gal');
+        if (!isNaN(poolVol)) {
+            var bakingSoda = ((80 - measTA) * poolVol / 10000) / 14.4;
+            statsLines.push('Add ~' + bakingSoda.toFixed(1) + ' lbs baking soda');
+            statsLines.push('Dissolve in a bucket, pour around perimeter, run pump overnight');
+        } else {
+            statsLines.push('Need baking soda — enter pool volume for dosage');
+        }
+    } else if (measTA > 120) {
+        var poolVol = gv('p-i-gal');
+        if (!isNaN(poolVol)) {
+            var muriatic = ((measTA - 120) * poolVol / 10000) / 56;
+            statsLines.push('Add ~' + muriatic.toFixed(1) + ' fl oz muriatic acid');
+            statsLines.push('Pour at skimmer with pump running, retest after a few hours');
+        } else {
+            statsLines.push('Need muriatic acid — enter pool volume for dosage');
+        }
+    } else {
+        statsLines.push('OK — TA is within typical residential range');
+    }
+
+    if (cya > 50) {
+        statsLines.push('⚠ CYA above 50 ppm — consider partial drain/refill');
+    }
+
+    gbyId('p-d-tacorr-stats').innerHTML = statsLines.join('\n');
+
+    // --- ADVANCED details (hidden, shown on toggle) ---
+    var advHTML = '';
+    if (cya > 0 || borates > 0) {
+        advHTML += '<b>Formula: Alk_c = TA − (CYA × CYAf) − (B × Bf)</b><br>';
+        advHTML += 'pH: ' + pH.toFixed(1) + '<br>';
+
+        if (cya > 0) {
+            advHTML += 'CYA factor at pH ' + pH.toFixed(1) + ': ' + cyaF.toFixed(2) + '<br>';
+            advHTML += 'CYA correction: −' + (cya * cyaF).toFixed(1) + ' ppm<br>';
+            advHTML += 'Quick rule: TA − CYA/3 = ' + (measTA - cya / 3).toFixed(0) + ' ppm<br>';
+        }
+
+        if (borates > 30) {
+            advHTML += 'Borate factor at pH ' + pH.toFixed(1) + ': ' + borF.toFixed(2) + '<br>';
+            advHTML += 'Borate correction: −' + (borates * borF).toFixed(1) + ' ppm<br>';
+        }
+
+        advHTML += '<br>Corrected carbonate alkalinity: ' + (measTA - cya * cyaF - borates * borF).toFixed(0) + ' ppm';
+        advHTML += '<br>Used internally for scale risk estimate';
+    }
+
+    var advEl = gbyId('p-tacorr-advanced');
+    if (advHTML) {
+        advEl.style.display = 'block';
+        gbyId('p-d-tacorr-adv').innerHTML = advHTML;
+    } else {
+        advEl.style.display = 'none';
+    }
+}
+
+gbyId('p-btn-tacorr').onclick = pCalc_taCorrection;
+
+function pCalc_demand() {
+    var fc = gv('p-i-fc');
+    var tc = gv('p-i-tc');
+
+    if (isNaN(fc) || isNaN(tc)) {
+        gbyId('p-d-demand').innerHTML = 'Enter FC & TC readings'; return;
+    }
+
+    var combined = tc - fc; // CC = TC − FC
+    if (combined < 0) combined = 0;
+
+    var ccRating, ccColor;
+    if (combined > 1.0) { ccRating = '⚠ HIGH — likely contamination'; ccColor = '#ff6b6b'; }
+    else if (combined > 0.5) { ccRating = '⚠ Elevated'; ccColor = '#fab005'; }
+    else if (combined > 0.2) { ccRating = 'Low — monitoring OK'; ccColor = '#fab005'; }
+    else { ccRating = 'Negligible — no issue'; ccColor = '#40c057'; }
+
+    // Rule of thumb: shock dose ≈ 10× CC (or minimum 5 ppm if CC is tiny)
+    var shockPPM;
+    if (combined <= 0.2) {
+        shockPPM = 5; // minimum shock for maintenance
+    } else {
+        shockPPM = Math.round(combined * 10);
+    }
+
+    var gal = gv('p-i-gal');
+    // Cal hypo (65% available): lbs = (ppm × gal) / (10000 × 8.0)
+    // Same factor as the lb_ppm dosage case — consistent across calculator
+
+    var mainHTML = '';
+    if (combined <= 0.2) {
+        mainHTML = '<b style="font-size:1.3em;">Routine chlorination (no CC present)</b>' +
+            '<br><span style="font-size:0.9em; color:#aaa;">Goal: maintain chlorine residual</span>' +
+            '<br><span style="font-size:1.0em; color:#a5d6ff;">CC: ' + combined.toFixed(1) + ' ppm — negligible</span>' +
+            '<br><span style="font-size:0.9em; color:#aaa;">Rule of thumb: ~' + shockPPM + ' ppm FC for routine chlorination</span>';
+    } else {
+        mainHTML = '<b style="font-size:1.3em;">Shock recommendation</b>' +
+            '<br><span style="font-size:0.9em; color:#aaa;">Goal: eliminate combined chlorine</span>' +
+            '<br><span style="font-size:1.0em; color:#a5d6ff;">CC: ' + combined.toFixed(1) + ' ppm → ~' + shockPPM + ' ppm FC suggested</span>' +
+            '<br><span style="font-size:0.9em; color:#aaa;">Based on 10× CC rule of thumb (not exact chemistry)</span>';
+    }
+
+    if (!isNaN(gal) && shockPPM > 0) {
+        var lbsCalHypo = (shockPPM * gal) / (10000 * 8.0);
+        mainHTML += '<br><span style="font-size:1.0em; color:#a5d6ff;">≈ ' + lbsCalHypo.toFixed(2) + ' lbs Cal Hypo (65%) for ' + gal.toFixed(0) + ' gal</span>';
+        mainHTML += '<br><span style="font-size:0.85em; color:#aaa;">Dissolve in bucket, pour around perimeter at night, run pump several hours</span>';
+    } else if (shockPPM > 0) {
+        mainHTML += '<br><span style="font-size:0.85em; color:#fab005;">Enter pool volume for dosage</span>';
+    }
+
+    mainHTML += '<br><span style="font-size:0.85em; color:' + ccColor + ';">CC rating: ' + ccRating + '</span>';
+    mainHTML += '<br><span style="font-size:0.8em; color:#aaa;">Actual demand may vary based on pool condition</span>';
+    if (combined > 0.5) {
+        mainHTML += '<br><span style="font-size:0.8em; color:#aaa;">Retest FC after several hours or next morning</span>';
+    }
+
+    gbyId('p-d-demand').innerHTML = mainHTML;
+
+    // --- ADVANCED details (hidden, shown on toggle) ---
+    var advHTML = '';
+    if (!isNaN(gal)) {
+        advHTML += '<b>How the dosage is calculated</b><br>';
+        advHTML += '1 ppm FC in 10,000 gal ≈ 0.083 lb pure chlorine<br>';
+        advHTML += 'Cal Hypo (65% available): 0.083 / 0.65 ≈ 0.128 lb per ppm per 10k gal<br>';
+        advHTML += '<br>Breakdown: (' + shockPPM + ' ppm × ' + gal.toFixed(0) + ' gal × 0.128 lb/ppm/10k gal) = ' + lbsCalHypo.toFixed(2) + ' lbs';
+    }
+    advHTML += '<br><br>Note: Actual demand varies based on ammonia, algae load, organics, and sun exposure.';
+
+    var advEl = gbyId('p-shock-advanced');
+    if (advHTML) {
+        advEl.style.display = 'block';
+        gbyId('p-d-shock-adv').innerHTML = advHTML;
+    } else {
+        advEl.style.display = 'none';
+    }
+}
+
+gbyId('p-btn-demand').onclick = pCalc_demand;
+
+gbyId('p-btn-copy').onclick = function() {
+    var res = _pResult; if (!res) { pCalc_dose(); res = _pResult; }
+    if (!res) return;
+
+    var text = 'P-CALC v1.2\nVolume: ' + res.gal.toFixed(0) + ' gallons\nChemical: ' + res.chemName + '\nTarget Change: ' + res.target.toFixed(1) + '\n\n--- Dosage ---\n' + (res.lbsNeeded >= 1 ? res.lbsNeeded.toFixed(2) + ' lbs' : res.ozNeeded.toFixed(2) + ' oz');
+    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
+};
+
+// === INIT: Trigger tire calc on load (no input value writes) ===
 window.onload = function() {
-    // Pre-populate B-CALC defaults (35gr, 4000fps, BC .2)
-    document.getElementById('b-i-wt').value = 35;
-    document.getElementById('b-i-vel').value = 4000;
-    document.getElementById('b-i-bc').value = '0.2';
-
-    // Pre-populate T-CALC defaults (35x12.5-17 and 37x12.5-17)
-    document.getElementById('t-i-width').value = 35;
-    document.getElementById('t-i-aspect').value = 12.5;
-    document.getElementById('t-i-rim').value = 17;
-
-    // Pre-populate T-CALC comparison (37x12.5-17)
-    document.getElementById('t-i-width2').value = 37;
-    document.getElementById('t-i-aspect2').value = 12.5;
-    document.getElementById('t-i-rim2').value = 17;
-
-    // Trigger initial T-CALC calculation to show visualizer
-    document.getElementById('t-btn-calc').click();
+    gbyId('t-btn-calc').click();
 };
+
+})(); // end IIFE
 </script>
 </body>
 </html>
