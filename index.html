@@ -1,4 +1,4 @@
-<!-- STATE 5/2026 - SWAT CALC v1.3 (refined) -->
+<!-- STATE 5/2026 - SWAT CALC v1.4 (refined) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,7 +29,7 @@
         .btn:active { transform: scale(0.98); opacity: 0.85; }
         .btn-copy { background: #5a5a5a; margin-bottom: 10px; }
         .btn-calc { background: #1c7ed6; }
-        .btn-graph { background: #40c057; margin-top: 6px; }
+        .btn-graph { background: #1c7ed6; margin-top: 6px; }
         .btn-compare { background: #fab005; color: #000; }
         .result-box { background: #0c2d48; padding: 16px; border-radius: 6px; text-align: center; font-size: 1.2em; margin-top: 14px; color: #a5d6ff; min-height: 60px; word-break: break-word; }
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #40c057; color: #fff; padding: 12px 24px; border-radius: 6px; font-weight: 700; display: none; z-index: 2000; }
@@ -88,7 +88,7 @@
             <button class="calc-nav-btn" data-view="pcalc">P</button>
             <button class="calc-nav-btn active" data-view="bcalc">B</button>
         </nav>
-        <h2>B-CALC v1.3</h2>
+        <h2>B-CALC v1.4</h2>
         <button class="btn btn-copy" id="b-btn-copy">Copy Result</button>
         <div class="row"><div class="col"><label>Weight (gr)</label><input type="number" id="b-i-wt" inputmode="decimal" value="35"></div></div>
         <div class="row"><div class="col"><label>Velocity (fps)</label><input type="number" id="b-i-vel" inputmode="decimal" value="4000"></div></div>
@@ -119,7 +119,7 @@
             <button class="calc-nav-btn" data-view="pcalc">P</button>
             <button class="calc-nav-btn" data-view="bcalc">B</button>
         </nav>
-        <h2>A-CALC v1.3</h2>
+        <h2>A-CALC v1.4</h2>
         <button class="btn btn-copy" id="a-btn-copy">Copy Result</button>
         <div class="row"><div class="col"><label>Expression (e.g. AB or A ` B or !A)</label><input type="text" id="a-i-expr" placeholder="AB or A ^ B or !A"></div></div>
         <h3 style="margin-top:15px;">Syntax Reference (per grammar)</h3>
@@ -167,7 +167,7 @@
             <button class="calc-nav-btn" data-view="pcalc">P</button>
             <button class="calc-nav-btn" data-view="bcalc">B</button>
         </nav>
-        <h2>T-CALC v1.3</h2>
+        <h2>T-CALC v1.4</h2>
         <button class="btn btn-copy" id="t-btn-copy">Copy Data</button>
         <div class="row"><div class="col"><label>Tire Width (inches) — or AT size like 33x12.5</label><input type="text" id="t-i-width" placeholder='35 or 33x12.5' value='35'></div></div>
         <div class="row"><div class="col"><label>Aspect Ratio (%)</label><input type="number" id="t-i-aspect" placeholder='0 for AT' value='0' min="15" max="90" step="any"></div></div>
@@ -177,7 +177,7 @@
         <div class="row"><div class="col"><label>Aspect Ratio (%)</label><input type="number" id="t-i-aspect2" placeholder='0 for AT' value='0' min="15" max="90" step="any"></div></div>
         <div class="row"><div class="col"><label>Rim Diameter (inches)</label><input type="number" id="t-i-rim2" placeholder='17' value='17' min="0" step="any"></div></div>
         <button class="btn btn-calc" id="t-btn-calc">Calculate</button>
-        <button class="btn btn-compare" id="t-btn-compare">Compare Two Tires</button>
+        <button class="btn btn-calc" id="t-btn-compare">Compare Two Tires</button>
         <div class="result-box" id="t-d-res">Enter tire sizes</div>
         <div class="result-box" id="t-d-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
         <h3 style="margin-top:15px;">Comparison Summary</h3>
@@ -203,7 +203,7 @@
             <button class="calc-nav-btn" data-view="pcalc">P</button>
             <button class="calc-nav-btn" data-view="bcalc">B</button>
         </nav>
-        <h2>S-CALC v1.3</h2>
+        <h2>S-CALC v1.4</h2>
         <button class="btn btn-copy" id="s-btn-copy">Copy Result</button>
         <h3 style="margin-top:15px;">Servo Torque</h3>
         <div class="row">
@@ -250,7 +250,7 @@
             <button class="calc-nav-btn" data-view="pcalc">P</button>
             <button class="calc-nav-btn" data-view="bcalc">B</button>
         </nav>
-        <h2>W-CALC v1.3</h2>
+        <h2>W-CALC v1.4</h2>
         <button class="btn btn-copy" id="w-btn-copy">Copy Heat Input</button>
         <h3 style="margin-top:15px;">Weld Heat Input</h3>
         <div class="row">
@@ -300,38 +300,49 @@
             <button class="calc-nav-btn active" data-view="pcalc">P</button>
             <button class="calc-nav-btn" data-view="bcalc">B</button>
         </nav>
-        <h2>P-CALC v1.3</h2>
+        <h2>P-CALC v1.4</h2>
         <button class="btn btn-copy" id="p-btn-copy">Copy Result</button>
         <h3 style="margin-top:15px;">Pool Chemical Dosage</h3>
         <div class="row"><div class="col"><label>Pool Volume (gallons)</label><input type="number" id="p-i-gal" placeholder="e.g. 15000" value="15000"></div></div>
         <div class="row">
-            <div class="col"><label>Target Change</label><input type="number" id="p-i-target" placeholder="e.g. 10 ppm or pH points" value="10"></div>
+            <div class="col"><label>Target Change (ppm or pH)</label><input type="number" id="p-i-target" placeholder="ppm (e.g. 10) or pH points (e.g. 0.2)" value="10" step="any"></div>
             <div class="col"><label>Chemical</label><select id="p-i-chem">
-                <option value="cyanuric" data-type="cya_custom" data-base="7.5" data-sideffects="">CYA Stabilizer (custom below)</option>
-                <option value="borax" data-type="oz_ppm" data-factor="0.75" data-sideffects="TA +0.6 ppm/oz·10k gal, pH +0.03/oz·10k gal">Borax (raises TA & pH too)</option>
-                <option value="salt" data-type="lb_ppm" data-factor="12.0" data-sideffects="">Pool Salt (NaCl)</option>
-                <option value="muriatic" data-type="pt_ph" data-factor="1.0" data-sideffects="TA -1 ppm/oz·10k gal, pH ↓">Muriatic Acid (lower TA by X ppm)</option>
-                <option value="baking" data-type="oz_ppm" data-factor="14.4" data-sideffects="TA +0.6 ppm/oz·10k gal, pH ↑">Baking Soda (raise TA by X ppm)</option>
-                <option value="chlor" data-type="lb_ppm" data-factor="8.0" data-sideffects="Calcium +3.5 ppm/oz·10k gal">Calcium Hypochlorite (1 lb → ~8ppm)</option>
-                <option value="dichlor" data-type="gal_ppm" data-factor="12.9" data-sideffects="CYA +0.7 ppm/oz·10k gal">Dichlor (raises CYA)</option>
-                <option value="liquid" data-type="gal_ppm" data-factor="10.6" data-sideffects="Salt +0.25 ppm/oz·10k gal">Liquid Chlorine (1 gal → ~10.6ppm)</option>
-                <option value="sodcarbonate" data-type="lb_ph" data-factor="12.0" data-sideffects="TA +0.5 ppm/oz·10k gal">Soda Ash (pH Up, ~12lb → +0.1 pH)</option>
+                <option value="cyanuric" data-type="cya_custom" data-base="7.5" data-sideffects="Stabilizes chlorine from UV degradation">CYA Stabilizer (custom below)</option>
+                <option value="borax" data-type="ph_up" data-factor="0.042" data-sideffects="Mild TA increase (secondary effect, not linear)">Borax (primarily raises pH, modest TA increase)</option>
+                <option value="salt" data-type="sal_ppm" data-factor="12.0" data-sideffects="No sanitation unless SWG cell present">Pool Salt (NaCl)</option>
+                <option value="muriatic" data-type="ph_control" data-sideffects="Lowers pH and TA immediately">Muriatic Acid (lower pH)</option>
+                <option value="baking" data-type="ta_ppm" data-factor="7.14" data-sideffects="Slight pH increase; strong TA increase">Baking Soda (raise TA by X ppm)</option>
+                <option value="chlor" data-type="lb_ppm" data-factor="8.0" data-sideffects="Raises calcium hardness (~0.7 ppm CH per 1 ppm FC added)">Calcium Hypochlorite (1 lb → ~8ppm)</option>
+                <option value="dichlor" data-type="oz_ppm" data-factor="2.0" data-sideffects="Adds CYA (~0.9 ppm per 1 ppm FC added)">Dichlor (raises CYA, ~2 oz/10k gal → +1 ppm FC)</option>
+                <option value="liquid" data-type="oz_ppm" data-factor="13.0" data-sideffects="Adds small amount of salt over time">Liquid Chlorine 10% (~13 fl oz/10k gal → +1 ppm FC)</option>
+                <option value="sodcarbonate" data-type="ph_up" data-factor="0.2" data-sideffects="Raises pH rapidly; also raises TA significantly">Soda Ash (raise pH by X points)</option>
             </select></div>
         </div>
         <div class="row" id="p-row-cya-conv">
             <div class="col"><label>Conversion (oz per 10k gal → +50 ppm CYA)</label><input type="number" id="p-i-cyaconv" placeholder="e.g. 67" value="67" min="0.01" step="any" inputmode="decimal"></div>
+        </div>
+        <div class="row-cya-conv" id="p-row-ph-input">
+            <div class="col"><label>Current pH</label><input type="number" id="p-i-curpH" placeholder="e.g. 7.6" value="7.6" min="0" max="14" step="0.1" inputmode="decimal"></div>
+            <div class="col"><label>Target pH</label><input type="number" id="p-i-tarpH" placeholder="e.g. 7.2" value="7.2" min="0" max="14" step="0.1" inputmode="decimal"></div>
         </div>
         <button class="btn btn-calc" id="p-btn-dose">Calculate Dosage</button>
         <div class="result-box" id="p-d-res">Enter volume & target</div>
         <div class="result-box" id="p-d-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
         <h3 style="margin-top:15px;">Alkalinity Check</h3>
         <div class="row">
-            <div class="col"><label>Measured TA (ppm as CaCO₃)</label><input type="number" id="p-i-measTA" placeholder="e.g. 120" value="120"></div>
-            <div class="col"><label>pH</label><input type="number" id="p-i-pH" placeholder="e.g. 7.4" value="7.4"></div>
+            <div class="col"><label>Measured TA (ppm as CaCO₃)</label><input type="number" id="p-i-measTA" placeholder="e.g. 90" value="90"></div>
+            <div class="col"><label>pH</label><input type="number" id="p-i-pH" placeholder="e.g. 7.5" value="7.5"></div>
         </div>
         <div class="row">
-            <div class="col"><label>CYA (ppm)</label><input type="number" id="p-i-cya" placeholder="e.g. 30" value="30"></div>
-            <div class="col"><label>Borates (ppm, optional)</label><input type="number" id="p-i-borates" placeholder="e.g. 30 (0 = skip)" value="0"></div>
+            <div class="col"><label>CYA (ppm)</label><input type="number" id="p-i-cya" placeholder="e.g. 40" value="40"></div>
+            <div class="col"><label>Borates (ppm, optional)</label><input type="number" id="p-i-borates" placeholder="e.g. 0" value="0"></div>
+        </div>
+        <div class="row">
+            <div class="col"><label>Calcium Hardness (ppm)</label><input type="number" id="p-i-ch" placeholder="e.g. 300" value="300"></div>
+            <div class="col"><label>Salt (ppm)</label><input type="number" id="p-i-salt" placeholder="e.g. 3200" value="3200"></div>
+        </div>
+        <div class="row">
+            <div class="col"><label>Temperature (°F)</label><input type="number" id="p-i-temp" placeholder="e.g. 84" value="84" inputmode="decimal"></div>
         </div>
         <button class="btn btn-calc" id="p-btn-tacorr">Check Alkalinity</button>
         <div class="result-box" id="p-d-tacorr">Enter TA & pH</div>
@@ -342,7 +353,7 @@
         </details>
         <h3 style="margin-top:15px;">Chlorine Shock (Rule of Thumb)</h3>
         <div class="row">
-            <div class="col"><label>Free Chlorine (ppm)</label><input type="number" id="p-i-fc" placeholder="e.g. 2" value="2"></div>
+            <div class="col"><label>Free Chlorine (ppm)</label><input type="number" id="p-i-fc" placeholder="e.g. 4" value="4"></div>
             <div class="col"><label>Total Chlorine (ppm)</label><input type="number" id="p-i-tc" placeholder="e.g. 4" value="4"></div>
         </div>
         <button class="btn btn-calc" id="p-btn-demand">Calculate Shock Level</button>
@@ -351,6 +362,10 @@
             <summary style="cursor:pointer;color:#74c0fc;font-size:0.9em;margin-top:8px;">Show calculation (optional)</summary>
             <div id="p-d-shock-adv" style="font-size:0.85em;color:#aaa;margin-top:6px;"></div>
         </details>
+        <h3 style="margin-top:15px;">Water Quality Alerts</h3>
+        <button class="btn btn-calc" id="p-btn-alerts">Check Water Quality</button>
+        <div class="result-box" id="p-d-alerts">Enter readings — reads all p-calc fields</div>
+        <div class="result-box" id="p-d-alerts-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
     </div>
 
 </div><!-- /.wrap -->
@@ -601,7 +616,7 @@ gbyId('b-btn-copy').onclick = function() {
     if (!res) return;
 
     var bc = parseFloat(gs('b-i-bc')); if (isNaN(bc)) bc = 0.2;
-    var text = 'B-CALC v1.3\nWeight: ' + res.wt.toFixed(2) + 'gr\nVel: ' + res.actualVel.toFixed(0) + 'fps (Actual)\nBC: ' + bc + '\n\n--- Energy ---\nActual: ' + res.actualFpe.toFixed(2) + ' ft-lbs\nSL Equiv: ' + res.slEquivFpe.toFixed(2) + ' ft-lbs\nSL Equiv Vel: ' + res.slEquivVel.toFixed(0) + ' fps';
+    var text = 'B-CALC v1.4\nWeight: ' + res.wt.toFixed(2) + 'gr\nVel: ' + res.actualVel.toFixed(0) + 'fps (Actual)\nBC: ' + bc + '\n\n--- Energy ---\nActual: ' + res.actualFpe.toFixed(2) + ' ft-lbs\nSL Equiv: ' + res.slEquivFpe.toFixed(2) + ' ft-lbs\nSL Equiv Vel: ' + res.slEquivVel.toFixed(0) + ' fps';
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
 
@@ -1668,7 +1683,7 @@ gbyId('s-btn-copy').onclick = function() {
         }
     }
 
-    var text = 'S-CALC v1.3\n--- Servo Stall ---\nTorque: ' + result.torque.toFixed(0) + ' in-lbf\nArm Length: ' + result.arm.toFixed(2) + '"\nLinkage Ratio: ' + result.ma.toFixed(2) + '\n\n--- Output Force ---\nLinear Force: ' + result.forceLb.toFixed(2) + ' lbf' + stressLine;
+    var text = 'S-CALC v1.4\n--- Servo Stall ---\nTorque: ' + result.torque.toFixed(0) + ' in-lbf\nArm Length: ' + result.arm.toFixed(2) + '"\nLinkage Ratio: ' + result.ma.toFixed(2) + '\n\n--- Output Force ---\nLinear Force: ' + result.forceLb.toFixed(2) + ' lbf' + stressLine;
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
 
@@ -1828,7 +1843,7 @@ gbyId('w-btn-copy').onclick = function() {
     var matKey = gs('w-i-material') || 'mildsteel';
     var thick = gv('w-i-thick');
 
-    var text = 'W-CALC v1.3\n--- Heat Input ---\nVoltage: ' + res.volts.toFixed(0) + ' V\nAmperage: ' + res.amps.toFixed(0) + ' A\nTravel Speed: ' + res.speed.toFixed(1) + '"/min | η: ' + res.eff.toFixed(2) + '\n\n' +
+    var text = 'W-CALC v1.4\n--- Heat Input ---\nVoltage: ' + res.volts.toFixed(0) + ' V\nAmperage: ' + res.amps.toFixed(0) + ' A\nTravel Speed: ' + res.speed.toFixed(1) + '"/min | η: ' + res.eff.toFixed(2) + '\n\n' +
         res.heatInputKJPerIn.toFixed(1) + ' kJ/in\n' + res.heatInputBTUPerIn.toFixed(1) + ' BTU/in' +
         '\n\nMaterial: ' + matKey + (isNaN(thick) ? '' : ' | Thick: ' + thick.toFixed(3) + '"');
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
@@ -1854,20 +1869,15 @@ function pCalc_dose() {
     var goalText;
     switch (chemType) {
         case 'cya_custom': goalText = 'Raise CYA to protect chlorine from UV degradation'; break;
+        case 'sal_ppm': goalText = 'Raise salinity for SWG chlorine generation'; break;
         case 'oz_ppm':
-            if (chemName.indexOf('Borax') !== -1) goalText = 'Raise TA & pH for buffering stability';
+            if (chemName.indexOf('Borax') !== -1) goalText = 'Mild pH increase + buffering stability (not a TA target chemical)';
+            if (chemName.indexOf('Baking') !== -1) goalText = 'Raise total alkalinity (TA) in ppm';
             else if (chemName.indexOf('Salt') !== -1) goalText = 'Reach salt generator target level';
-            else if (chemName.indexOf('Baking') !== -1) goalText = 'Raise total alkalinity for pH buffering';
             else goalText = 'Adjust chemical to target ppm';
             break;
-        case 'pt_ph': goalText = 'Lower pH & total alkalinity to target range'; break;
-        case 'lb_ppm': goalText = 'Sanitize — raise free chlorine to target level'; break;
-        case 'gal_ppm':
-            if (chemName.indexOf('Dichlor') !== -1) goalText = 'Sanitize — raise FC (also raises CYA)';
-            else if (chemName.indexOf('Liquid') !== -1) goalText = 'Sanitize — raise free chlorine to target level';
-            else goalText = 'Adjust chemical to target ppm';
-            break;
-        case 'lb_ph': goalText = 'Raise pH for proper balance and chlorine effectiveness'; break;
+        case 'ph_up': goalText = 'Raise pH by X points (not ppm — logarithmic scale)'; break;
+        case 'ph_control': goalText = 'Lower pH via carbonate equilibrium (requires current & target pH)'; break;
         default: goalText = 'Adjust chemical to target ppm';
     }
     var sideEffects = sel.options[sel.selectedIndex].getAttribute('data-sideffects') || '';
@@ -1881,6 +1891,13 @@ function pCalc_dose() {
     if (gal > 50000) {
         warnings.push('⚠ Large pool (>50k gal) — verify volume estimate');
     }
+
+    // Magnitude warnings based on chemical type
+    if (chemType === 'ph_up' && target > 2) {
+        warnings.push('⚠ Target change of ' + target.toFixed(1) + ' pH points is enormous — typical dose is 0.2–0.5');
+        warnings.push('⚠ This would produce ' + (chemName.indexOf('Borax') !== -1 ? '~' + ((target * gal) / (10000 * 0.042)).toFixed(0) + ' lbs of borax' : '~' + (target / 0.2).toFixed(0) + ' lbs of soda ash') + ' — split into multiple treatments');
+    }
+
     if (target > 100 && chemType === 'cya_custom') {
         warnings.push('⚠ Target increase > 100 ppm — split across multiple treatments');
     }
@@ -1893,7 +1910,11 @@ function pCalc_dose() {
 
     statsInfoParts.push('<b>Dosage Calculation</b><br>');
     statsInfoParts.push('Volume: ' + gal.toFixed(0) + ' gallons<br>');
-    statsInfoParts.push('Target change: +' + target.toFixed(1) + ' ppm<br>');
+    if (chemType === 'ph_up') {
+        statsInfoParts.push('Target change: +' + target.toFixed(2) + ' pH points<br>');
+    } else {
+        statsInfoParts.push('Target change: +' + target.toFixed(1) + ' ppm<br>');
+    }
 
     // Initialize _pResult before switch cases reference it
     _pResult = { gal: gal, target: target, chemName: chemName, lbsNeeded: 0, ozNeeded: 0, unitsNeeded: 'lbs' };
@@ -1928,129 +1949,145 @@ function pCalc_dose() {
             break;
 
         case 'oz_ppm':
-            // Show math: (target × gal) / (10000 × factor)
-            var ozMath = '(' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / (10000 × ' + factor.toFixed(2) + ')';
-            ozNeeded = (target * gal) / (10000 * factor);
+            // oz_per_ppm: factor = oz needed per ppm change per 10k gal
+            // Dichlor: ~2 oz/10k gal → +1 ppm FC; Liquid Cl: ~13 fl oz/10k gal → +1 ppm FC
+            var ozMath = '(' + factor.toFixed(2) + ' × ' + (gal/10000).toFixed(2) + '×10k gal × ' + target.toFixed(0) + ' ppm)';
+            ozNeeded = factor * (gal / 10000) * target;
             lbsNeeded = ozNeeded / 16;
 
             statsInfoParts.push('<br><b>Formula</b><br>');
-            statsInfoParts.push('Factor: ' + factor.toFixed(2) + ' ppm per oz/10k gal<br>');
-            statsInfoParts.push('Math: (target × gal) / (10000 × factor)<br>');
-            statsInfoParts.push('      = (' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / ' + (10000 * factor).toFixed(0) + '<br>');
-            statsInfoParts.push('      = ' + ozNeeded.toFixed(1) + ' oz<br>');
+            statsInfoParts.push('Factor: ' + factor.toFixed(2) + ' oz per ppm/10k gal<br>');
+            statsInfoParts.push('Math: factor × (gal/10k) × target<br>');
+            statsInfoParts.push('      = ' + ozMath + '<br>');
+            statsInfoParts.push('      = ' + ozNeeded.toFixed(1) + ' oz (' + lbsNeeded.toFixed(2) + ' lbs)<br>');
 
-            if (lbsNeeded >= 1) {
-                display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
-            } else {
-                display = '<b style="font-size:1.3em;">' + ozNeeded.toFixed(2) + ' oz</b>';
+            display = '<b style="font-size:1.3em;">' + ozNeeded.toFixed(1) + ' oz</b>';
+
+            // Dichlor-specific: CYA warning
+            if (chemName.indexOf('Dichlor') !== -1) {
+                var cyaAdd = ozNeeded * 0.7 / (gal/10000);
+                warnings.push('⚠ Dichlor adds ~' + cyaAdd.toFixed(1) + ' ppm CYA — long-term use raises stabilizer');
             }
-            _pResult.unitsNeeded = lbsNeeded >= 1 ? 'lbs' : 'oz';
+
+            _pResult.unitsNeeded = 'oz';
             break;
 
-        case 'pt_ph':
-            // Muriatic acid: oz = (target × gal) / factor
-            var ptMath = '(' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / ' + factor.toFixed(1);
-            ozNeeded = (target * gal) / (10000 * factor);
-            lbsNeeded = ozNeeded / 16;
+        case 'sal_ppm':
+            // Pool Salt: 1 lb/10k gal ≈ 12 ppm salinity (mass balance, linear)
+            // lbs = (target × gal) / (10000 × factor) — result is in lbs directly
+            var salMath = '(' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / (10000 × ' + factor.toFixed(2) + ')';
+            lbsNeeded = (target * gal) / (10000 * factor);
 
             statsInfoParts.push('<br><b>Formula</b><br>');
-            statsInfoParts.push('Factor: ' + factor.toFixed(1) + ' oz/10k gal per ppm TA drop<br>');
-            statsInfoParts.push('Math: (target × gal) / factor = ' + ptMath + '<br>');
-            statsInfoParts.push('      = ' + ozNeeded.toFixed(1) + ' fl oz<br>');
+            statsInfoParts.push('Factor: ' + factor.toFixed(1) + ' ppm salinity per lb/10k gal<br>');
+            statsInfoParts.push('Math: (target × gal) / (10000 × factor)<br>');
+            statsInfoParts.push('      = ' + salMath + '<br>');
+            statsInfoParts.push('      = ' + lbsNeeded.toFixed(2) + ' lbs<br>');
 
-            if (lbsNeeded >= 1) {
-                display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
+            display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
+
+            // SWG-specific warnings
+            if (!isNaN(cyaInput) && cyaInput > 0) {
+                warnings.push('⚠ Salt alone does NOT sanitize — SWG cell must be running to produce chlorine');
             } else {
-                display = '<b style="font-size:1.3em;">' + ozNeeded.toFixed(2) + ' fl oz</b>';
+                warnings.push('⚠ Salt only increases salinity — chlorine is produced by SWG cell electrolysis when running');
             }
+            warnings.push('⚠ Typical SWG target: 2,500–3,500 ppm salinity (check manufacturer spec)');
 
-            if (ozNeeded > 64) {
-                warnings.push('⚠ Large acid addition (>32 oz) — add slowly with pump running');
+            _pResult.unitsNeeded = 'lbs';
+            break;
+
+        case 'ta_ppm':
+            // Baking Soda (sodium bicarbonate): 1.4 lb/10k gal → +10 ppm TA
+            // factor = 7.14 ppm per lb/10k gal (derived from standard pool chemistry)
+            var taMath = '(' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / (10000 × ' + factor.toFixed(2) + ')';
+            lbsNeeded = (target * gal) / (10000 * factor);
+
+            statsInfoParts.push('<br><b>Formula</b><br>');
+            statsInfoParts.push('Factor: ' + factor.toFixed(2) + ' ppm TA per lb/10k gal<br>');
+            statsInfoParts.push('Standard: 1.4 lb/10k gal → +10 ppm TA<br>');
+            statsInfoParts.push('Math: (target × gal) / (10000 × factor)<br>');
+            statsInfoParts.push('      = ' + taMath + '<br>');
+            statsInfoParts.push('      = ' + lbsNeeded.toFixed(2) + ' lbs<br>');
+
+            display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
+
+            if (lbsNeeded > 10) {
+                warnings.push('⚠ Large baking soda dose (>10 lb) — add in batches, retest TA after 6 hrs');
             }
-            _pResult.unitsNeeded = 'fl oz';
+            warnings.push('⚠ Baking soda raises TA and pH slightly — retest both after 6+ hrs');
+
+            _pResult.unitsNeeded = 'lbs';
             break;
 
         case 'lb_ppm':
-            // Cal hypo: lbs = (target × gal) / (10000 × factor)
-            var lbMath = '(' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / (10000 × ' + factor.toFixed(1) + ')';
+            // Calcium Hypochlorite (65% available chlorine): 1 lb/10k gal → ~8 ppm FC
+            // factor = 8.0 ppm per lb/10k gal
+            var chMath = '(' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / (10000 × ' + factor.toFixed(1) + ')';
             lbsNeeded = (target * gal) / (10000 * factor);
-            ozNeeded = lbsNeeded * 16;
 
             statsInfoParts.push('<br><b>Formula</b><br>');
-            statsInfoParts.push('Factor: ' + factor.toFixed(1) + ' ppm per lb/10k gal<br>');
+            statsInfoParts.push('Factor: ' + factor.toFixed(1) + ' ppm FC per lb/10k gal (65% cal-hypo)<br>');
+            statsInfoParts.push('Standard: 1 lb/10k gal → ~8 ppm FC<br>');
             statsInfoParts.push('Math: (target × gal) / (10000 × factor)<br>');
-            statsInfoParts.push('      = ' + lbsNeeded.toFixed(1) + ' lbs<br>');
+            statsInfoParts.push('      = ' + chMath + '<br>');
+            statsInfoParts.push('      = ' + lbsNeeded.toFixed(2) + ' lbs<br>');
 
             display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
 
-            // SLAM/shock warning
+            // SLAM/shock warning (cal-hypo is an FC chemical)
             if (target >= 10) {
                 warnings.push('⚠ Shock/SLAM level — maintain FC 10× normal for 24 hrs');
             }
+
             _pResult.unitsNeeded = 'lbs';
             break;
 
-        case 'gal_ppm':
-            // gal_ppm: factor = ppm increase per gallon added to 10k gal
-            // gallonsNeeded = (target * gal) / (10000 * factor)
-            var gallonsNeeded = (target * gal) / (10000 * factor);
-
-            if (chemName.indexOf('Dichlor') !== -1) {
-                // Dichlor: ~1.3 oz per 1 ppm FC per 10k gal; adds ~0.9 ppm CYA per 1 ppm FC
-                var dichlorOz = target * (gal / 10000) * 1.3;
-                lbsNeeded = dichlorOz / 16;
+        case 'ph_up':
+            // Soda Ash / Borax: raises pH, NOT ppm-based
+            if (chemName.indexOf('Borax') !== -1) {
+                // Borax: 76 oz per 10k gal → +0.2 pH
+                // Direct scaling: dose = 76 × (gal/10k) × (ΔpH / 0.2)
+                var ozMath = '76 × ' + (gal/10000).toFixed(2) + ' × (' + target.toFixed(2) + '/0.2)';
+                ozNeeded = 76 * (gal / 10000) * (target / 0.2);
+                lbsNeeded = ozNeeded / 16;
 
                 statsInfoParts.push('<br><b>Formula</b><br>');
-                statsInfoParts.push('Dichlor: ~1.3 oz per 1 ppm FC per 10k gal<br>');
-                statsInfoParts.push('Math: target × (gal/10k) × 1.3 = ' + target.toFixed(0) + ' × ' + (gal/10000).toFixed(2) + ' × 1.3<br>');
-                statsInfoParts.push('      = ' + dichlorOz.toFixed(1) + ' oz<br>');
-
-                display = '<b style="font-size:1.3em;">' + dichlorOz.toFixed(1) + ' oz</b>';
-
-                var fcIncrease = target;
-                var cyaIncrease = fcIncrease * 0.9; // Dichlor adds ~0.9 ppm CYA per 1 ppm FC
-                display += '<br><span style="font-size:0.9em; color:#a5d6ff;">FC increase: +' + fcIncrease.toFixed(1) + ' ppm</span>';
-                display += '<br><span style="font-size:0.9em; color:#fab005;">CYA increase: +' + cyaIncrease.toFixed(1) + ' ppm</span>';
-                warnings.push('⚠ Dichlor increases CYA — long-term use will raise stabilizer levels');
-                warnings.push('⚠ Not recommended for long-term primary sanitation due to stabilizer buildup');
-                _pResult.unitsNeeded = 'oz';
+                statsInfoParts.push('Base rule: 76 oz/10k gal → +0.2 pH<br>');
+                statsInfoParts.push('Scale: 76 × (gal/10k) × (ΔpH / 0.2)<br>');
+                statsInfoParts.push('      = ' + ozMath + '<br>');
+                statsInfoParts.push('      = ' + ozNeeded.toFixed(0) + ' oz (' + lbsNeeded.toFixed(1) + ' lbs)<br>');
+                display = '<b style="font-size:1.3em;">' + ozNeeded.toFixed(0) + ' oz</b>';
             } else {
+                // Soda Ash: 5 lb per 10k gal → +0.2 pH (factor = 0.2)
+                // lbsNeeded = target / factor × gal/10k
+                var saMath = '(' + target.toFixed(2) + ' / ' + factor.toFixed(3) + ') × ' + (gal/10000).toFixed(2);
+                lbsNeeded = (target / factor) * (gal / 10000);
+                ozNeeded = lbsNeeded * 16;
+
                 statsInfoParts.push('<br><b>Formula</b><br>');
-                statsInfoParts.push('Factor: ' + factor.toFixed(1) + ' ppm per gal/10k gal<br>');
-                statsInfoParts.push('Math: (target × gal) / (10000 × factor)<br>');
-                statsInfoParts.push('      = ' + gallonsNeeded.toFixed(2) + ' gal<br>');
-
-                if (chemName.indexOf('Liquid') !== -1) {
-                    // Liquid chlorine — display in gallons and fl oz
-                    lbsNeeded = gallonsNeeded; // placeholder, not used for liquid
-                    display = '<b style="font-size:1.3em;">' + gallonsNeeded.toFixed(2) + ' gal</b>';
-                    if (gallonsNeeded > 0.1) {
-                        display += '<br><span style="font-size:0.9em; color:#a5d6ff;">(~' + (gallonsNeeded * 128).toFixed(0) + ' fl oz)</span>';
-                    }
-
-                    var saltIncreaseLiq = target * 0.25 / 0.7; // approximate salt increase per ppm FC
-                    display += '<br><span style="font-size:0.9em; color:#aaa;">Salt increase: ~+' + saltIncreaseLiq.toFixed(1) + ' ppm</span>';
-                    _pResult.unitsNeeded = 'gal';
-                }
+                statsInfoParts.push('Base rule: 5 lb/10k gal → +0.2 pH<br>');
+                statsInfoParts.push('Scale: (ΔpH / factor) × gal/10k<br>');
+                statsInfoParts.push('      = ' + saMath + '<br>');
+                statsInfoParts.push('      = ' + lbsNeeded.toFixed(2) + ' lbs (' + ozNeeded.toFixed(0) + ' oz)<br>');
+                display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
             }
 
-            break;
-
-        case 'lb_ph':
-            lbsNeeded = (target * gal) / (10000 * factor);
-            ozNeeded = lbsNeeded * 16;
-
-            statsInfoParts.push('<br><b>Formula</b><br>');
-            statsInfoParts.push('Factor: ' + factor.toFixed(1) + ' lbs/10k gal per 0.1 pH<br>');
-            statsInfoParts.push('Math: (target × gal) / factor = (' + target.toFixed(1) + ' × ' + gal.toFixed(0) + ') / ' + factor.toFixed(0) + '<br>');
-            statsInfoParts.push('      = ' + lbsNeeded.toFixed(1) + ' lbs<br>');
-
-            display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
-
+            // Warnings about pH raisers
             if (target > 0.5) {
-                warnings.push('⚠ Large pH increase (>0.5) — add slowly, retest after 4 hrs');
+                warnings.push('⚠ Large pH increase (>0.5) — add in 2–3 portions, circulate between doses');
             }
-            _pResult.unitsNeeded = 'lbs';
+            if (chemName.indexOf('Soda') !== -1) {
+                warnings.push('⚠ Soda ash spikes pH fast — can cloud water if overdosed');
+                warnings.push('⚠ Soda ash temporarily reduces chlorine effectiveness until fully mixed');
+            } else if (chemName.indexOf('Borax') !== -1) {
+                warnings.push('⚠ Borax raises pH ~0.2 per 76 oz/10k gal — gradual buffer effect');
+                warnings.push('⚠ Mild TA increase (secondary, not linear — depends on starting alkalinity)');
+                warnings.push('⚠ Retest pH after 6+ hrs — borax effects are gradual');
+            }
+            warnings.push('⚠ Retest pH after 1–2 hrs circulation before adding more');
+
+            _pResult.unitsNeeded = chemName.indexOf('Borax') !== -1 ? 'oz' : 'lbs';
             break;
 
         default:
@@ -2092,9 +2129,34 @@ gbyId('p-btn-dose').onclick = pCalc_dose;
 // Show/hide CYA conversion row based on chemical selection
 gbyId('p-i-chem').onchange = function() {
     var type = this.options[this.selectedIndex].getAttribute('data-type');
-    var row = gbyId('p-row-cya-conv');
-    if (type === 'cya_custom') { row.classList.add('visible'); } else { row.classList.remove('visible'); }
+    var targetInput = gbyId('p-i-target');
+
+    // Set sensible defaults based on chemical type
+    if (type === 'ph_up') {
+        targetInput.value = 0.2; // pH points, not ppm — 10 would be catastrophic
+        targetInput.placeholder = 'pH points (e.g. 0.2)';
+    } else if (type === 'ph_control') {
+        targetInput.disabled = true; // uses pH inputs instead
+    } else if (type === 'cya_custom') {
+        targetInput.value = 50; // CYA ppm
+        targetInput.placeholder = 'ppm (default 50)';
+    } else {
+        targetInput.value = 10; // ppm for most chemicals
+        targetInput.placeholder = 'ppm (e.g. 10)';
+    }
+
+    var cyaRow = gbyId('p-row-cya-conv');
+    if (cyaRow) {
+        if (type === 'cya_custom') { cyaRow.classList.add('visible'); } else { cyaRow.classList.remove('visible'); }
+    }
+    var phRow = gbyId('p-row-ph-input');
+    if (phRow) {
+        if (type === 'ph_control') { phRow.classList.add('visible'); } else { phRow.classList.remove('visible'); }
+    }
 };
+
+// Initialize defaults on load (same as first chem select)
+gbyId('p-i-chem').dispatchEvent(new Event('change'));
 
 // === P-CALC: Factor table interpolation helpers (advanced) ===
 function interpLookup(pHs, factors, pH) {
@@ -2349,8 +2411,122 @@ gbyId('p-btn-copy').onclick = function() {
     var res = _pResult; if (!res) { pCalc_dose(); res = _pResult; }
     if (!res) return;
 
-    var text = 'P-CALC v1.3\nVolume: ' + res.gal.toFixed(0) + ' gallons\nChemical: ' + res.chemName + '\nTarget Change: ' + res.target.toFixed(1) + '\n\n--- Dosage ---\n' + (res.unitsNeeded === 'gal' ? res.lbsNeeded.toFixed(2) + ' gal' : (res.unitsNeeded === 'fl oz' ? res.ozNeeded.toFixed(2) + ' fl oz' : (res.lbsNeeded >= 1 ? res.lbsNeeded.toFixed(2) + ' lbs' : res.ozNeeded.toFixed(2) + ' oz')));
+    var text = 'P-CALC v1.4\nVolume: ' + res.gal.toFixed(0) + ' gallons\nChemical: ' + res.chemName + '\nTarget Change: ' + res.target.toFixed(1) + '\n\n--- Dosage ---\n' + (res.unitsNeeded === 'gal' ? res.lbsNeeded.toFixed(2) + ' gal' : (res.unitsNeeded === 'fl oz' ? res.ozNeeded.toFixed(2) + ' fl oz' : (res.lbsNeeded >= 1 ? res.lbsNeeded.toFixed(2) + ' lbs' : res.ozNeeded.toFixed(2) + ' oz')));
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
+};
+
+// === P-CALC: Water Quality Alerts ===
+gbyId('p-btn-alerts').onclick = function() {
+    var fc = gv('p-i-fc'), ph = gv('p-i-pH'), ta = gv('p-i-measTA');
+    var cya = gv('p-i-cya'), ch = gv('p-i-ch'), salt = gv('p-i-salt');
+    var temp = gv('p-i-temp'), borates = gv('p-i-borates');
+
+    if (isNaN(fc) || isNaN(ph)) {
+        gbyId('p-d-alerts').innerHTML = 'Enter at least FC & pH';
+        gbyId('p-d-alerts-stats').innerHTML = '';
+        return;
+    }
+
+    var alerts = [];
+    var normal = [];
+    var colors = {};
+
+    // FC: <2 ppm warning
+    if (!isNaN(fc)) {
+        colors.FC = fc >= 3 && fc <= 7 ? '#40c057' : '#ff6b6b';
+        if (fc < 2) alerts.push('⚠ FC ' + fc.toFixed(1) + ' ppm — below 3 ppm minimum, add sanitizer');
+        else if (fc < 3) alerts.push('⚠ FC ' + fc.toFixed(1) + ' ppm — low, below 3–7 ppm range');
+        else if (fc > 7) alerts.push('⚠ FC ' + fc.toFixed(1) + ' ppm — above 7 ppm, wait to swim');
+        else normal.push('FC: ' + fc.toFixed(1) + ' ppm (3–7 range OK)');
+    }
+
+    // pH: <7.0 or >8.0 warning
+    if (!isNaN(ph)) {
+        colors.pH = ph >= 7.2 && ph <= 7.8 ? '#40c057' : '#ff6b6b';
+        if (ph < 7.0) alerts.push('⚠ pH ' + ph.toFixed(1) + ' — below 7.2, corrosive risk');
+        else if (ph < 7.2) alerts.push('⚠ pH ' + ph.toFixed(1) + ' — below 7.2–7.8 range');
+        else if (ph > 8.0) alerts.push('⚠ pH ' + ph.toFixed(1) + ' — above 7.8, scaling risk');
+        else if (ph > 7.8) alerts.push('⚠ pH ' + ph.toFixed(1) + ' — above 7.8, consider lowering');
+        else normal.push('pH: ' + ph.toFixed(1) + ' (7.2–7.8 range OK)');
+    }
+
+    // TA: <50 or >180 warning
+    if (!isNaN(ta)) {
+        colors.TA = ta >= 70 && ta <= 120 ? '#40c057' : (ta >= 50 && ta <= 180 ? '#fab005' : '#ff6b6b');
+        if (ta < 50) alerts.push('⚠ TA ' + ta.toFixed(0) + ' ppm — below 70, unstable pH');
+        else if (ta < 70) alerts.push('⚠ TA ' + ta.toFixed(0) + ' ppm — below 70–120 range');
+        else if (ta > 180) alerts.push('⚠ TA ' + ta.toFixed(0) + ' ppm — above 120, high scaling risk');
+        else if (ta > 120) alerts.push('⚠ TA ' + ta.toFixed(0) + ' ppm — above 120, consider lowering');
+        else normal.push('TA: ' + ta.toFixed(0) + ' ppm (70–120 range OK)');
+    }
+
+    // CYA: >100 ppm warning
+    if (!isNaN(cya)) {
+        colors.CYA = cya >= 30 && cya <= 60 ? '#40c057' : (cya > 60 && cya <= 100 ? '#fab005' : '#ff6b6b');
+        if (cya > 100) alerts.push('⚠ CYA ' + cya.toFixed(0) + ' ppm — above 100, strong chlorine lock');
+        else if (cya > 60) alerts.push('⚠ CYA ' + cya.toFixed(0) + ' ppm — above 30–60 range, chlorine less effective');
+        else if (cya < 30) alerts.push('⚠ CYA ' + cya.toFixed(0) + ' ppm — below 30, chlorine degrading fast');
+        else normal.push('CYA: ' + cya.toFixed(0) + ' ppm (30–60 range OK)');
+    }
+
+    // CH: >600 ppm warning
+    if (!isNaN(ch)) {
+        colors.CH = ch >= 200 && ch <= 400 ? '#40c057' : (ch > 400 && ch <= 600 ? '#fab005' : '#ff6b6b');
+        if (ch > 600) alerts.push('⚠ CH ' + ch.toFixed(0) + ' ppm — above 400, heavy scaling risk');
+        else if (ch > 400) alerts.push('⚠ CH ' + ch.toFixed(0) + ' ppm — above 200–400 range');
+        else if (ch < 200) alerts.push('⚠ CH ' + ch.toFixed(0) + ' ppm — below 200, corrosion risk (plaster pools)');
+        else normal.push('CH: ' + ch.toFixed(0) + ' ppm (200–400 range OK)');
+    }
+
+    // Salt: ±500 ppm from SWG target (assume 3200)
+    if (!isNaN(salt)) {
+        var swgTarget = 3200;
+        colors.Salt = Math.abs(salt - swgTarget) <= 500 ? '#40c057' : (Math.abs(salt - swgTarget) <= 800 ? '#fab005' : '#ff6b6b');
+        if (Math.abs(salt - swgTarget) > 500) alerts.push('⚠ Salt ' + salt.toFixed(0) + ' ppm — ±' + Math.abs(salt - swgTarget).toFixed(0) + ' from SWG target');
+        else normal.push('Salt: ' + salt.toFixed(0) + ' ppm (±500 from 3200 target OK)');
+    }
+
+    // CSI check (if temp available)
+    if (!isNaN(temp) && !isNaN(ph) && !isNaN(ta) && !isNaN(ch) && !isNaN(cya)) {
+        // Simplified CSI approximation (more accurate needs full carbonate chemistry)
+        var tempK = (temp - 32) * 5/9 + 273.15; // °F to K
+        var tFactor = -0.037 + 0.0002 * (temp - 60); // approximate temp correction
+        var caFactor = Math.log10(ch / 400); // log deviation from ideal CH
+        var taFactor = Math.log10(ta / 100); // log deviation from ideal TA
+        var cyaFactor = Math.log10(cya / 50); // log deviation from ideal CYA
+        var csi = (ph - 7.2) + tFactor + caFactor + taFactor + cyaFactor;
+        
+        if (csi < -0.6) {
+            alerts.push('⚠ CSI ' + csi.toFixed(2) + ' — below -0.6, corrosive (under-saturated)');
+            colors.CSI = '#ff6b6b';
+        } else if (csi > 0.6) {
+            alerts.push('⚠ CSI ' + csi.toFixed(2) + ' — above 0.6, scaling (over-saturated)');
+            colors.CSI = '#ff6b6b';
+        } else if (Math.abs(csi) <= 0.3) {
+            normal.push('CSI: ' + csi.toFixed(2) + ' (balanced, -0.3 to 0.3)');
+            colors.CSI = '#40c057';
+        } else {
+            normal.push('CSI: ' + csi.toFixed(2) + ' (slight tendency, -0.6 to 0.6)');
+            colors.CSI = '#fab005';
+        }
+    }
+
+    // Display results
+    var resHTML = '';
+    if (alerts.length > 0) {
+        resHTML += '<b style="color:#ff6b6b;">' + alerts.length + ' ALERT</b>' + (alerts.length > 1 ? 'S' : '') + '<br>';
+        for (var i = 0; i < alerts.length; i++) {
+            resHTML += '<span style="color:#ff6b6b;">&nbsp;&nbsp;' + alerts[i] + '</span><br>';
+        }
+    } else {
+        resHTML += '<b style="color:#40c057;">ALL READINGS WITHIN RANGE</b><br>';
+    }
+    gbyId('p-d-alerts').innerHTML = resHTML;
+
+    // Stats: summary with colors
+    var statsLines = [];
+    normal.forEach(function(n) { statsLines.push('<span style="color:#40c057;">&nbsp;&nbsp;' + n + '</span>'); });
+    gbyId('p-d-alerts-stats').innerHTML = statsLines.join('<br>');
 };
 
 // === INIT: Trigger tire calc on load (no input value writes) ===
