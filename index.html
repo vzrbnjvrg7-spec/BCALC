@@ -143,7 +143,7 @@
             </tbody>
         </table>
         <div style="font-size:0.8em;color:#aaa;margin-top:6px;line-height:1.5;">
-            Precedence (high to low): () → NOT (~,!,NOT,A') → AND (& + implicit) → XOR (^) → OR (`) → Implication (->). Up to 6 variables.
+            Precedence (high to low): () → NOT (~,!,NOT,A') → AND (& + implicit) → XOR (^) → OR (`) → Implication (->). Up to 8 variables.
         </div>
         <button class="btn btn-calc" id="a-btn-eval">Evaluate</button>
         <h3 style="margin-top:15px;">Simplified Result (DNF)</h3>
@@ -756,7 +756,7 @@ gbyId('b-btn-go').onclick = function() {
 ;(function() {
 
 var TOK = { VAR:'v', IMPLIES:'->', XOR:'^', XORKW:'XOR', AND:'&', NOTPRE: 'n', OR:'`', FNKWD:'f', LPAREN:'(', RPAREN:')', APOS:"'", COMMA:',' };
-var FUNC_KEYWORDS = ['NAND', 'NOR', 'XNOR', 'XOR'];
+var FUNC_KEYWORDS = ['NAND', 'NOR', 'XNOR', 'XOR', 'AND', 'OR', 'IMP'];
 var IS_UPPER = /^[A-Za-z]$/;
 
 function tokenize(expr) {
@@ -792,7 +792,7 @@ function tokenize(expr) {
             var kwlen = FUNC_KEYWORDS[f].length;
             if (expr.substr(i, kwlen).toUpperCase() === FUNC_KEYWORDS[f] && i + kwlen < expr.length && expr[i+kwlen] === '(') {
                 tokens.push({ type: TOK.FNKWD, val: FUNC_KEYWORDS[f] + '(', pos: i });
-                i += kwlen; funcMatched = true; break;
+                i += kwlen + 1; funcMatched = true; break;
             }
         }
 
@@ -958,6 +958,9 @@ function parseAtom() {
             if (FUNC_KEYWORDS[f] === 'NOR') return parseFunctionCall('NOT-OR', 2);
             if (FUNC_KEYWORDS[f] === 'XNOR') return parseFunctionCall('NOT-XOR', 2);
             if (FUNC_KEYWORDS[f] === 'XOR') return parseFunctionCall('XOR', 2);
+            if (FUNC_KEYWORDS[f] === 'AND') return parseFunctionCall('AND', 2);
+            if (FUNC_KEYWORDS[f] === 'OR') return parseFunctionCall('OR', 2);
+            if (FUNC_KEYWORDS[f] === 'IMP') return parseFunctionCall('IMPLIES', 2);
         }
     }
 
@@ -965,9 +968,8 @@ function parseAtom() {
 }
 
 function parseFunctionCall(funcName, expectedArgs) {
-    // Consume the opening LPAREN that follows FNKWD token (tokenizer only consumes keyword name)
-    if (!peek() || peek().type !== TOK.LPAREN) return null;
-    advance();
+    // Tokenizer already consumed the '(' as part of FNKWD token (e.g. "NAND(")
+    // No need to check/advance for LPAREN
 
     var args = [];
 
@@ -992,6 +994,7 @@ function parseFunctionCall(funcName, expectedArgs) {
         return null;
     }
 
+    // Build tree based on function type
     var tree = args[0];
     for (var i = 1; i < args.length; i++) {
         tree = { op: 'AND', l: tree, r: args[i] };
@@ -1004,6 +1007,24 @@ function parseFunctionCall(funcName, expectedArgs) {
                 xorTree = { op: 'XOR', l: xorTree, r: args[m] };
             }
             return xorTree;
+        case 'AND': 
+            var andTree = args[0];
+            for (var n = 1; n < args.length; n++) {
+                andTree = { op: 'AND', l: andTree, r: args[n] };
+            }
+            return andTree;
+        case 'OR': 
+            var orTree2 = args[0];
+            for (var o = 1; o < args.length; o++) {
+                orTree2 = { op: 'OR', l: orTree2, r: args[o] };
+            }
+            return orTree2;
+        case 'IMPLIES': 
+            var impTree = args[0];
+            for (var p = 1; p < args.length; p++) {
+                impTree = { op: 'IMPLIES', l: impTree, r: args[p] };
+            }
+            return impTree;
         case 'NOT-AND': return { op: 'NOT', l: tree, r: null };
         case 'NOT-OR': 
             var orTree = args[0];
@@ -1064,16 +1085,32 @@ function evalCompiled(compiledStr, varValues) {
     }
 }
 
+function splitTopLevelCommas(expr) {
+    var parts = [];
+    var depth = 0;
+    var current = '';
+    for (var i = 0; i < expr.length; i++) {
+        var ch = expr[i];
+        if (ch === '(') depth++;
+        else if (ch === ')') depth--;
+        if (ch === ',' && depth === 0) {
+            parts.push(current.trim());
+            current = '';
+        } else {
+            current += ch;
+        }
+    }
+    var last = current.trim();
+    if (last) parts.push(last);
+    return parts;
+}
+
 function evaluateTruthTable(exprStr) {
     exprStr = exprStr.trim();
 
-    if (exprStr.indexOf(',') >= 0) {
-        var parts = exprStr.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
-        if (parts.length >= 2) {
-            return evaluateMultiOutput(parts);
-        } else if (parts.length === 1) {
-            return evaluateSingleExpression(parts[0]);
-        }
+    var parts = splitTopLevelCommas(exprStr);
+    if (parts.length >= 2) {
+        return evaluateMultiOutput(parts);
     }
 
     return evaluateSingleExpression(exprStr);
@@ -1099,7 +1136,7 @@ function evaluateSingleExpression(exprStr) {
     for (var vi = 0; vi < vars.length; vi++) {
         if (!/^[A-Z]$/.test(vars[vi])) return { error: "Invalid variable name: " + vars[vi], vars: [] };
     }
-    if (vars.length > 6) return { error: "Maximum 6 variables supported", vars: [] };
+    if (vars.length > 8) return { error: "Maximum 8 variables supported", vars: [] };
 
     var compiled = compileTree(tree);
     var numRows = Math.pow(2, vars.length);
@@ -1184,8 +1221,8 @@ function evaluateMultiOutput(parts) {
             }
         }
 
-        if (vars.length > 6) {
-            return { error: "Maximum 6 variables supported", vars: [] };
+        if (vars.length > 8) {
+            return { error: "Maximum 8 variables supported", vars: [] };
         }
 
         parsedTrees[eIdx] = { tree: tree, compiled: compileTree(tree), vars: vars };
@@ -1195,7 +1232,7 @@ function evaluateMultiOutput(parts) {
         }
     }
 
-    if (globalVars.length > 6) return { error: "Maximum 6 variables across all expressions", vars: [] };
+    if (globalVars.length > 8) return { error: "Maximum 8 variables across all expressions", vars: [] };
 
     var numRows = Math.pow(2, globalVars.length);
     var html = '<table class="truth-table"><thead><tr>';
@@ -1469,8 +1506,7 @@ function triggerEval() {
     }, 150);
 }
 
-gbyId('a-i-expr').oninput = triggerEval;
-gbyId('a-btn-eval').onclick = function() { gbyId('a-i-expr').dispatchEvent(new Event('input')); };
+gbyId('a-btn-eval').onclick = triggerEval;
 
 gbyId('a-btn-copy').onclick = function() {
     var expr = gs('a-i-expr'); if (!expr) return;
@@ -1657,9 +1693,7 @@ function sCalc_calc() {
     var forceLb = (torque / arm) * ma;
     var jointMoment = torque; // applied torque at servo output shaft (static equilibrium)
 
-    // Declare contForce for use in failure mode section
     var contForce = 0;
-
     var matSel = gbyId('s-i-material');
     var crossSec = gv('s-i-crosssec');
 
@@ -1698,7 +1732,7 @@ function sCalc_calc() {
     servoLines.push('Linkage ratio: ' + ma.toFixed(2) + ':1' + (ma > 1 ? ' force multiplication' : ma < 1 ? ' speed multiplication' : ' direct drive') + '<br>');
 
     if (!isNaN(contTorque) && contTorque > 0) {
-        var contForce = (contTorque / arm) * ma;
+        contForce = (contTorque / arm) * ma;
         servoLines.push('Continuous torque: ' + contTorque.toFixed(0) + ' in·lbf<br>');
         servoLines.push('Continuous force: ~' + contForce.toFixed(1) + ' lbf<br>');
         var sfCont = torque / contTorque;
@@ -1729,8 +1763,9 @@ function sCalc_calc() {
 
     // === LAYER 3: Structural stress modes ===
     var structLines = [];
+    var matKey = null;
     if (matSel && !isNaN(crossSec) && crossSec > 0) {
-        var matKey = matSel.value || 'titanium';
+        matKey = matSel.value || 'titanium';
         var matData = MATERIAL_DATA[matKey];
         if (matData) {
             var yieldPsi = matData.yield;
@@ -1815,6 +1850,11 @@ function sCalc_calc() {
         failLines.push('⚠ ABS is viscoelastic — creep under sustained load, may loosen over time<br>');
     }
 
+    // Material unknown warning
+    if (matKey === null) {
+        failLines.push('⚠ Material not selected or cross-section missing — stress analysis skipped');
+    }
+
     // Dynamic loading warning
     if (forceLb > 50) {
         failLines.push('⚠ Shock/impact loading can exceed static loads by 2–3× (gear stripping, screw shear)<br>');
@@ -1826,10 +1866,8 @@ function sCalc_calc() {
     }
 
     // Hub/clevis crack warning for high cycles
-    if (!isNaN(sModulus) && sModulus > 0 && bendMoment > torque * 0.8) {
+    if (!isNaN(sModulus) && sModulus > 0 && bendMoment > torque * 0.5) {
         failLines.push('⚠ High bending stress at horn root — watch for fatigue cracks at connection points');
-    } else if (failLines.length > 1) {
-        failLines.push('Monitor horn/bracket for deformation under sustained load');
     } else {
         failLines.push('Monitor horn/bracket for deformation under sustained load');
     }
