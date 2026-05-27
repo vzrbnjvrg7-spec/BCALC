@@ -1,4 +1,4 @@
-<!-- STATE 5/2026 - SWAT CALC v1.4 (refined) -->
+<!-- STATE 5/2026 - SWAT CALC v1.5 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -67,6 +67,10 @@
         .calc-nav-btn { padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(116, 192, 252, 0.4); background: rgba(116, 192, 252, 0.1); color: #74c0fc; font-size: 0.8em; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: all 0.15s ease; min-width: 48px; }
         .calc-nav-btn:hover, .calc-nav-btn.active { background: rgba(116, 192, 252, 0.25); color: #fff; }
         .calc-nav-btn:active { transform: scale(0.95); }
+
+        /* Breakpoint checkbox custom checkmark */
+        #p-i-breakpoint:checked::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #74c0fc; font-size: 14px; font-weight: bold; }
+        #p-i-breakpoint:checked { background: rgba(116, 192, 252, 0.2); border-color: #74c0fc; }
     </style>
 </head>
 <body>
@@ -88,7 +92,7 @@
             <button class="calc-nav-btn" data-view="pcalc">P</button>
             <button class="calc-nav-btn active" data-view="bcalc">B</button>
         </nav>
-        <h2>B-CALC v1.4</h2>
+        <h2>B-CALC v1.5</h2>
         <button class="btn btn-copy" id="b-btn-copy">Copy Result</button>
         <div class="row"><div class="col"><label>Weight (gr)</label><input type="number" id="b-i-wt" inputmode="decimal" value="35"></div></div>
         <div class="row"><div class="col"><label>Velocity (fps)</label><input type="number" id="b-i-vel" inputmode="decimal" value="4000"></div></div>
@@ -119,7 +123,7 @@
             <button class="calc-nav-btn" data-view="pcalc">P</button>
             <button class="calc-nav-btn" data-view="bcalc">B</button>
         </nav>
-        <h2>A-CALC v1.4</h2>
+        <h2>A-CALC v1.5</h2>
         <button class="btn btn-copy" id="a-btn-copy">Copy Result</button>
         <div class="row"><div class="col"><label>Expression (e.g. AB or A ` B or !A)</label><input type="text" id="a-i-expr" placeholder="AB or A ^ B or !A"></div></div>
         <h3 style="margin-top:15px;">Syntax Reference (per grammar)</h3>
@@ -167,13 +171,13 @@
             <button class="calc-nav-btn" data-view="pcalc">P</button>
             <button class="calc-nav-btn" data-view="bcalc">B</button>
         </nav>
-        <h2>T-CALC v1.4</h2>
+        <h2>T-CALC v1.5</h2>
         <button class="btn btn-copy" id="t-btn-copy">Copy Data</button>
-        <div class="row"><div class="col"><label>Tire Width (inches) — or AT size like 33x12.5</label><input type="text" id="t-i-width" placeholder='35 or 33x12.5' value='35'></div></div>
+        <div class="row"><div class="col"><label>Tire Width (mm or inches) — e.g., 265/75-17 or 37x13.5x17</label><input type="text" id="t-i-width" placeholder='35 or 33x12.5' value='35'></div></div>
         <div class="row"><div class="col"><label>Aspect Ratio (%)</label><input type="number" id="t-i-aspect" placeholder='0 for AT' value='0' min="15" max="90" step="any"></div></div>
         <div class="row"><div class="col"><label>Rim Diameter (inches)</label><input type="number" id="t-i-rim" placeholder='17' value='17' min="0" step="any"></div></div>
         <h3 style="margin-top:15px;">Comparison Tire</h3>
-        <div class="row"><div class="col"><label>Tire Width (inches) — or AT size like 37x12.5</label><input type="text" id="t-i-width2" placeholder='37 or 37x12.5' value='37'></div></div>
+        <div class="row"><div class="col"><label>Tire Width (mm or inches) — e.g., 265/75-17 or 37x13.5x17</label><input type="text" id="t-i-width2" placeholder='37 or 37x12.5' value='37'></div></div>
         <div class="row"><div class="col"><label>Aspect Ratio (%)</label><input type="number" id="t-i-aspect2" placeholder='0 for AT' value='0' min="15" max="90" step="any"></div></div>
         <div class="row"><div class="col"><label>Rim Diameter (inches)</label><input type="number" id="t-i-rim2" placeholder='17' value='17' min="0" step="any"></div></div>
         <button class="btn btn-calc" id="t-btn-calc">Calculate</button>
@@ -203,7 +207,7 @@
             <button class="calc-nav-btn" data-view="pcalc">P</button>
             <button class="calc-nav-btn" data-view="bcalc">B</button>
         </nav>
-        <h2>S-CALC v1.4</h2>
+        <h2>S-CALC v1.5</h2>
         <button class="btn btn-copy" id="s-btn-copy">Copy Result</button>
         <h3 style="margin-top:15px;">Servo Torque</h3>
         <div class="row">
@@ -250,7 +254,7 @@
             <button class="calc-nav-btn" data-view="pcalc">P</button>
             <button class="calc-nav-btn" data-view="bcalc">B</button>
         </nav>
-        <h2>W-CALC v1.4</h2>
+        <h2>W-CALC v1.5</h2>
         <button class="btn btn-copy" id="w-btn-copy">Copy Heat Input</button>
         <h3 style="margin-top:15px;">Weld Heat Input</h3>
         <div class="row">
@@ -288,9 +292,77 @@
         </div>
         <button class="btn btn-calc" id="w-btn-wfs">Estimate Wire Feed</button>
         <div class="result-box" id="w-d-wfs">Enter wire dia & amps</div>
+
+        <h3 style="margin-top:20px;">Welding Voltage & Amperage Quick Reference</h3>
+
+        <div style="margin-bottom:16px;">
+            <p style="color:#74c0fc; font-size:0.9em; margin-bottom:6px;">MIG Welding (GMAW) — Mild Steel</p>
+            <table class="comp-table">
+                <tr><th>Thickness</th><th>Wire Size</th><th>Voltage</th><th>Amps</th></tr>
+                <tr><td>22 ga (.030")</td><td>.023"</td><td>14–15 V</td><td>30–40 A</td></tr>
+                <tr><td>18 ga (.048")</td><td>.023"</td><td>15–16.5 V</td><td>40–70 A</td></tr>
+                <tr><td>1/8"</td><td>.030"</td><td>17–18.5 V</td><td>90–130 A</td></tr>
+                <tr><td>3/16"</td><td>.035"</td><td>18.5–20 V</td><td>140–180 A</td></tr>
+                <tr><td>1/4"</td><td>.035" / .045"</td><td>21–23 V</td><td>180–250 A</td></tr>
+                <tr><td>3/8"</td><td>.045"</td><td>24–26 V</td><td>250–320 A</td></tr>
+            </table>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <p style="color:#74c0fc; font-size:0.9em; margin-bottom:6px;">Flux-Core Welding (FCAW)</p>
+            <table class="comp-table">
+                <tr><th>Thickness</th><th>Wire Size</th><th>Voltage</th><th>Amps</th></tr>
+                <tr><td>1/8"</td><td>.030"</td><td>17–18 V</td><td>80–120 A</td></tr>
+                <tr><td>3/16"</td><td>.035"</td><td>18–20 V</td><td>120–160 A</td></tr>
+                <tr><td>1/4"</td><td>.035" / .045"</td><td>20–24 V</td><td>160–220 A</td></tr>
+                <tr><td>3/8"</td><td>.045"</td><td>24–26 V</td><td>220–300 A</td></tr>
+            </table>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <p style="color:#74c0fc; font-size:0.9em; margin-bottom:6px;">Stick Welding (SMAW) — E6011 Rod</p>
+            <table class="comp-table">
+                <tr><th>Rod Size</th><th>Amps</th></tr>
+                <tr><td>3/32"</td><td>40–85 A</td></tr>
+                <tr><td>1/8"</td><td>75–130 A</td></tr>
+                <tr><td>5/32"</td><td>110–170 A</td></tr>
+            </table>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <p style="color:#74c0fc; font-size:0.9em; margin-bottom:6px;">Stick Welding (SMAW) — E7018 Rod</p>
+            <table class="comp-table">
+                <tr><th>Rod Size</th><th>Amps</th></tr>
+                <tr><td>3/32"</td><td>70–100 A</td></tr>
+                <tr><td>1/8"</td><td>90–150 A</td></tr>
+                <tr><td>5/32"</td><td>140–220 A</td></tr>
+            </table>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <p style="color:#74c0fc; font-size:0.9em; margin-bottom:6px;">TIG Welding (GTAW)</p>
+            <table class="comp-table">
+                <tr><th>Thickness</th><th>Tungsten Size</th><th>Amps</th></tr>
+                <tr><td>0.040"</td><td>1/16"</td><td>35–45 A</td></tr>
+                <tr><td>1/16"</td><td>1/16"</td><td>50–70 A</td></tr>
+                <tr><td>1/8"</td><td>3/32"</td><td>90–140 A</td></tr>
+                <tr><td>1/4"</td><td>1/8"</td><td>180–250 A</td></tr>
+            </table>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <p style="color:#74c0fc; font-size:0.9em; margin-bottom:6px;">Quick Shop Tips</p>
+            <div style="font-size:0.85em; color:#aaa; line-height:1.6;">
+                <p>Thin metal → lower voltage, faster travel</p>
+                <p>Thick metal → higher amperage, slower travel</p>
+                <p>Excess spatter → wire speed too high or voltage too low</p>
+                <p>Poor penetration → increase amperage</p>
+                <p>Burn-through → reduce heat or increase travel speed</p>
+            </div>
+        </div>
     </div>
 
-    <!-- P-CALC -->
+<!-- P-CALC -->
     <div id="view-pcalc" class="view">
         <nav class="calc-nav">
             <button class="calc-nav-btn" data-view="scalc">S</button>
@@ -300,7 +372,7 @@
             <button class="calc-nav-btn active" data-view="pcalc">P</button>
             <button class="calc-nav-btn" data-view="bcalc">B</button>
         </nav>
-        <h2>P-CALC v1.4</h2>
+        <h2>P-CALC v1.5</h2>
         <button class="btn btn-copy" id="p-btn-copy">Copy Result</button>
         <h3 style="margin-top:15px;">Pool Chemical Dosage</h3>
         <div class="row"><div class="col"><label>Pool Volume (gallons)</label><input type="number" id="p-i-gal" placeholder="e.g. 15000" value="15000"></div></div>
@@ -321,6 +393,38 @@
         <div class="row" id="p-row-cya-conv">
             <div class="col"><label>Conversion (oz per 10k gal → +50 ppm CYA)</label><input type="number" id="p-i-cyaconv" placeholder="e.g. 67" value="67" min="0.01" step="any" inputmode="decimal"></div>
         </div>
+        <!-- Breakpoint Chlorination Section -->
+        <div id="p-row-breakpoint" style="display:none;">
+            <div class="row" style="align-items:center; margin-bottom:8px;">
+                <label style="margin:0; display:flex; align-items:center; gap:8px; cursor:pointer;">
+                    <input type="checkbox" id="p-i-breakpoint" style="-webkit-appearance:none; width:20px; height:20px; border-radius:4px; border:1px solid #555; background:#2a2a2a; cursor:pointer; position:relative;">
+                    <span style="color:#74c0fc;">Shock / Breakpoint Chlorination</span>
+                </label>
+            </div>
+            <div id="p-breakpoint-inputs" style="display:none;">
+                <div class="row">
+                    <div class="col"><label>Free Chlorine (FC) ppm</label><input type="number" id="p-i-bp-fc" placeholder="e.g. 2" value="2" min="0" step="any" inputmode="decimal"></div>
+                    <div class="col"><label>Total Chlorine (TC) ppm</label><input type="number" id="p-i-bp-tc" placeholder="e.g. 3" value="3" min="0" step="any" inputmode="decimal"></div>
+                </div>
+                <div class="row">
+                    <div class="col"><label>Combined Chlorine (CC)</label><input type="number" id="p-i-bp-cc" placeholder="derived (TC − FC)" value="1" min="0" step="any" inputmode="decimal" readonly style="background:#1a1a2e;color:#aaa;"></div>
+                    <div class="col"><label>Multiplier</label><select id="p-i-bp-mult">
+                        <option value="7.5">7.5× CC (modern)</option>
+                        <option value="10" selected>10× CC (traditional)</option>
+                    </select></div>
+                </div>
+                <div class="row">
+                    <div class="col"><label>Pool Volume (gal)</label><input type="number" id="p-i-bp-gal" placeholder="e.g. 15000" value="" min="0" step="any" inputmode="decimal"></div>
+                    <div class="col"><label>Chlorine Source</label><select id="p-i-bp-source">
+                        <option value="65">Calcium Hypochlorite (65%)</option>
+                        <option value="10">Liquid Chlorine (~10%)</option>
+                    </select></div>
+                </div>
+                <div class="result-box" id="p-d-bp-preview" style="font-size:0.9em; min-height:50px;">Enter FC & TC readings</div>
+            </div>
+        </div>
+
+
         <div class="row-cya-conv" id="p-row-ph-input">
             <div class="col"><label>Current pH</label><input type="number" id="p-i-curpH" placeholder="e.g. 7.6" value="7.6" min="0" max="14" step="0.1" inputmode="decimal"></div>
             <div class="col"><label>Target pH</label><input type="number" id="p-i-tarpH" placeholder="e.g. 7.2" value="7.2" min="0" max="14" step="0.1" inputmode="decimal"></div>
@@ -374,7 +478,6 @@
 
 <script>
 'use strict';
-(function() {
 
 // === SHARED UTILS ===
 function showToast(msg) {
@@ -449,7 +552,7 @@ var QM = {
                     if ((diff & (diff - 1)) === 0) {
                         var newMask = currentGroup[i].mask & currentGroup[j].mask;
                         var bitPos = QM._countSetBits(diff - 1);
-                        var newDontCare = currentGroup[i].dontCare | (1 << (numVars - 1 - bitPos));
+                        var newDontCare = currentGroup[i].dontCare | (1 << bitPos);
 
                         nextGroup.push({ bits: currentGroup[i].bits, mask: newMask, dontCare: newDontCare });
                         combinedMaskBits[i] = true;
@@ -575,7 +678,9 @@ document.querySelectorAll('.calc-nav-btn').forEach(function(btn) {
 // === NAV LABELS (B → A → T → S → W → P) ===
 var navLabels = ['B-CALC', 'A-CALC', 'T-CALC', 'S-CALC', 'W-CALC', 'P-CALC'];
 
-// === B-CALC: Ballistic Energy Calculator (cached) ===
+// === B-CALC: Ballistic Energy Calculator (IIFE) ===
+;(function() {
+
 var _bResult = null;
 
 function bCalc_calc() {
@@ -616,7 +721,7 @@ gbyId('b-btn-copy').onclick = function() {
     if (!res) return;
 
     var bc = parseFloat(gs('b-i-bc')); if (isNaN(bc)) bc = 0.2;
-    var text = 'B-CALC v1.4\nWeight: ' + res.wt.toFixed(2) + 'gr\nVel: ' + res.actualVel.toFixed(0) + 'fps (Actual)\nBC: ' + bc + '\n\n--- Energy ---\nActual: ' + res.actualFpe.toFixed(2) + ' ft-lbs\nSL Equiv: ' + res.slEquivFpe.toFixed(2) + ' ft-lbs\nSL Equiv Vel: ' + res.slEquivVel.toFixed(0) + ' fps';
+    var text = 'B-CALC v1.5\nWeight: ' + res.wt.toFixed(2) + 'gr\nVel: ' + res.actualVel.toFixed(0) + 'fps (Actual)\nBC: ' + bc + '\n\n--- Energy ---\nActual: ' + res.actualFpe.toFixed(2) + ' ft-lbs\nSL Equiv: ' + res.slEquivFpe.toFixed(2) + ' ft-lbs\nSL Equiv Vel: ' + res.slEquivVel.toFixed(0) + ' fps';
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
 
@@ -642,11 +747,15 @@ gbyId('b-btn-go').onclick = function() {
     container.innerHTML = html;
 };
 
+})(); // end B-CALC IIFE
+
 // =========================================
 // === A-CALC: Grammar-Faithful Parser     ===
 // =========================================
 
-var TOK = { VAR:'v', IMPLIES:'->', XOR:'^', XORKW:'XOR', AND:'&', NOTPRE: 'n', OR:'`', FNKWD:'f', LPAREN:'(', RPAREN:')', APOS:"'" };
+;(function() {
+
+var TOK = { VAR:'v', IMPLIES:'->', XOR:'^', XORKW:'XOR', AND:'&', NOTPRE: 'n', OR:'`', FNKWD:'f', LPAREN:'(', RPAREN:')', APOS:"'", COMMA:',' };
 var FUNC_KEYWORDS = ['NAND', 'NOR', 'XNOR', 'XOR'];
 var IS_UPPER = /^[A-Za-z]$/;
 
@@ -671,20 +780,27 @@ function tokenize(expr) {
             i++; continue;
         }
         if (ch.toUpperCase() === 'N' && expr.substr(i, 3).toUpperCase() === 'NOT') {
-            tokens.push({ type: TOK.NOTPRE, val: 'NOT', pos: i });
-            i += 3; continue;
+            if (i > 0 && /[A-Za-z]/.test(expr[i - 1])) { /* NOT embedded in variable name, skip */ }
+            else {
+                tokens.push({ type: TOK.NOTPRE, val: 'NOT', pos: i });
+                i += 3; continue;
+            }
         }
 
+        var funcMatched = false;
         for (var f = 0; f < FUNC_KEYWORDS.length; f++) {
             var kwlen = FUNC_KEYWORDS[f].length;
             if (expr.substr(i, kwlen).toUpperCase() === FUNC_KEYWORDS[f] && i + kwlen < expr.length && expr[i+kwlen] === '(') {
                 tokens.push({ type: TOK.FNKWD, val: FUNC_KEYWORDS[f] + '(', pos: i });
-                i += kwlen; continue;
+                i += kwlen; funcMatched = true; break;
             }
         }
 
+        if (funcMatched) { continue; }
+
         if (ch === '(') { tokens.push({ type: TOK.LPAREN, val: '(', pos: i }); i++; continue; }
         if (ch === ')') { tokens.push({ type: TOK.RPAREN, val: ')', pos: i }); i++; continue; }
+        if (ch === ',') { tokens.push({ type: TOK.COMMA, val: ',', pos: i }); i++; continue; }
         if (/[A-Za-z]/.test(ch)) { tokens.push({ type: TOK.VAR, val: ch.toUpperCase(), pos: i }); i++; continue; }
 
         i++; // Skip unknown
@@ -699,19 +815,19 @@ function peek() { return pc < tokens.length ? tokens[pc] : null; }
 function advance() { var tok = tokens[pc]; pc++; return tok; }
 
 function parseExpr() {
-    var tree = parseImplication();
+    var tree = _parseImplication();
     if (!tree) return null;
     if (pc < tokens.length) return null;
     return tree;
 }
 
-function parseImplication() {
+function _parseImplication() {
     var left = parseOrExpr();
     if (!left) return null;
 
     while (pc < tokens.length && tokens[pc].type === TOK.IMPLIES) {
         advance();
-        var right = parseImplication();
+        var right = _parseImplication();
         if (!right) break;
         left = { op: 'IMPLIES', l: left, r: right };
     }
@@ -762,7 +878,21 @@ function parseAndExpr() {
             if (!right) break;
             left = { op: 'AND', l: left, r: right };
         } else if (tokens[pc].type === TOK.FNKWD) {
-            break;  // Don't treat function keywords as implicit AND operands
+            // FNKWD can be implicit AND operand: A NAND(B,C) = A & NAND(B,C)
+            var right = parseUnary();
+            if (!right) break;
+            left = { op: 'AND', l: left, r: right };
+        } else if (tokens[pc].type === TOK.LPAREN) {
+            var right = parseUnary();
+            if (!right) break;
+            left = { op: 'AND', l: left, r: right };
+        } else if (tokens[pc].type === TOK.NOTPRE) {
+            var nextTok = tokens[pc + 1];
+            if (nextTok && nextTok.type === TOK.VAR) {
+                var right = parseUnary();
+                if (!right) break;
+                left = { op: 'AND', l: left, r: right };
+            } else { break; }
         } else { break; }
     }
 
@@ -803,7 +933,7 @@ function parseAtom() {
 
     if (tok.type === TOK.LPAREN) {
         advance();
-        var expr = parseExpr();
+        var expr = _parseImplication();
         if (!expr) return null;
 
         var close = peek();
@@ -827,6 +957,7 @@ function parseAtom() {
             if (FUNC_KEYWORDS[f] === 'NAND') return parseFunctionCall('NOT-AND', 2);
             if (FUNC_KEYWORDS[f] === 'NOR') return parseFunctionCall('NOT-OR', 2);
             if (FUNC_KEYWORDS[f] === 'XNOR') return parseFunctionCall('NOT-XOR', 2);
+            if (FUNC_KEYWORDS[f] === 'XOR') return parseFunctionCall('XOR', 2);
         }
     }
 
@@ -834,6 +965,10 @@ function parseAtom() {
 }
 
 function parseFunctionCall(funcName, expectedArgs) {
+    // Consume the opening LPAREN that follows FNKWD token (tokenizer only consumes keyword name)
+    if (!peek() || peek().type !== TOK.LPAREN) return null;
+    advance();
+
     var args = [];
 
     while (pc < tokens.length && !(tokens[pc].type === TOK.RPAREN)) {
@@ -841,7 +976,7 @@ function parseFunctionCall(funcName, expectedArgs) {
         if (!arg && args.length === 0) return null;
         if (arg) args.push(arg);
 
-        if (pc < tokens.length && tokens[pc].val === ',') {
+        if (pc < tokens.length && tokens[pc].type === TOK.COMMA) {
             advance();
         } else break;
     }
@@ -851,6 +986,11 @@ function parseFunctionCall(funcName, expectedArgs) {
     advance();
 
     if (args.length === 0) return null;
+
+    // Validate argument count - require at least expectedArgs arguments
+    if (expectedArgs && args.length < expectedArgs) {
+        return null;
+    }
 
     var tree = args[0];
     for (var i = 1; i < args.length; i++) {
@@ -955,6 +1095,10 @@ function evaluateSingleExpression(exprStr) {
     extractVarsFromTree(tree, vars);
 
     if (vars.length === 0) return null;
+    // Validate all variables are single uppercase letters
+    for (var vi = 0; vi < vars.length; vi++) {
+        if (!/^[A-Z]$/.test(vars[vi])) return { error: "Invalid variable name: " + vars[vi], vars: [] };
+    }
     if (vars.length > 6) return { error: "Maximum 6 variables supported", vars: [] };
 
     var compiled = compileTree(tree);
@@ -1001,12 +1145,55 @@ function evaluateMultiOutput(parts) {
         else { outputLabels.push('F' + (outputLabels.length + 1)); expressions.push(part); }
     });
 
+    // Parse each expression using the proper parser (same as evaluateSingleExpression)
+    var parsedTrees = [];
     var globalVars = [];
-    expressions.forEach(function(expr) {
-        var cleaned = expr.toUpperCase().replace(/\b(NAND|XNOR|NOR|NOT|XOR|AND|IMPLIES)\b/g, '');
-        var matches = cleaned.match(/[A-Z]/g);
-        if (matches) { for (var i = 0; i < matches.length; i++) { if (globalVars.indexOf(matches[i]) === -1) globalVars.push(matches[i]); } }
-    });
+
+    for (var eIdx = 0; eIdx < expressions.length; eIdx++) {
+        var expr = expressions[eIdx].trim();
+        if (!expr) continue;
+
+        tokens = tokenize(expr);
+        if (tokens.length === 0) {
+            return { error: "Invalid expression in multi-output", vars: [] };
+        }
+
+        var savedPc = pc;
+        pc = 0;
+        var tree = parseExpr();
+
+        if (!tree) {
+            return { error: "Failed to parse expression: " + expr, vars: [] };
+        }
+
+        if (pc < tokens.length) {
+            return { error: "Unexpected tokens after expression: " + expr, vars: [] };
+        }
+
+        var vars = [];
+        extractVarsFromTree(tree, vars);
+
+        if (vars.length === 0) {
+            return { error: "No variables found in expression", vars: [] };
+        }
+
+        // Validate all variables are single uppercase letters
+        for (var vi = 0; vi < vars.length; vi++) {
+            if (!/^[A-Z]$/.test(vars[vi])) {
+                return { error: "Invalid variable name: " + vars[vi], vars: [] };
+            }
+        }
+
+        if (vars.length > 6) {
+            return { error: "Maximum 6 variables supported", vars: [] };
+        }
+
+        parsedTrees[eIdx] = { tree: tree, compiled: compileTree(tree), vars: vars };
+
+        for (var v = 0; v < vars.length; v++) {
+            if (globalVars.indexOf(vars[v]) === -1) globalVars.push(vars[v]);
+        }
+    }
 
     if (globalVars.length > 6) return { error: "Maximum 6 variables across all expressions", vars: [] };
 
@@ -1015,14 +1202,6 @@ function evaluateMultiOutput(parts) {
     globalVars.forEach(function(v) { html += '<th>' + v + '</th>'; });
     outputLabels.forEach(function(label) { html += '<th>' + label + '</th>'; });
     html += '</tr></thead><tbody>';
-
-    // Pre-compute variable substitutions per expression (avoid repeated regex creation in row loop)
-    var exprVarSets = [];
-    for (var eIdx = 0; eIdx < expressions.length; eIdx++) {
-        var cleaned = expressions[eIdx].toUpperCase().replace(/\b(NAND|XNOR|NOR|NOT|XOR|AND|IMPLIES)\b/g, '');
-        var matches = cleaned.match(/[A-Z]/g);
-        exprVarSets[eIdx] = matches ? Array.from(new Set(matches)) : [];
-    }
 
     for (var i = 0; i < numRows; i++) {
         var values = {};
@@ -1033,26 +1212,12 @@ function evaluateMultiOutput(parts) {
         html += '<tr>';
         globalVars.forEach(function(v) { html += '<td>' + (values[v] ? 'T' : 'F') + '</td>'; });
 
-        for (var eIdx = 0; eIdx < expressions.length; eIdx++) {
-            var es = expressions[eIdx].toUpperCase()
-                .replace(/\bXOR\(([^)]+)\)/g, function(m, args) { return '(' + args.split(',').map(function(a){return a.trim();}).join(' ^ ') + ')'; })
-                .replace(/\bNAND\(([^)]+)\)/g, function(m, args) { return '!' + '(' + args.replace(/,/g,' && ') + ')'; })
-                .replace(/\bNOR\(([^)]+)\)/g, function(m, args) { return '!' + '(' + args.replace(/,/g,' || ') + ')'; })
-                .replace(/\bAND\b/g, '&&').replace(/\bOR\b/g, '||')
-                .replace(/([A-Z]+)\s*->\s*([A-Z]+)/g, '!$1 || $2')
-                .replace(/(?<!&)&(?!&)/g, '&&').replace(/(?<![|])\|(?!])/g, '||');
+        for (var eIdx = 0; eIdx < parsedTrees.length; eIdx++) {
+            if (!parsedTrees[eIdx]) { html += '<td style="color:#ff6b6b">Error</td>'; continue; }
 
-            var singles = exprVarSets[eIdx];
-
-            for (var s = 0; s < singles.length; s++) {
-                var regex2 = new RegExp('\\b' + singles[s] + '\\b', 'g');
-                es = es.replace(regex2, values[singles[s]] ? 'true' : 'false');
-            }
-
-            try {
-                var result = !!fnEval(es);
-                html += '<td>' + (result ? 'T' : 'F') + '</td>';
-            } catch(e) { html += '<td style="color:#ff6b6b">Error</td>'; }
+            var result = evalCompiled(parsedTrees[eIdx].compiled, values);
+            if (result === -1) { html += '<td style="color:#ff6b6b">Error</td>'; }
+            else { html += '<td>' + (result === 1 ? 'T' : 'F') + '</td>'; }
         }
 
         html += '</tr>';
@@ -1092,14 +1257,27 @@ function countGatesAndDepth(exprStr) {
     counts.NOT += (cleaned.match(/!/g) || []).length;
 
     counts.NOT += (exprStr.match(/~/g) || []).length;
-    counts.NOT += (exprStr.match(/'/g) || []).length;
+
+    // Count postfix apostrophe NOTs only after single uppercase letters (valid variable names)
+    var aposMatches = exprStr.match(/([A-Z])'/g);
+    if (aposMatches) counts.NOT += aposMatches.length;
 
     counts.XOR += (upperExpr.match(/\^/g) || []).length;
     counts.BACKTICK_OR += (exprStr.match(/`/g) || []).length;
     counts.IMPLIES = (upperExpr.match(/->/g) || []).length;
 
-    var cleanForImplicit = upperExpr.replace(/[\s&|^!()~`',\-\+*\/]/g, ' ').replace(/\b(NAND|XNOR|NOR|NOT|XOR|AND|IMPLIES)\b/g, ' ');
-    var pairs = cleanForImplicit.match(/[A-Z]\s+[A-Z]/g);
+    // Count implicit AND via adjacency only when no explicit operator exists between variables
+    // Remove all tokens that are NOT implicit-AND indicators, then find adjacent uppercase pairs
+    var noExplicitOps = upperExpr.replace(/&/g, ' ').replace(/\|/g, ' ').replace(/\^/g, ' ')
+        .replace(/`/g, ' ').replace(/->/g, ' ');
+    // Remove function keywords and their arguments to avoid false matches
+    noExplicitOps = noExplicitOps.replace(/\b(NAND|XNOR|NOR|NOT|XOR|AND|IMPLIES)\b/g, ' ');
+    // Remove parentheses and other punctuation that would break adjacency
+    noExplicitOps = noExplicitOps.replace(/[()~]/g, ' ');
+    // Replace commas and other separators with spaces (not adjacency)
+    noExplicitOps = noExplicitOps.replace(/[,]/g, ' ');
+    // Now count adjacent uppercase letters separated only by whitespace (implicit AND)
+    var pairs = noExplicitOps.match(/[A-Z]\s+[A-Z]/g);
     if (pairs) counts.AND += pairs.length;
 
     // Depth estimation (single pass)
@@ -1202,11 +1380,17 @@ function displayPrimeImplicants(exprStr, vars) {
     if (!vars || vars.length === 0) return '';
 
     var result = evaluateSingleExpression(exprStr);
-    if (!result || !result.minterms) return '<div class="prime-imp">No minterms found</div>';
+    if (!result || !result.minterms) {
+        gbyId('a-d-simp').innerHTML = '';
+        return '<div class="prime-imp">No minterms found</div>';
+    }
 
     var qmResult = QM.findPrimes(result.minterms, vars.length);
 
-    if (!qmResult.primes || qmResult.primes.length === 0) return '<div class="prime-imp">No prime implicants found</div>';
+    if (!qmResult.primes || qmResult.primes.length === 0) {
+        gbyId('a-d-simp').innerHTML = '';
+        return '<div class="prime-imp">No prime implicants found</div>';
+    }
 
     var html = '';
     for (var i = 0; i < qmResult.primes.length; i++) {
@@ -1266,7 +1450,7 @@ function triggerEval() {
 
         var result = evaluateTruthTable(expr);
 
-        if (!result || !result.vars) {
+        if (!result || !result.vars || result.vars.length === 0) {
             var errorMsg = result && result.error ? '<span style="color:#ff6b6b;">' + result.error + '</span>' : 'Enter expression';
             gbyId('a-d-simp').innerHTML = errorMsg;
             gbyId('a-d-res').innerHTML = errorMsg;
@@ -1293,7 +1477,11 @@ gbyId('a-btn-copy').onclick = function() {
     navigator.clipboard.writeText('Expression: ' + expr).then(function() { showToast('Copied!'); });
 };
 
-// === T-CALC: Tire Diameter & Comparison Calculator (cached) ===
+})(); // end A-CALC IIFE
+
+// === T-CALC: Tire Diameter & Comparison Calculator (IIFE) ===
+;(function() {
+
 var _tResult = [null, null];
 
 function tCalc_get(prefix) {
@@ -1436,7 +1624,11 @@ gbyId('t-btn-copy').onclick = function() {
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
 
-// === S-CALC: Servo Stall + Material Stress Calculator (cached) ===
+})(); // end T-CALC IIFE
+
+// === S-CALC: Servo Stall + Material Stress Calculator (IIFE) ===
+;(function() {
+
 var MATERIAL_DATA = {
     steel:    { yield: 36000, name: 'Steel' },
     aluminum: { yield: 35000, name: 'Aluminum' },
@@ -1683,11 +1875,15 @@ gbyId('s-btn-copy').onclick = function() {
         }
     }
 
-    var text = 'S-CALC v1.4\n--- Servo Stall ---\nTorque: ' + result.torque.toFixed(0) + ' in-lbf\nArm Length: ' + result.arm.toFixed(2) + '"\nLinkage Ratio: ' + result.ma.toFixed(2) + '\n\n--- Output Force ---\nLinear Force: ' + result.forceLb.toFixed(2) + ' lbf' + stressLine;
+    var text = 'S-CALC v1.5\n--- Servo Stall ---\nTorque: ' + result.torque.toFixed(0) + ' in-lbf\nArm Length: ' + result.arm.toFixed(2) + '"\nLinkage Ratio: ' + result.ma.toFixed(2) + '\n\n--- Output Force ---\nLinear Force: ' + result.forceLb.toFixed(2) + ' lbf' + stressLine;
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
 
-// === W-CALC: Welding Heat Input + Wire Feed Calculator (cached) ===
+})(); // end S-CALC IIFE
+
+// === W-CALC: Welding Heat Input + Wire Feed Calculator (IIFE) ===
+;(function() {
+
 var _wResult = null;
 
 // Material thickness presets for burn-through / distortion risk assessment
@@ -1797,9 +1993,9 @@ function wCalc_heat() {
 
     gbyId('w-d-stats').innerHTML =
         'Power: ' + (volts * amps).toFixed(0) + ' W' + recRangeStr +
-        '\nTravel: ' + speed.toFixed(1) + '"/min | η: ' + eff.toFixed(2) +
-        '\nHeat Input (60×V×A×η/speed): ' + heatInputKJPerIn.toFixed(1) + ' kJ/in' +
-        '\n\nBurn-through risk: ' + burnRiskLabel;
+        '<br>Travel: ' + speed.toFixed(1) + '"/min | η: ' + eff.toFixed(2) +
+        '<br>Heat Input (60×V×A×η/speed): ' + heatInputKJPerIn.toFixed(1) + ' kJ/in' +
+        '<br><br>Burn-through risk: ' + burnRiskLabel;
 
     return _wResult;
 }
@@ -1817,7 +2013,7 @@ function wCalc_wire() {
     // Realistic MIG WFS: ~2.0 ipm/A for .035 ER70S-6 wire (industry standard)
     // Scales by wire diameter: thinner wire → faster feed needed for same amps
     var baseWFS = targetAmps * 2.0; // ipm at .035"
-    var diaCorrection = Math.pow(0.035 / wireDia, 1.8);
+    var diaCorrection = Math.pow(0.035 / wireDia, 0.5);
     var ipm = baseWFS * diaCorrection;
 
     // Safety: cap at realistic max
@@ -1843,13 +2039,20 @@ gbyId('w-btn-copy').onclick = function() {
     var matKey = gs('w-i-material') || 'mildsteel';
     var thick = gv('w-i-thick');
 
-    var text = 'W-CALC v1.4\n--- Heat Input ---\nVoltage: ' + res.volts.toFixed(0) + ' V\nAmperage: ' + res.amps.toFixed(0) + ' A\nTravel Speed: ' + res.speed.toFixed(1) + '"/min | η: ' + res.eff.toFixed(2) + '\n\n' +
+    var text = 'W-CALC v1.5\n--- Heat Input ---\nVoltage: ' + res.volts.toFixed(0) + ' V\nAmperage: ' + res.amps.toFixed(0) + ' A\nTravel Speed: ' + res.speed.toFixed(1) + '"/min | η: ' + res.eff.toFixed(2) + '\n\n' +
         res.heatInputKJPerIn.toFixed(1) + ' kJ/in\n' + res.heatInputBTUPerIn.toFixed(1) + ' BTU/in' +
         '\n\nMaterial: ' + matKey + (isNaN(thick) ? '' : ' | Thick: ' + thick.toFixed(3) + '"');
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
+})(); // end W-CALC IIFE
 
-// === P-CALC: Pool Chemical Dosage Calculator (cached) ===
+
+
+
+
+// === P-CALC: Pool Chemical Dosage Calculator (IIFE) ===
+;(function() {
+
 var _pResult = null;
 
 function pCalc_dose() {
@@ -1860,6 +2063,16 @@ function pCalc_dose() {
         gbyId('p-d-res').innerHTML = 'Enter volume & target'; _pResult = null; return null;
     }
 
+    // If breakpoint is active, use its net-to-dose as the target instead
+    var bpActive = gbyId('p-i-breakpoint') && gbyId('p-i-breakpoint').checked;
+    var bpData = null;
+    if (bpActive) {
+        bpData = pCalc_calcBreakpointPreview();
+        if (bpData && bpData.netToDose > 0) {
+            target = bpData.netToDose; // override target with breakpoint-derived ppm
+        }
+    }
+
     var sel = gbyId('p-i-chem');
     var chemType = sel.options[sel.selectedIndex].getAttribute('data-type') || 'oz_ppm';
     var factor = parseFloat(sel.options[sel.selectedIndex].getAttribute('data-factor')) || 10;
@@ -1867,18 +2080,22 @@ function pCalc_dose() {
 
     // Chemical-specific goal text
     var goalText;
-    switch (chemType) {
-        case 'cya_custom': goalText = 'Raise CYA to protect chlorine from UV degradation'; break;
-        case 'sal_ppm': goalText = 'Raise salinity for SWG chlorine generation'; break;
-        case 'oz_ppm':
-            if (chemName.indexOf('Borax') !== -1) goalText = 'Mild pH increase + buffering stability (not a TA target chemical)';
-            if (chemName.indexOf('Baking') !== -1) goalText = 'Raise total alkalinity (TA) in ppm';
-            else if (chemName.indexOf('Salt') !== -1) goalText = 'Reach salt generator target level';
-            else goalText = 'Adjust chemical to target ppm';
-            break;
-        case 'ph_up': goalText = 'Raise pH by X points (not ppm — logarithmic scale)'; break;
-        case 'ph_control': goalText = 'Lower pH via carbonate equilibrium (requires current & target pH)'; break;
-        default: goalText = 'Adjust chemical to target ppm';
+    if (bpActive && bpData) {
+        goalText = 'Shock to breakpoint: raise FC by ' + target.toFixed(1) + ' ppm (FC + ' + bpData.mult + '× CC)';
+    } else {
+        switch (chemType) {
+            case 'cya_custom': goalText = 'Raise CYA to protect chlorine from UV degradation'; break;
+            case 'sal_ppm': goalText = 'Raise salinity for SWG chlorine generation'; break;
+            case 'oz_ppm':
+                if (chemName.indexOf('Borax') !== -1) goalText = 'Raises pH (logarithmic scale — effect depends on alkalinity)';
+                if (chemName.indexOf('Baking') !== -1) goalText = 'Raise total alkalinity (TA) in ppm';
+                else if (chemName.indexOf('Salt') !== -1) goalText = 'Reach salt generator target level';
+                else goalText = 'Adjust chemical to target ppm';
+                break;
+            case 'ph_up': goalText = 'Raise pH by X points (not ppm — logarithmic scale)'; break;
+            case 'ph_control': goalText = 'Lower pH via carbonate equilibrium (requires current & target pH)'; break;
+            default: goalText = 'Adjust chemical to target ppm';
+        }
     }
     var sideEffects = sel.options[sel.selectedIndex].getAttribute('data-sideffects') || '';
 
@@ -1910,7 +2127,10 @@ function pCalc_dose() {
 
     statsInfoParts.push('<b>Dosage Calculation</b><br>');
     statsInfoParts.push('Volume: ' + gal.toFixed(0) + ' gallons<br>');
-    if (chemType === 'ph_up') {
+    if (bpActive && bpData) {
+        statsInfoParts.push('Breakpoint shock: FC=' + bpData.fc.toFixed(1) + ' + CC=' + bpData.cc.toFixed(1) + ' ×' + bpData.mult + '<br>');
+        statsInfoParts.push('Target change: +' + target.toFixed(1) + ' ppm FC (net-to-dose)<br>');
+    } else if (chemType === 'ph_up') {
         statsInfoParts.push('Target change: +' + target.toFixed(2) + ' pH points<br>');
     } else {
         statsInfoParts.push('Target change: +' + target.toFixed(1) + ' ppm<br>');
@@ -2023,12 +2243,21 @@ function pCalc_dose() {
         case 'lb_ppm':
             // Calcium Hypochlorite (65% available chlorine): 1 lb/10k gal → ~8 ppm FC
             // factor = 8.0 ppm per lb/10k gal
-            var chMath = '(' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / (10000 × ' + factor.toFixed(1) + ')';
-            lbsNeeded = (target * gal) / (10000 * factor);
+            var effectiveFactor = factor;
+            if (bpActive && bpData) {
+                // Use breakpoint source strength instead of dropdown factor
+                var bpSource = parseFloat(gbyId('p-i-bp-source').value) || 65;
+                effectiveFactor = bpSource === 65 ? 8.0 : 10.6;
+            }
+            var chMath = '(' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / (10000 × ' + effectiveFactor.toFixed(1) + ')';
+            lbsNeeded = (target * gal) / (10000 * effectiveFactor);
 
             statsInfoParts.push('<br><b>Formula</b><br>');
-            statsInfoParts.push('Factor: ' + factor.toFixed(1) + ' ppm FC per lb/10k gal (65% cal-hypo)<br>');
-            statsInfoParts.push('Standard: 1 lb/10k gal → ~8 ppm FC<br>');
+            statsInfoParts.push('Factor: ' + effectiveFactor.toFixed(1) + ' ppm FC per lb/10k gal');
+            if (bpActive && bpData) {
+                statsInfoParts.push(' (breakpoint source override)');
+            }
+            statsInfoParts.push('<br>');
             statsInfoParts.push('Math: (target × gal) / (10000 × factor)<br>');
             statsInfoParts.push('      = ' + chMath + '<br>');
             statsInfoParts.push('      = ' + lbsNeeded.toFixed(2) + ' lbs<br>');
@@ -2041,6 +2270,45 @@ function pCalc_dose() {
             }
 
             _pResult.unitsNeeded = 'lbs';
+            break;
+
+        case 'ph_control':
+            // Muriatic Acid: lowers pH via carbonate equilibrium
+            // Requires current & target pH inputs (not the ppm target field)
+            var curPH = gv('p-i-curpH');
+            var tarPH = gv('p-i-tarpH');
+            
+            if (isNaN(curPH) || isNaN(tarPH)) {
+                gbyId('p-d-res').innerHTML = 'Enter current & target pH'; _pResult = null; return null;
+            }
+            
+            if (tarPH >= curPH) {
+                gbyId('p-d-res').innerHTML = 'Target pH must be lower than current'; _pResult = null; return null;
+            }
+            
+            var phDelta = curPH - tarPH; // positive number of pH points to lower
+            
+            // Rule: ~1 fl oz muriatic acid per 10k gal lowers pH by ~0.1
+            var ozNeeded = (phDelta / 0.1) * 1 * (gal / 10000);
+            lbsNeeded = ozNeeded / 16;
+            
+            statsInfoParts.push('<br><b>Formula</b><br>');
+            statsInfoParts.push('Current pH: ' + curPH.toFixed(1) + ' → Target: ' + tarPH.toFixed(1));
+            statsInfoParts.push(' (ΔpH = −' + phDelta.toFixed(1) + ')<br>');
+            statsInfoParts.push('Rule: ~1 fl oz/10k gal → −0.1 pH<br>');
+            statsInfoParts.push('Math: (ΔpH / 0.1) × (gal/10k) × 1 fl oz<br>');
+            statsInfoParts.push('      = (' + phDelta.toFixed(1) + ' / 0.1) × ' + (gal/10000).toFixed(2) + '<br>');
+            statsInfoParts.push('      = ' + ozNeeded.toFixed(1) + ' fl oz (' + lbsNeeded.toFixed(2) + ' lbs)<br>');
+            
+            display = '<b style="font-size:1.3em;">' + ozNeeded.toFixed(1) + ' fl oz</b>';
+            
+            warnings.push('⚠ Muriatic acid lowers pH and TA — add slowly, circulate 1 hr between doses');
+            warnings.push('⚠ Always add acid to water, never water to acid');
+            warnings.push('⚠ Retest pH after 1–2 hrs circulation before adding more');
+            
+            _pResult.unitsNeeded = 'oz';
+            _pResult.target = phDelta; // for copy function display
+            
             break;
 
         case 'ph_up':
@@ -2115,12 +2383,23 @@ function pCalc_dose() {
 
     gbyId('p-d-res').innerHTML = display +
         '<br><span style="font-size:1.1em; color:#a5d6ff;">' + chemName + '</span>' +
-        '<br><span style="font-size:0.9em; color:#aaa;">Goal: ' + goalText + '</span>';
+        '<br><span style="font-size:0.9em; color:#aaa;">Goal: ' + goalText + '</span>' +
+        (bpActive && bpData ? '<br><span style="font-size:0.85em; color:#fab005;">CC=' + bpData.cc.toFixed(1) + ' ppm | Breakpoint target: ' + bpData.breakpointPPM.toFixed(1) + ' ppm</span>' : '');
 
     gbyId('p-d-stats').innerHTML = statsInfoParts.join('');
 
     _pResult.lbsNeeded = lbsNeeded || 0;
     _pResult.ozNeeded = ozNeeded || 0;
+    
+    // Store breakpoint data if active
+    if (bpActive && bpData) {
+        _pResult.bpFc = bpData.fc;
+        _pResult.bpTc = bpData.tc;
+        _pResult.bpCc = bpData.cc;
+        _pResult.bpTarget = bpData.breakpointPPM;
+        _pResult.bpNetDose = bpData.netToDose;
+    }
+    
     return _pResult;
 }
 
@@ -2153,10 +2432,106 @@ gbyId('p-i-chem').onchange = function() {
     if (phRow) {
         if (type === 'ph_control') { phRow.classList.add('visible'); } else { phRow.classList.remove('visible'); }
     }
+    
+    // Show breakpoint section for chlorine products only
+    var chemVal = this.value;
+    var bpRow = gbyId('p-row-breakpoint');
+    if (chemVal === 'chlor' || chemVal === 'liquid') {
+        bpRow.style.display = 'block';
+    } else {
+        bpRow.style.display = 'none';
+        gbyId('p-i-breakpoint').checked = false;
+        pCalc_toggleBreakpoint();
+    }
+
+    // Recalculate dosage display when chemical changes (if volume is already entered)
+    var gal = gv('p-i-gal');
+    if (!isNaN(gal)) { pCalc_dose(); }
 };
 
 // Initialize defaults on load (same as first chem select)
 gbyId('p-i-chem').dispatchEvent(new Event('change'));
+
+// Wire up breakpoint toggle and multiplier
+gbyId('p-i-breakpoint').onchange = function() { pCalc_toggleBreakpoint(); };
+gbyId('p-i-bp-mult').onchange = function() { pCalc_calcBreakpointPreview(); };
+gbyId('p-i-bp-fc').oninput = function() { pCalc_updateCC(); pCalc_calcBreakpointPreview(); };
+gbyId('p-i-bp-tc').oninput = function() { pCalc_updateCC(); pCalc_calcBreakpointPreview(); };
+gbyId('p-i-bp-gal').oninput = function() { pCalc_calcBreakpointPreview(); };
+gbyId('p-i-bp-source').onchange = function() { pCalc_calcBreakpointPreview(); };
+
+// Wire up pH inputs for muriatic acid recalculation
+var curPH = gbyId('p-i-curpH');
+var tarPH = gbyId('p-i-tarpH');
+if (curPH) curPH.oninput = function() { pCalc_dose(); };
+if (tarPH) tarPH.oninput = function() { pCalc_dose(); };
+
+function pCalc_toggleBreakpoint() {
+    var checked = gbyId('p-i-breakpoint').checked;
+    gbyId('p-breakpoint-inputs').style.display = checked ? 'block' : 'none';
+    if (checked) { pCalc_updateCC(); pCalc_calcBreakpointPreview(); }
+}
+
+function pCalc_updateCC() {
+    var fc = gv('p-i-bp-fc');
+    var tc = gv('p-i-bp-tc');
+    if (!isNaN(fc) && !isNaN(tc)) {
+        var cc = Math.max(0, tc - fc);
+        gbyId('p-i-bp-cc').value = cc.toFixed(1);
+    }
+}
+
+function pCalc_calcBreakpointPreview() {
+    var fc = gv('p-i-bp-fc');
+    var tc = gv('p-i-bp-tc');
+    var cc = gv('p-i-bp-cc');
+    var mult = parseFloat(gbyId('p-i-bp-mult').value) || 10;
+    var gal = gv('p-i-bp-gal');
+    var chlorStrength = parseFloat(gbyId('p-i-bp-source').value) || 65;
+    
+    if (isNaN(fc) || isNaN(tc)) {
+        gbyId('p-d-bp-preview').innerHTML = 'Enter FC & TC readings';
+        return null;
+    }
+    
+    // Derive CC from TC - FC
+    cc = Math.max(0, tc - fc);
+    
+    // Breakpoint target: FC + (multiplier × CC)
+    var breakpointPPM = fc + (mult * cc);
+    var netToDose = Math.max(0, breakpointPPM - fc);
+    
+    // Calculate dosage based on chlorine source strength
+    var lbsNeeded = 0, galNeeded = 0;
+    if (!isNaN(gal) && netToDose > 0) {
+        // Cal-hypo (65%): ~8 ppm FC per lb/10k gal
+        // Liquid chlorine (10%): ~10.6 ppm FC per gal/10k gal
+        var factor = chlorStrength === 65 ? 8.0 : 10.6;
+        if (chlorStrength === 65) {
+            lbsNeeded = (netToDose * gal) / (10000 * factor);
+        } else {
+            galNeeded = (netToDose * gal) / (10000 * factor);
+        }
+    }
+    
+    var html = 'CC: <b>' + cc.toFixed(1) + ' ppm</b> (TC − FC)<br>';
+    html += 'Target FC: <b>' + breakpointPPM.toFixed(1) + ' ppm</b> (' + fc.toFixed(1) + ' + ' + mult + '×' + cc.toFixed(1) + ')<br>';
+    html += '<span style="font-size:0.85em; color:#aaa;">Add ' + netToDose.toFixed(1) + ' ppm FC to reach breakpoint</span>';
+    
+    if (lbsNeeded > 0) {
+        html += '<br><span style="font-size:1em; color:#74c0fc;">≈ ' + lbsNeeded.toFixed(2) + ' lb calcium hypochlorite (65%)</span>';
+    } else if (galNeeded > 0) {
+        html += '<br><span style="font-size:1em; color:#74c0fc;">≈ ' + galNeeded.toFixed(2) + ' gal liquid chlorine (~10%)</span>';
+    } else if (netToDose <= 0) {
+        html += '<br><span style="font-size:0.85em; color:#40c057;">FC already at breakpoint — no shock needed</span>';
+    } else {
+        html += '<br><span style="font-size:0.85em; color:#fab005;">Enter pool volume for dosage</span>';
+    }
+    
+    gbyId('p-d-bp-preview').innerHTML = html;
+    
+    return { fc: fc, tc: tc, cc: cc, mult: mult, breakpointPPM: breakpointPPM, netToDose: netToDose, lbsNeeded: lbsNeeded, galNeeded: galNeeded };
+}
 
 // === P-CALC: Factor table interpolation helpers (advanced) ===
 function interpLookup(pHs, factors, pH) {
@@ -2219,10 +2594,9 @@ function pCalc_taCorrection() {
         mainHTML += '<br><span style="font-size:0.9em; color:#aaa;">Estimated carbonate alkalinity correction for LSI/CSI (CYA): −' + cyaAdj + ' ppm</span>';
     }
 
-    if (borates > 0 && borates <= 30) {
-        mainHTML += '<br><span style="font-size:0.85em; color:#aaa;">Borates: not significant (≤30 ppm)</span>';
-    } else if (borates > 30) {
-        mainHTML += '<br><span style="font-size:0.9em; color:#aaa;">Borates: significant — show calculation for details</span>';
+    if (borates > 0) {
+        var borStatus = borates <= 30 ? 'not significant (≤30 ppm)' : 'significant — show calculation for details';
+        mainHTML += '<br><span style="font-size:0.85em; color:#aaa;">Borates: ' + borates.toFixed(0) + ' ppm (' + borStatus + ')</span>';
     }
 
     if (cya > 0) {
@@ -2411,7 +2785,22 @@ gbyId('p-btn-copy').onclick = function() {
     var res = _pResult; if (!res) { pCalc_dose(); res = _pResult; }
     if (!res) return;
 
-    var text = 'P-CALC v1.4\nVolume: ' + res.gal.toFixed(0) + ' gallons\nChemical: ' + res.chemName + '\nTarget Change: ' + res.target.toFixed(1) + '\n\n--- Dosage ---\n' + (res.unitsNeeded === 'gal' ? res.lbsNeeded.toFixed(2) + ' gal' : (res.unitsNeeded === 'fl oz' ? res.ozNeeded.toFixed(2) + ' fl oz' : (res.lbsNeeded >= 1 ? res.lbsNeeded.toFixed(2) + ' lbs' : res.ozNeeded.toFixed(2) + ' oz')));
+    var text = 'P-CALC v1.5\nVolume: ' + res.gal.toFixed(0) + ' gallons\nChemical: ' + res.chemName + '\nTarget Change: ' + res.target.toFixed(1) + '\n\n--- Dosage ---\n' + (res.unitsNeeded === 'gal' ? res.lbsNeeded.toFixed(2) + ' gal' : (res.unitsNeeded === 'oz' ? res.ozNeeded.toFixed(2) + ' fl oz' : (res.lbsNeeded >= 1 ? res.lbsNeeded.toFixed(2) + ' lbs' : res.ozNeeded.toFixed(2) + ' oz')));
+    
+    // Include breakpoint chlorination data if active
+    var bpActive = gbyId('p-i-breakpoint') && gbyId('p-i-breakpoint').checked;
+    var bpData = pCalc_calcBreakpointPreview();
+    if (bpActive && bpData) {
+        text += '\n\n--- Breakpoint Chlorination ---';
+        text += '\nFC: ' + bpData.fc.toFixed(1) + ' ppm | TC: ' + bpData.tc.toFixed(1) + ' ppm';
+        text += '\nCC: ' + bpData.cc.toFixed(1) + ' ppm (derived)';
+        text += '\nMultiplier: ' + bpData.mult + '× CC';
+        text += '\nTarget FC: ' + bpData.breakpointPPM.toFixed(1) + ' ppm';
+        text += '\nNet to dose: ' + bpData.netToDose.toFixed(1) + ' ppm';
+        if (res.lbsNeeded > 0) { text += '\nDosage: ' + res.lbsNeeded.toFixed(2) + ' lb cal-hypo (65%)'; }
+        if (_pResult.ozNeeded > 0 && _pResult.unitsNeeded === 'oz') { text += '\nDosage: ' + _pResult.ozNeeded.toFixed(2) + ' oz liquid chlorine (~10%)'; }
+    }
+    
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
 
@@ -2489,7 +2878,6 @@ gbyId('p-btn-alerts').onclick = function() {
     // CSI check (if temp available)
     if (!isNaN(temp) && !isNaN(ph) && !isNaN(ta) && !isNaN(ch) && !isNaN(cya)) {
         // Simplified CSI approximation (more accurate needs full carbonate chemistry)
-        var tempK = (temp - 32) * 5/9 + 273.15; // °F to K
         var tFactor = -0.037 + 0.0002 * (temp - 60); // approximate temp correction
         var caFactor = Math.log10(ch / 400); // log deviation from ideal CH
         var taFactor = Math.log10(ta / 100); // log deviation from ideal TA
@@ -2529,12 +2917,13 @@ gbyId('p-btn-alerts').onclick = function() {
     gbyId('p-d-alerts-stats').innerHTML = statsLines.join('<br>');
 };
 
+})(); // end P-CALC IIFE
+
 // === INIT: Trigger tire calc on load (no input value writes) ===
 window.onload = function() {
     gbyId('t-btn-calc').click();
 };
 
-})(); // end IIFE
 </script>
 </body>
 </html>
