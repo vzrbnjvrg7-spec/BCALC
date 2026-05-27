@@ -2308,15 +2308,15 @@ function pCalc_dose() {
             
             var phDelta = curPH - tarPH; // positive number of pH points to lower
             
-            // Rule: ~1 fl oz muriatic acid per 10k gal lowers pH by ~0.1
-            var ozNeeded = (phDelta / 0.1) * 1 * (gal / 10000);
+            // Rule: ~6 fl oz muriatic acid (31.45%) per 10k gal lowers pH by ~0.1
+            var ozNeeded = (phDelta / 0.1) * 6 * (gal / 10000);
             lbsNeeded = ozNeeded / 16;
             
             statsInfoParts.push('<br><b>Formula</b><br>');
             statsInfoParts.push('Current pH: ' + curPH.toFixed(1) + ' → Target: ' + tarPH.toFixed(1));
             statsInfoParts.push(' (ΔpH = −' + phDelta.toFixed(1) + ')<br>');
-            statsInfoParts.push('Rule: ~1 fl oz/10k gal → −0.1 pH<br>');
-            statsInfoParts.push('Math: (ΔpH / 0.1) × (gal/10k) × 1 fl oz<br>');
+            statsInfoParts.push('Rule: ~6 fl oz/10k gal → −0.1 pH (31.45% MA)<br>');
+            statsInfoParts.push('Math: (ΔpH / 0.1) × (gal/10k) × 6 fl oz<br>');
             statsInfoParts.push('      = (' + phDelta.toFixed(1) + ' / 0.1) × ' + (gal/10000).toFixed(2) + '<br>');
             statsInfoParts.push('      = ' + ozNeeded.toFixed(1) + ' fl oz (' + lbsNeeded.toFixed(2) + ' lbs)<br>');
             
@@ -2347,15 +2347,16 @@ function pCalc_dose() {
                 statsInfoParts.push('      = ' + ozNeeded.toFixed(0) + ' oz (' + lbsNeeded.toFixed(1) + ' lbs)<br>');
                 display = '<b style="font-size:1.3em;">' + ozNeeded.toFixed(0) + ' oz</b>';
             } else {
-                // Soda Ash: 5 lb per 10k gal → +0.2 pH (factor = 0.2)
-                // lbsNeeded = target / factor × gal/10k × 5
-                var saMath = '(' + target.toFixed(2) + ' / ' + factor.toFixed(3) + ') × ' + (gal/10000).toFixed(2) + ' × 5';
-                lbsNeeded = (target / factor) * (gal / 10000) * 5;
+                // Soda Ash: ~0.75 lb per 10k gal → +0.2 pH (factor = 3.75)
+                // lbsNeeded = target / factor × gal/10k × 0.75
+                var saMath = '(' + target.toFixed(2) + ' / ' + factor.toFixed(3) + ') × ' + (gal/10000).toFixed(2) + ' × 0.75';
+                lbsNeeded = (target / factor) * (gal / 10000) * 0.75;
                 ozNeeded = lbsNeeded * 16;
 
                 statsInfoParts.push('<br><b>Formula</b><br>');
-                statsInfoParts.push('Base rule: 5 lb/10k gal → +0.2 pH<br>');
-                statsInfoParts.push('Scale: (ΔpH / factor) × gal/10k × 5<br>');
+                statsInfoParts.push('Base factor: 0.2 pH per dose<br>');
+                statsInfoParts.push('Base rule: ~0.75 lb/10k gal → +0.2 pH<br>');
+                statsInfoParts.push('Scale: (ΔpH / factor) × gal/10k × 0.75<br>');
                 statsInfoParts.push('      = ' + saMath + '<br>');
                 statsInfoParts.push('      = ' + lbsNeeded.toFixed(2) + ' lbs (' + ozNeeded.toFixed(0) + ' oz)<br>');
                 display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
