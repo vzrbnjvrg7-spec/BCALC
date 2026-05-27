@@ -173,11 +173,11 @@
         </nav>
         <h2>T-CALC v1.5</h2>
         <button class="btn btn-copy" id="t-btn-copy">Copy Data</button>
-        <div class="row"><div class="col"><label>Tire Width (mm or inches) — e.g., 265/75-17 or 37x13.5x17</label><input type="text" id="t-i-width" placeholder='35 or 33x12.5' value='35'></div></div>
-        <div class="row"><div class="col"><label>Aspect Ratio (%)</label><input type="number" id="t-i-aspect" placeholder='0 for AT' value='0' min="15" max="90" step="any"></div></div>
+        <div class="row"><div class="col"><label>Tire Width (mm or inches) — e.g., 265/75-17 or 37x13.5x17</label><input type="text" id="t-i-width" placeholder='35 or 33x12.5' value='275'></div></div>
+        <div class="row"><div class="col"><label>Aspect Ratio (%)</label><input type="number" id="t-i-aspect" placeholder='0 for AT' value='70' min="15" max="90" step="any"></div></div>
         <div class="row"><div class="col"><label>Rim Diameter (inches)</label><input type="number" id="t-i-rim" placeholder='17' value='17' min="0" step="any"></div></div>
         <h3 style="margin-top:15px;">Comparison Tire</h3>
-        <div class="row"><div class="col"><label>Tire Width (mm or inches) — e.g., 265/75-17 or 37x13.5x17</label><input type="text" id="t-i-width2" placeholder='37 or 37x12.5' value='37'></div></div>
+        <div class="row"><div class="col"><label>Tire Width (mm or inches) — e.g., 265/75-17 or 37x13.5x17</label><input type="text" id="t-i-width2" placeholder='37 or 37x12.5' value='35x11.5'></div></div>
         <div class="row"><div class="col"><label>Aspect Ratio (%)</label><input type="number" id="t-i-aspect2" placeholder='0 for AT' value='0' min="15" max="90" step="any"></div></div>
         <div class="row"><div class="col"><label>Rim Diameter (inches)</label><input type="number" id="t-i-rim2" placeholder='17' value='17' min="0" step="any"></div></div>
         <button class="btn btn-calc" id="t-btn-calc">Calculate</button>
@@ -375,7 +375,7 @@
         <h2>P-CALC v1.5</h2>
         <button class="btn btn-copy" id="p-btn-copy">Copy Result</button>
         <h3 style="margin-top:15px;">Pool Chemical Dosage</h3>
-        <div class="row"><div class="col"><label>Pool Volume (gallons)</label><input type="number" id="p-i-gal" placeholder="e.g. 15000" value="15000"></div></div>
+        <div class="row"><div class="col"><label>Pool Volume (gallons)</label><input type="number" id="p-i-gal" placeholder="e.g. 15000" value="24000"></div></div>
         <div class="row">
             <div class="col"><label>Target Change (ppm or pH)</label><input type="number" id="p-i-target" placeholder="ppm (e.g. 10) or pH points (e.g. 0.2)" value="10" step="any"></div>
             <div class="col"><label>Chemical</label><select id="p-i-chem">
@@ -407,7 +407,7 @@
                     <div class="col"><label>Total Chlorine (TC) ppm</label><input type="number" id="p-i-bp-tc" placeholder="e.g. 3" value="3" min="0" step="any" inputmode="decimal"></div>
                 </div>
                 <div class="row">
-                    <div class="col"><label>Combined Chlorine (CC)</label><input type="number" id="p-i-bp-cc" placeholder="derived (TC − FC)" value="1" min="0" step="any" inputmode="decimal" readonly style="background:#1a1a2e;color:#aaa;"></div>
+                    <div class="col"><label>Combined Chlorine (CC)</label><input type="number" id="p-i-bp-cc" placeholder="derived (TC − FC)" value="0" min="0" step="any" inputmode="decimal" readonly style="background:#1a1a2e;color:#aaa;"></div>
                     <div class="col"><label>Multiplier</label><select id="p-i-bp-mult">
                         <option value="7.5">7.5× CC (modern)</option>
                         <option value="10" selected>10× CC (traditional)</option>
@@ -434,11 +434,11 @@
         <div class="result-box" id="p-d-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
         <h3 style="margin-top:15px;">Alkalinity Check</h3>
         <div class="row">
-            <div class="col"><label>Measured TA (ppm as CaCO₃)</label><input type="number" id="p-i-measTA" placeholder="e.g. 90" value="90"></div>
+            <div class="col"><label>Measured TA (ppm as CaCO₃)</label><input type="number" id="p-i-measTA" placeholder="e.g. 90" value="100"></div>
             <div class="col"><label>pH</label><input type="number" id="p-i-pH" placeholder="e.g. 7.5" value="7.5"></div>
         </div>
         <div class="row">
-            <div class="col"><label>CYA (ppm)</label><input type="number" id="p-i-cya" placeholder="e.g. 40" value="40"></div>
+            <div class="col"><label>CYA (ppm)</label><input type="number" id="p-i-cya" placeholder="e.g. 40" value="45"></div>
             <div class="col"><label>Borates (ppm, optional)</label><input type="number" id="p-i-borates" placeholder="e.g. 0" value="0"></div>
         </div>
         <div class="row">
@@ -457,7 +457,7 @@
         </details>
         <h3 style="margin-top:15px;">Chlorine Shock (Rule of Thumb)</h3>
         <div class="row">
-            <div class="col"><label>Free Chlorine (ppm)</label><input type="number" id="p-i-fc" placeholder="e.g. 4" value="4"></div>
+            <div class="col"><label>Free Chlorine (ppm)</label><input type="number" id="p-i-fc" placeholder="e.g. 4" value="2.5"></div>
             <div class="col"><label>Total Chlorine (ppm)</label><input type="number" id="p-i-tc" placeholder="e.g. 4" value="4"></div>
         </div>
         <button class="btn btn-calc" id="p-btn-demand">Calculate Shock Level</button>
@@ -1559,13 +1559,15 @@ function updateViz() {
     label.textContent = t1.dia.toFixed(1) + '" vs ' + (t2 && t2.dia > 0 ? t2.dia.toFixed(1) : '-') + '"';
 }
 
+function r2(n) { return Math.round(n * 100) / 100; }
+
 function computeTireDelta(t1, t2) {
     var diffDia = t2.dia - t1.dia; 
     var diffPerc = (diffDia / t1.dia) * 100;
     var diffCirc = t2.circ - t1.circ;
     var diffCircPerc = (diffCirc / t1.circ) * 100;
     var diffRev = t2.revs - t1.revs;
-    return { dia: diffDia, perc: diffPerc, circ: diffCirc, circPerc: diffCircPerc, rev: diffRev };
+    return { dia: r2(diffDia), perc: diffPerc, circ: r2(diffCirc), circPerc: diffCircPerc, rev: r2(diffRev) };
 }
 
 function runTireCalc() {
@@ -1598,7 +1600,7 @@ function runTireCalc() {
             '<div class="comp-row"><span class="comp-label">Prospect Tire</span><span class="comp-value">' + t2.label + '</span></div>' +
             '<div class="comp-row"><span class="comp-label">Diff Dia</span><span class="comp-value">' + (delta.dia > 0 ? '+' : '') + delta.dia.toFixed(2) + '" (' + (delta.perc > 0 ? '+' : '') + delta.perc.toFixed(1) + '%)</span></div>' +
             '<div class="comp-row"><span class="comp-label">Diff Circ</span><span class="comp-value">' + (delta.circ > 0 ? '+' : '') + delta.circ.toFixed(2) + '" (' + (delta.circPerc > 0 ? '+' : '') + delta.circPerc.toFixed(1) + '%)</span></div>' +
-            '<div class="comp-row"><span class="comp-label">Diff Rev/Mi</span><span class="comp-value">' + (delta.rev > 0 ? '+' : '') + delta.rev + '</span></div>' +
+            '<div class="comp-row"><span class="comp-label">Diff Rev/Mi</span><span class="comp-value">' + (delta.rev > 0 ? '+' : '') + delta.rev.toFixed(2) + '</span></div>' +
             '<div class="comp-row"><span class="comp-label">Speedo</span><span class="comp-value">' + (delta.perc > 0 ? 'Reads slower than actual' : delta.perc < 0 ? 'Reads faster than actual' : 'No change') + '</span></div>';
     } else {
         gbyId('t-d-res').innerHTML = 'Enter both tires';
@@ -1619,7 +1621,7 @@ gbyId('t-btn-copy').onclick = function() {
     var text = 'TIRE DATA\n--- Current ---\nSize: ' + t1.label + '\nDia: ' + t1.dia.toFixed(2) + '"\nCirc: ' + t1.circ.toFixed(2) + '"\nRev/Mi: ' + Math.round(t1.revs);
     if (t2 && delta) {
         text += '\n\n--- Prospect ---\nSize: ' + t2.label + '\nDia: ' + t2.dia.toFixed(2) + '"\nCirc: ' + t2.circ.toFixed(2) + '"\nRev/Mi: ' + Math.round(t2.revs);
-        text += '\n\n--- Delta ---\nDia: ' + (delta.dia > 0 ? '+' : '') + delta.dia.toFixed(2) + '" (' + (delta.perc > 0 ? '+' : '') + delta.perc.toFixed(1) + '%)\nRev/Mi: ' + (delta.rev > 0 ? '+' : '') + delta.rev;
+        text += '\n\n--- Delta ---\nDia: ' + (delta.dia > 0 ? '+' : '') + delta.dia.toFixed(2) + '" (' + (delta.perc > 0 ? '+' : '') + delta.perc.toFixed(1) + '%)\nRev/Mi: ' + (delta.rev > 0 ? '+' : '') + delta.rev.toFixed(2);
     }
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
@@ -2250,26 +2252,44 @@ function pCalc_dose() {
                 effectiveFactor = bpSource === 65 ? 8.0 : 10.6;
             }
             var chMath = '(' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / (10000 × ' + effectiveFactor.toFixed(1) + ')';
-            lbsNeeded = (target * gal) / (10000 * effectiveFactor);
+            var isLiquidCl = bpActive && bpData && parseFloat(gbyId('p-i-bp-source').value) !== 65;
+            if (isLiquidCl) {
+                lbsNeeded = ozNeeded / 16; // keep lbs for compatibility but use galNeeded
+                var galNeeded = (target * gal) / (10000 * effectiveFactor);
+                ozNeeded = 0;
 
-            statsInfoParts.push('<br><b>Formula</b><br>');
-            statsInfoParts.push('Factor: ' + effectiveFactor.toFixed(1) + ' ppm FC per lb/10k gal');
-            if (bpActive && bpData) {
-                statsInfoParts.push(' (breakpoint source override)');
+                statsInfoParts.push('<br><b>Formula</b><br>');
+                statsInfoParts.push('Factor: ' + effectiveFactor.toFixed(1) + ' ppm FC per gal/10k gal');
+                statsInfoParts.push(' (breakpoint source override — liquid chlorine)<br>');
+                statsInfoParts.push('Math: (target × gal) / (10000 × factor)<br>');
+                statsInfoParts.push('      = ' + chMath + '<br>');
+                statsInfoParts.push('      = ' + galNeeded.toFixed(2) + ' gal<br>');
+
+                display = '<b style="font-size:1.3em;">' + galNeeded.toFixed(2) + ' gal</b>';
+                _pResult.unitsNeeded = 'gal';
+            } else {
+                lbsNeeded = (target * gal) / (10000 * effectiveFactor);
+                ozNeeded = 0;
+
+                statsInfoParts.push('<br><b>Formula</b><br>');
+                statsInfoParts.push('Factor: ' + effectiveFactor.toFixed(1) + ' ppm FC per lb/10k gal');
+                if (bpActive && bpData) {
+                    statsInfoParts.push(' (breakpoint source override)');
+                }
+                statsInfoParts.push('<br>');
+                statsInfoParts.push('Math: (target × gal) / (10000 × factor)<br>');
+                statsInfoParts.push('      = ' + chMath + '<br>');
+                statsInfoParts.push('      = ' + lbsNeeded.toFixed(2) + ' lbs<br>');
+
+                display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
+                _pResult.unitsNeeded = 'lbs';
             }
-            statsInfoParts.push('<br>');
-            statsInfoParts.push('Math: (target × gal) / (10000 × factor)<br>');
-            statsInfoParts.push('      = ' + chMath + '<br>');
-            statsInfoParts.push('      = ' + lbsNeeded.toFixed(2) + ' lbs<br>');
-
-            display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
 
             // SLAM/shock warning (cal-hypo is an FC chemical)
-            if (target >= 10) {
+            if (target >= 10 && !isLiquidCl) {
                 warnings.push('⚠ Shock/SLAM level — maintain FC 10× normal for 24 hrs');
             }
 
-            _pResult.unitsNeeded = 'lbs';
             break;
 
         case 'ph_control':
@@ -2328,14 +2348,14 @@ function pCalc_dose() {
                 display = '<b style="font-size:1.3em;">' + ozNeeded.toFixed(0) + ' oz</b>';
             } else {
                 // Soda Ash: 5 lb per 10k gal → +0.2 pH (factor = 0.2)
-                // lbsNeeded = target / factor × gal/10k
-                var saMath = '(' + target.toFixed(2) + ' / ' + factor.toFixed(3) + ') × ' + (gal/10000).toFixed(2);
-                lbsNeeded = (target / factor) * (gal / 10000);
+                // lbsNeeded = target / factor × gal/10k × 5
+                var saMath = '(' + target.toFixed(2) + ' / ' + factor.toFixed(3) + ') × ' + (gal/10000).toFixed(2) + ' × 5';
+                lbsNeeded = (target / factor) * (gal / 10000) * 5;
                 ozNeeded = lbsNeeded * 16;
 
                 statsInfoParts.push('<br><b>Formula</b><br>');
                 statsInfoParts.push('Base rule: 5 lb/10k gal → +0.2 pH<br>');
-                statsInfoParts.push('Scale: (ΔpH / factor) × gal/10k<br>');
+                statsInfoParts.push('Scale: (ΔpH / factor) × gal/10k × 5<br>');
                 statsInfoParts.push('      = ' + saMath + '<br>');
                 statsInfoParts.push('      = ' + lbsNeeded.toFixed(2) + ' lbs (' + ozNeeded.toFixed(0) + ' oz)<br>');
                 display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
@@ -2398,6 +2418,9 @@ function pCalc_dose() {
         _pResult.bpCc = bpData.cc;
         _pResult.bpTarget = bpData.breakpointPPM;
         _pResult.bpNetDose = bpData.netToDose;
+        if (bpData.galNeeded > 0) {
+            _pResult.galNeeded = bpData.galNeeded;
+        }
     }
     
     return _pResult;
@@ -2484,7 +2507,6 @@ function pCalc_updateCC() {
 function pCalc_calcBreakpointPreview() {
     var fc = gv('p-i-bp-fc');
     var tc = gv('p-i-bp-tc');
-    var cc = gv('p-i-bp-cc');
     var mult = parseFloat(gbyId('p-i-bp-mult').value) || 10;
     var gal = gv('p-i-bp-gal');
     var chlorStrength = parseFloat(gbyId('p-i-bp-source').value) || 65;
@@ -2494,8 +2516,8 @@ function pCalc_calcBreakpointPreview() {
         return null;
     }
     
-    // Derive CC from TC - FC
-    cc = Math.max(0, tc - fc);
+    // Derive CC from TC - FC (CC is always calculated, never user-entered)
+    var cc = Math.max(0, tc - fc);
     
     // Breakpoint target: FC + (multiplier × CC)
     var breakpointPPM = fc + (mult * cc);
@@ -2702,7 +2724,7 @@ function pCalc_demand() {
     var galLiquidCl = 0;
 
     // Account for existing FC — calculate increase needed
-    var fcIncreaseNeeded = slamFC - (isNaN(fc) ? 0 : Math.max(0, fc));
+    var fcIncreaseNeeded = slamFC - Math.max(0, fc);
     if (fcIncreaseNeeded < 0) fcIncreaseNeeded = 0;
 
     var mainHTML = '';
@@ -2797,8 +2819,9 @@ gbyId('p-btn-copy').onclick = function() {
         text += '\nMultiplier: ' + bpData.mult + '× CC';
         text += '\nTarget FC: ' + bpData.breakpointPPM.toFixed(1) + ' ppm';
         text += '\nNet to dose: ' + bpData.netToDose.toFixed(1) + ' ppm';
-        if (res.lbsNeeded > 0) { text += '\nDosage: ' + res.lbsNeeded.toFixed(2) + ' lb cal-hypo (65%)'; }
-        if (_pResult.ozNeeded > 0 && _pResult.unitsNeeded === 'oz') { text += '\nDosage: ' + _pResult.ozNeeded.toFixed(2) + ' oz liquid chlorine (~10%)'; }
+        if (res.unitsNeeded === 'gal') { text += '\nDosage: ' + res.lbsNeeded.toFixed(2) + ' gal liquid chlorine (~10%)'; }
+        else if (res.unitsNeeded === 'lbs') { text += '\nDosage: ' + res.lbsNeeded.toFixed(2) + ' lb cal-hypo (65%)'; }
+        else if (_pResult.unitsNeeded === 'oz') { text += '\nDosage: ' + _pResult.ozNeeded.toFixed(2) + ' fl oz'; }
     }
     
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
@@ -2875,27 +2898,26 @@ gbyId('p-btn-alerts').onclick = function() {
         else normal.push('Salt: ' + salt.toFixed(0) + ' ppm (±500 from 3200 target OK)');
     }
 
-    // CSI check (if temp available)
-    if (!isNaN(temp) && !isNaN(ph) && !isNaN(ta) && !isNaN(ch) && !isNaN(cya)) {
-        // Simplified CSI approximation (more accurate needs full carbonate chemistry)
-        var tFactor = -0.037 + 0.0002 * (temp - 60); // approximate temp correction
-        var caFactor = Math.log10(ch / 400); // log deviation from ideal CH
-        var taFactor = Math.log10(ta / 100); // log deviation from ideal TA
-        var cyaFactor = Math.log10(cya / 50); // log deviation from ideal CYA
-        var csi = (ph - 7.2) + tFactor + caFactor + taFactor + cyaFactor;
+    // LSI (Langelier Saturation Index) check — standard pool chemistry formula
+    if (!isNaN(temp) && !isNaN(ph) && !isNaN(ta) && !isNaN(ch)) {
+        var tFactor = -0.8 + 0.0143 * Math.log(temp); // temp factor
+        var caFactor = Math.log(ch > 0 ? ch : 1); // calcium hardness factor
+        var taFactor = Math.log(ta > 0 ? ta : 1); // total alkalinity factor
+        var tdsFactor = 0; // TDS correction (negligible for typical pools)
+        var lsi = ph + tFactor + caFactor + taFactor - (12.14 + tdsFactor);
         
-        if (csi < -0.6) {
-            alerts.push('⚠ CSI ' + csi.toFixed(2) + ' — below -0.6, corrosive (under-saturated)');
-            colors.CSI = '#ff6b6b';
-        } else if (csi > 0.6) {
-            alerts.push('⚠ CSI ' + csi.toFixed(2) + ' — above 0.6, scaling (over-saturated)');
-            colors.CSI = '#ff6b6b';
-        } else if (Math.abs(csi) <= 0.3) {
-            normal.push('CSI: ' + csi.toFixed(2) + ' (balanced, -0.3 to 0.3)');
-            colors.CSI = '#40c057';
+        if (lsi < -0.3) {
+            alerts.push('⚠ LSI ' + lsi.toFixed(2) + ' — below -0.3, corrosive (under-saturated)');
+            colors.LSI = '#ff6b6b';
+        } else if (lsi > 0.3) {
+            alerts.push('⚠ LSI ' + lsi.toFixed(2) + ' — above 0.3, scaling (over-saturated)');
+            colors.LSI = '#ff6b6b';
+        } else if (Math.abs(lsi) <= 0.1) {
+            normal.push('LSI: ' + lsi.toFixed(2) + ' (perfectly balanced, -0.1 to 0.1)');
+            colors.LSI = '#40c057';
         } else {
-            normal.push('CSI: ' + csi.toFixed(2) + ' (slight tendency, -0.6 to 0.6)');
-            colors.CSI = '#fab005';
+            normal.push('LSI: ' + lsi.toFixed(2) + ' (slight tendency, -0.3 to 0.3)');
+            colors.LSI = '#fab005';
         }
     }
 
