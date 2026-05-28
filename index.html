@@ -235,6 +235,19 @@
             </select></div>
             <div class="col"><label>Cross Section Area (in²)</label><input type="number" id="s-i-crosssec" placeholder="e.g. 0.25" value="0.25"></div>
         </div>
+        <div class="row" id="s-pla-opts" style="display:none;">
+            <div class="col"><label>Infill %</label><input type="number" id="s-i-infill" placeholder="e.g. 100" value="100" min="0" max="100"></div>
+            <div class="col"><label>Infill Pattern</label><select id="s-i-infillType">
+                <option value="grid" selected>Grid</option>
+                <option value="gyroid">Gyroid</option>
+                <option value="tri-hexagonal">Tri-Hexagonal</option>
+                <option value="concentric">Concentric</option>
+            </select></div>
+        </div>
+        <div class="row" id="s-wall-opts" style="display:none;">
+            <div class="col"><label>Wall Count (perimeters)</label><input type="number" id="s-i-walls" placeholder="e.g. 3" value="3" min="0"></div>
+            <div class="col"><label>Wall Thickness (in)</label><input type="number" id="s-i-wallThick" placeholder="auto 0.4" value="" step="any"></div>
+        </div>
         <div class="row">
             <div class="col"><label>Bending Moment (in-lbf)</label><input type="number" id="s-i-bend" placeholder="auto = F × r (editable)" value="0"></div>
             <div class="col"><label>Section Modulus (in³)</label><input type="number" id="s-i-smod" placeholder="e.g. 0.05 (rect: bd²/6)" value="0" step="any"></div>
@@ -1415,19 +1428,21 @@ function analyzeCircuit(exprStr, vars) {
 }
 
 function displayPrimeImplicants(exprStr, vars) {
-    if (!vars || vars.length === 0) return '';
+    if (!vars || vars.length === 0) return;
 
     var result = evaluateSingleExpression(exprStr);
     if (!result || !result.minterms) {
         gbyId('a-d-simp').innerHTML = '';
-        return '<div class="prime-imp">No minterms found</div>';
+        gbyId('a-prime-implicants').innerHTML = '<div class="prime-imp">No minterms found</div>';
+        return;
     }
 
     var qmResult = QM.findPrimes(result.minterms, vars.length);
 
     if (!qmResult.primes || qmResult.primes.length === 0) {
         gbyId('a-d-simp').innerHTML = '';
-        return '<div class="prime-imp">No prime implicants found</div>';
+        gbyId('a-prime-implicants').innerHTML = '<div class="prime-imp">No prime implicants found</div>';
+        return;
     }
 
     var html = '';
@@ -1446,8 +1461,8 @@ function displayPrimeImplicants(exprStr, vars) {
 
     var dnfExpr = selectedExprs.join(' | ');
     gbyId('a-d-simp').innerHTML = '<b>DNF:</b> ' + dnfExpr;
-
-    return html;
+    gbyId('a-prime-implicants').innerHTML = html;
+    return;
 }
 
 function addToHistory(expr) {
@@ -1677,6 +1692,21 @@ var MATERIAL_DATA = {
     pla:      { yield: 10000, name: 'PLA' }
 };
 
+var PLA_INFILL_FACTOR = {
+    grid: 1.0,
+    gyroid: 0.95,
+    'tri-hexagonal': 0.92,
+    concentric: 0.85
+};
+
+var PLA_WALL_FACTOR = {
+    perWall: 1.0,
+    thinWalls: 0.75,
+    noWalls: 0.3
+};
+
+var DEFAULT_WALL_THICKNESS = 0.4; // mm per pass, ~0.016in
+
 var _sResult = null;
 
 function sCalc_calc() {
@@ -1731,6 +1761,15 @@ function sCalc_calc() {
     servoLines.push('Required joint torque: ' + bendMoment.toFixed(1) + ' in·lbf<br>');
     servoLines.push('Arm length: ' + arm.toFixed(2) + '"<br>');
     servoLines.push('Linkage ratio: ' + ma.toFixed(2) + ':1' + (ma > 1 ? ' force multiplication' : ma < 1 ? ' speed multiplication' : ' direct drive') + '<br>');
+    if (ma > 1) {
+        servoLines.push('→ Output force = ' + ma.toFixed(2) + '× input, but servo must move ' + ma.toFixed(2) + '× further for same output travel<br>');
+        servoLines.push('→ Effective stall torque at load: ' + (torque * ma).toFixed(1) + ' in·lbf');
+    } else if (ma < 1) {
+        servoLines.push('→ Output speed = ' + (1/ma).toFixed(2) + '× input, but force reduced to ' + ma.toFixed(2) + '×<br>');
+        servoLines.push('→ Effective stall torque at load: ' + (torque * ma).toFixed(1) + ' in·lbf');
+    } else {
+        servoLines.push('→ Effective stall torque at load: ' + (torque * ma).toFixed(1) + ' in·lbf');
+    }
 
     if (!isNaN(contTorque) && contTorque > 0) {
         contForce = (contTorque / arm) * ma;
@@ -1770,6 +1809,37 @@ function sCalc_calc() {
         var matData = MATERIAL_DATA[matKey];
         if (matData) {
             var yieldPsi = matData.yield;
+            var printFactors = '';
+            if (matKey === 'pla') {
+                var infillPct = gv('s-i-infill');
+                var infillType = gbyId('s-i-infillType') ? gbyId('s-i-infillType').value : 'grid';
+                var wallCount = gv('s-i-walls');
+                var wallThickIn = gv('s-i-wallThick');
+
+                if (!isNaN(infillPct) && infillPct > 0) {
+                    var infillFactor = Math.max(0.1, infillPct / 100);
+                    var patternFactor = PLA_INFILL_FACTOR[infillType] || 1.0;
+                    yieldPsi *= infillFactor * patternFactor;
+                    printFactors += 'Infill: ' + infillPct + '% ' + infillType + ' (×' + patternFactor.toFixed(2) + ')<br>';
+                    printFactors += 'Effective yield: ' + (yieldPsi / 1000).toFixed(2) + ' ksi<br>';
+                }
+
+                if (!isNaN(wallCount) && wallCount > 0) {
+                    var wt = !isNaN(wallThickIn) && wallThickIn > 0 ? wallThickIn : (DEFAULT_WALL_THICKNESS / 25.4);
+                    var wallAreaEst = wallCount * wt;
+                    if (wallAreaEst > 0) {
+                        var wallContrib = Math.min(1, wallAreaEst / (crossSec * 0.5));
+                        yieldPsi *= (0.3 + 0.7 * wallContrib);
+                        printFactors += 'Walls: ' + wallCount + ' × ~' + (wt * 25.4).toFixed(1) + 'mm (~' + wt.toFixed(3) + '" each)<br>';
+                        printFactors += 'Wall contribution factor: ×' + wallContrib.toFixed(2) + '<br>';
+                    }
+                }
+
+                if (!printFactors) {
+                    printFactors += '<span style="color:#ffd43b;">PLA strength reduced — enter infill % and wall count for accurate analysis</span><br>';
+                }
+            }
+
             var hasSModulus = !isNaN(sModulus) && sModulus > 0;
 
             // Compute all stress values
@@ -1817,6 +1887,11 @@ function sCalc_calc() {
                 tRows += '<tr><td style="color:#888;padding:3px 0;">Shear stress (τ = F/A)</td><td>' + (shearStressPsi / 1000).toFixed(2) + ' ksi (' + shearStressPsi.toFixed(0) + ' psi)</td></tr>';
                 tRows += '<tr><td style="color:#888;padding:3px 0;">Axial stress (σ = F/A)</td><td>' + (axialStressPsi / 1000).toFixed(2) + ' ksi (' + axialStressPsi.toFixed(0) + ' psi)</td></tr>';
                 tRows += '<tr><td style="color:#888;padding:3px 0;">Safety factor</td><td style="color:#ffd43b;">N/A — bending unknown (dominant mode)</td></tr>';
+            }
+
+            if (printFactors) {
+                structLines.push('<br><b>3a. 3D Print Factors</b><br>');
+                structLines.push('<div style="font-size:0.85em;color:#aaa;margin-top:2px;">' + printFactors + '</div>');
             }
 
             structLines.push('<b>3. Structural Stress Analysis</b><br>');
@@ -1897,6 +1972,13 @@ function sCalc_calc() {
 
 gbyId('s-btn-calc').onclick = sCalc_calc;
 
+gbyId('s-i-material').onchange = function() {
+    var isPLA = this.value === 'pla';
+    gbyId('s-pla-opts').style.display = isPLA ? '' : 'none';
+    gbyId('s-wall-opts').style.display = isPLA ? '' : 'none';
+};
+gbyId('s-i-material').onchange();
+
 gbyId('s-btn-copy').onclick = function() {
     var result = _sResult; if (!result) { sCalc_calc(); result = _sResult; }
     if (!result) return;
@@ -1913,6 +1995,13 @@ gbyId('s-btn-copy').onclick = function() {
             var safetyFactor = matData.yield / stressPsi;
             var sfLabel = safetyFactor >= 4 ? 'Very overbuilt' : (safetyFactor >= 2 ? 'Good margin' : (safetyFactor >= 1.25 ? 'Adequate' : 'Marginal'));
             stressLine = '\n--- Material Stress ---\n' + matData.name + '\nCross Section: ' + crossSec.toFixed(3) + ' in²\nStress: ' + (stressPsi / 1000).toFixed(2) + ' ksi\nYield: ' + (matData.yield / 1000).toFixed(2) + ' ksi\nSafety Factor: ' + safetyFactor.toFixed(2) + ' (' + sfLabel + ')';
+            if (matKey === 'pla') {
+                var infillPct = gv('s-i-infill');
+                var infillType = gbyId('s-i-infillType') ? gbyId('s-i-infillType').value : 'grid';
+                var wallCount = gv('s-i-walls');
+                stressLine += '\n\n--- 3D Print Settings ---\nInfill: ' + (isNaN(infillPct) ? 'N/A' : infillPct + '%') + ' ' + infillType;
+                stressLine += '\nWalls: ' + (isNaN(wallCount) ? 'N/A' : wallCount);
+            }
         }
     }
 
