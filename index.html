@@ -549,9 +549,10 @@ var QM = {
                     if (combinedMaskBits[j]) continue;
 
                     var diff = currentGroup[i].mask ^ currentGroup[j].mask;
+                    if (diff === 0) continue;
                     if ((diff & (diff - 1)) === 0) {
                         var newMask = currentGroup[i].mask & currentGroup[j].mask;
-                        var bitPos = QM._countSetBits(diff - 1);
+                        var bitPos = Math.log2(diff);
                         var newDontCare = currentGroup[i].dontCare | (1 << bitPos);
 
                         nextGroup.push({ bits: currentGroup[i].bits, mask: newMask, dontCare: newDontCare });
