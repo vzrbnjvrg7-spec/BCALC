@@ -147,16 +147,25 @@
         </div>
         <button class="btn btn-calc" id="a-btn-eval">Evaluate</button>
         <h3 style="margin-top:15px;">Simplified Result (DNF)</h3>
-        <div class="result-box" id="a-d-simp" style="font-size: 1em; text-align: left;">Enter expression</div>
-        <h3 style="margin-top:15px;">Truth Table</h3>
-        <div class="result-box" id="a-d-res" style="font-size: 1em; text-align: left;">Enter expression</div>
-        <div id="a-table-container" class="truth-table-container"></div>
-        <h3 style="margin-top:15px;">Complexity Analysis</h3>
-        <div class="complexity-box" id="a-complexity"></div>
-        <h3 style="margin-top:15px;">Logic Circuit Structure</h3>
-        <div class="complexity-box" id="a-circuit"></div>
+        <div class="prime-imp" id="a-d-simp">Enter expression</div>
+        <h3 style="margin-top:15px;">Simplified Result (CNF)</h3>
+        <div class="prime-imp" id="a-d-cnf">Enter expression</div>
+        <h3 style="margin-top:15px;">Simplified Circuit Gate Count</h3>
+        <div id="a-simp-gates" style="font-size:0.85em;color:#aaa;padding:4px 0;"></div>
         <h3 style="margin-top:15px;">Prime Implicants</h3>
-        <div id="a-prime-implicants"></div>
+        <div class="prime-imp" id="a-prime-implicants"></div>
+        <h3 style="margin-top:15px;">Karnaugh Map</h3>
+        <div id="a-kmap-container" style="padding:10px 0;overflow-x:auto;"></div>
+        <h3 style="margin-top:15px;">Circuit Diagram</h3>
+        <div id="a-circuit-container" style="padding:10px 0;overflow-x:auto;"></div>
+        <h3 style="margin-top:15px;">Truth Table</h3>
+        <div id="a-table-container" style="padding:10px 0;overflow-x:auto;"></div>
+        <h3 style="margin-top:15px;">Status</h3>
+        <div id="a-d-res">Enter expression</div>
+        <h3 style="margin-top:15px;">Complexity Analysis</h3>
+        <div id="a-complexity" style="font-size:0.85em;color:#aaa;padding:4px 0;"></div>
+        <h3 style="margin-top:15px;">Circuit Analysis</h3>
+        <div id="a-circuit" style="font-size:0.85em;color:#aaa;padding:4px 0;"></div>
         <h3 style="margin-top:15px;">History</h3>
         <div class="history-box" id="a-history"></div>
     </div>
@@ -223,6 +232,10 @@
         <div class="row">
             <div class="col"><label>Moment Rating (in-lbf, optional)</label><input type="number" id="s-i-momentRating" placeholder="e.g. 500 (leave blank if unknown)" value=""></div>
         </div>
+        <h3 style="margin-top:15px;">Deflection Estimation</h3>
+        <div class="row">
+            <div class="col"><label>Horn Length (in)</label><input type="number" id="s-i-hornLen" placeholder="e.g. 1.0 (leave blank to skip)" value=""></div>
+        </div>
         <h3 style="margin-top:15px;">Structural Stress Analysis</h3>
         <div class="row">
             <div class="col"><label>Material</label><select id="s-i-material">
@@ -250,7 +263,23 @@
         </div>
         <div class="row">
             <div class="col"><label>Bending Moment (in-lbf)</label><input type="number" id="s-i-bend" placeholder="auto = F × r (editable)" value="0"></div>
-            <div class="col"><label>Section Modulus (in³)</label><input type="number" id="s-i-smod" placeholder="e.g. 0.05 (rect: bd²/6)" value="0" step="any"></div>
+        </div>
+        <div class="row" style="margin-top:8px;">
+            <div class="col"><label>Section Shape</label><select id="s-i-shape"><option value="">— manual entry —</option><option value="rect">Rectangle (b × h)</option><option value="tube">Hollow tube (OD × ID)</option><option value="round">Round rod (diameter)</option></select></div>
+        </div>
+        <div class="row" id="s-dim-rect" style="display:none;">
+            <div class="col"><label>Width b (in)</label><input type="number" id="s-i-rectB" placeholder="e.g. 0.25" value="" step="any"></div>
+            <div class="col"><label>Height h (in)</label><input type="number" id="s-i-rectH" placeholder="e.g. 0.5" value="" step="any"></div>
+        </div>
+        <div class="row" id="s-dim-tube" style="display:none;">
+            <div class="col"><label>Outer dia. OD (in)</label><input type="number" id="s-i-tubeOD" placeholder="e.g. 0.5" value="" step="any"></div>
+            <div class="col"><label>Inner dia. ID (in)</label><input type="number" id="s-i-tubeID" placeholder="e.g. 0.375" value="" step="any"></div>
+        </div>
+        <div class="row" id="s-dim-round" style="display:none;">
+            <div class="col"><label>Diameter d (in)</label><input type="number" id="s-i-roundD" placeholder="e.g. 0.25" value="" step="any"></div>
+        </div>
+        <div class="row" id="s-smod-row">
+            <div class="col"><label>Section Modulus S (in³)</label><input type="number" id="s-i-smod" placeholder="auto-calculated or enter manually" value="0" step="any"></div>
         </div>
         <button class="btn btn-calc" id="s-btn-calc">Calculate</button>
         <div class="result-box" id="s-d-res">Enter values</div>
@@ -647,6 +676,50 @@ var QM = {
         return { primes: primeImplicants, selected: selected, minterms: minterms, numVars: numVars };
     }
 };
+
+function computeCNF(minterms, numVars, vars) {
+    var total = 1 << numVars;
+    var maxterms = 0;
+    for (var i = 0; i < total; i++) {
+        if ((minterms & (1 << i)) === 0) maxterms |= (1 << i);
+    }
+
+    if (maxterms === 0) return '1';
+
+    var qmResult = QM.findPrimes(maxterms, numVars);
+    if (!qmResult.primes || qmResult.primes.length === 0) return '-';
+
+    var essential = [];
+    for (var p = 0; p < qmResult.primes.length; p++) {
+        if (qmResult.primes[p].essential) essential.push(p);
+    }
+
+    var selected = essential.slice();
+    if (selected.length === 0) {
+        for (var s = 0; s < qmResult.selected.length; s++) {
+            if (!essential.includes(qmResult.selected[s])) selected.push(qmResult.selected[s]);
+        }
+    }
+
+    var cnfTerms = [];
+    for (var j = 0; j < selected.length; j++) {
+        var pi = qmResult.primes[selected[j]];
+        var sumTerms = [];
+        for (var v = 0; v < numVars; v++) {
+            var bitPos = numVars - 1 - v;
+            if ((pi.dontCare & (1 << bitPos)) !== 0) continue;
+            if ((pi.mask & (1 << bitPos)) !== 0) {
+                sumTerms.push('!' + vars[v]);
+            } else {
+                sumTerms.push(vars[v]);
+            }
+        }
+        if (sumTerms.length === 0) return '0';
+        cnfTerms.push('(' + sumTerms.join(' | ') + ')');
+    }
+
+    return cnfTerms.join(' & ');
+}
 
 // === NAVIGATION (B → A → T → S) ===
 var currentView = 'bcalc';
@@ -1183,7 +1256,7 @@ function evaluateSingleExpression(exprStr) {
 
     html += '</tbody></table>';
 
-    return { html: html, vars: vars, minterms: minterms, tableData: tableData };
+    return { html: html, vars: vars, minterms: minterms, tableData: tableData, tree: tree };
 }
 
 function evaluateMultiOutput(parts) {
@@ -1367,6 +1440,10 @@ function computeComplexity(exprStr, vars, tableData) {
     var cleanExpr = exprStr.replace(/[^a-zA-Z0-9&|^!()'\s,-`]/g, '');
     var tokenCount = cleanExpr.split(/\s+/).filter(Boolean).length;
 
+    var simpHtml = '<div class="comp-row"><span class="comp-label">DNF Gates</span><span class="comp-value" id="simp-dnf-gates">-</span></div>' +
+                   '<div class="comp-row"><span class="comp-label">CNF Gates</span><span class="comp-value" id="simp-cnf-gates">-</span></div>' +
+                   '<div class="comp-row"><span class="comp-label">Best Form</span><span class="comp-value" id="simp-best-gates">-</span></div>';
+
     return '<div class="comp-row"><span class="comp-label">Variables (Inputs)</span><span class="comp-value">' + vars.length + '</span></div>' +
            '<div class="comp-row"><span class="comp-label">Total Combinations</span><span class="comp-value">' + totalRows + '</span></div>' +
            '<div class="comp-row"><span class="comp-label">True Rows (Minterms)</span><span class="comp-value">' + trueCount + '</span></div>' +
@@ -1380,7 +1457,10 @@ function computeComplexity(exprStr, vars, tableData) {
            '<div class="comp-row"><span class="comp-label">Backtick ORs</span><span class="comp-value">' + c.BACKTICK_OR + '</span></div>' +
            '<div class="comp-row"><span class="comp-label">Implications</span><span class="comp-value">' + c.IMPLIES + '</span></div>' +
            '<div class="comp-row"><span class="comp-label">Total Gate Ops</span><span class="comp-value">' + (c.AND + c.OR + c.NOT + c.XOR) + '</span></div>' +
-           '<div class="comp-row"><span class="comp-label">Tokens</span><span class="comp-value">' + tokenCount + '</span></div>';
+           '<div class="comp-row"><span class="comp-label">Tokens</span><span class="comp-value">' + tokenCount + '</span></div>' +
+           '<hr style="border-color:#444; margin:6px 0;">' +
+           '<div class="comp-row"><span class="comp-label">Simplified Gates</span><span class="comp-value" style="color:#2ecc71;">DNF/CNF below</span></div>' +
+           simpHtml;
 }
 
 function analyzeCircuit(exprStr, vars) {
@@ -1389,8 +1469,26 @@ function analyzeCircuit(exprStr, vars) {
     var gateInfo = countGatesAndDepth(exprStr);
     var c = gateInfo.counts;
 
+    // Store original composite gate counts before expansion
+    var origNAND = c.NAND, origNOR = c.NOR, origXNOR = c.XNOR;
+
+    // If NAND/NOR/XNOR are present, expand them for consistent display
+    var hasComposite = c.NAND > 0 || c.NOR > 0 || c.XNOR > 0;
+    if (hasComposite) {
+        // Expand: NAND → AND+NOT, NOR → OR+NOT, XNOR → XOR+NOT
+        c.AND += c.NAND;
+        c.NOT += c.NAND;
+        c.OR += c.NOR;
+        c.NOT += c.NOR;
+        c.XOR += c.XNOR;
+        c.NOT += c.XNOR;
+        c.NAND = 0;
+        c.NOR = 0;
+        c.XNOR = 0;
+    }
+
     var usedGates = [];
-    var gateNames = ['NAND', 'XNOR', 'NOR', 'NOT', 'XOR', 'AND', 'OR'];
+    var gateNames = ['XOR', 'NOT', 'AND', 'OR'];
     for (var i = 0; i < gateNames.length; i++) { if (c[gateNames[i]] > 0) usedGates.push(gateNames[i] + ' ×' + c[gateNames[i]]); }
 
     var gateList = usedGates.length > 0 ? usedGates.join(', ') : 'None (implicit AND via adjacency)';
@@ -1406,9 +1504,9 @@ function analyzeCircuit(exprStr, vars) {
     if (c.OR > 0 || c.BACKTICK_OR > 0) gateTypes += ' ' + (c.OR + c.BACKTICK_OR) + ' OR';
     if (c.NOT > 0) gateTypes += ' ' + c.NOT + ' NOT';
     if (c.XOR > 0) gateTypes += ' ' + c.XOR + ' XOR';
-    if (c.NAND > 0) gateTypes += ' ' + c.NAND + ' NAND';
-    if (c.NOR > 0) gateTypes += ' ' + c.NOR + ' NOR';
-    if (c.XNOR > 0) gateTypes += ' ' + c.XNOR + ' XNOR';
+    if (origNAND > 0) gateTypes += ' ' + origNAND + ' NAND';
+    if (origNOR > 0) gateTypes += ' ' + origNOR + ' NOR';
+    if (origXNOR > 0) gateTypes += ' ' + origXNOR + ' XNOR';
     if (c.IMPLIES > 0) gateTypes += ' ' + c.IMPLIES + ' ->';
     html += '<div class="comp-row"><span class="comp-label">Gate Types</span><span class="comp-value">' + (gateTypes || '-') + '</span></div>';
 
@@ -1433,6 +1531,8 @@ function displayPrimeImplicants(exprStr, vars) {
     var result = evaluateSingleExpression(exprStr);
     if (!result || !result.minterms) {
         gbyId('a-d-simp').innerHTML = '';
+        gbyId('a-d-cnf').innerHTML = '';
+        gbyId('a-simp-gates').innerHTML = '';
         gbyId('a-prime-implicants').innerHTML = '<div class="prime-imp">No minterms found</div>';
         return;
     }
@@ -1441,6 +1541,8 @@ function displayPrimeImplicants(exprStr, vars) {
 
     if (!qmResult.primes || qmResult.primes.length === 0) {
         gbyId('a-d-simp').innerHTML = '';
+        gbyId('a-d-cnf').innerHTML = '';
+        gbyId('a-simp-gates').innerHTML = '';
         gbyId('a-prime-implicants').innerHTML = '<div class="prime-imp">No prime implicants found</div>';
         return;
     }
@@ -1461,6 +1563,15 @@ function displayPrimeImplicants(exprStr, vars) {
 
     var dnfExpr = selectedExprs.join(' | ');
     gbyId('a-d-simp').innerHTML = '<b>DNF:</b> ' + dnfExpr;
+
+    var cnfExpr = computeCNF(result.minterms, vars.length, vars);
+    gbyId('a-d-cnf').innerHTML = '<b>CNF:</b> ' + cnfExpr;
+
+    var gateCounts = countSimplifiedGates(dnfExpr, cnfExpr);
+    gbyId('a-simp-gates').innerHTML =
+        '<b>DNF Gates:</b> ' + gateCounts.dnf.and + ' AND, ' + gateCounts.dnf.or + ' OR, ' + gateCounts.dnf.not + ' NOT | ' +
+        '<b>CNF Gates:</b> ' + gateCounts.cnf.and + ' AND, ' + gateCounts.cnf.or + ' OR, ' + gateCounts.cnf.not + ' NOT';
+
     gbyId('a-prime-implicants').innerHTML = html;
     return;
 }
@@ -1483,6 +1594,379 @@ function addToHistory(expr) {
     while (historyEl.children.length > 20) historyEl.removeChild(historyEl.lastChild);
 }
 
+function countSimplifiedGates(dnfExpr, cnfExpr) {
+    function countFromExpr(expr) {
+        if (!expr || expr === '-' || expr === '1' || expr === '0') return { and: 0, or: 0, not: 0 };
+        var andCount = (expr.match(/&/g) || []).length;
+        var orCount = (expr.match(/\|/g) || []).length;
+        var notCount = (expr.match(/!/g) || []).length;
+        return { and: andCount, or: orCount, not: notCount };
+    }
+
+    var dnfGates = countFromExpr(dnfExpr);
+    var cnfGates = countFromExpr(cnfExpr);
+
+    return {
+        dnf: dnfGates,
+        cnf: cnfGates,
+        bestAnd: Math.min(dnfGates.and, cnfGates.and),
+        bestOr: Math.min(dnfGates.or, cnfGates.or),
+        bestNot: Math.min(dnfGates.not, cnfGates.not)
+    };
+}
+
+function countCircuitGates(tree) {
+    var counts = { and: 0, or: 0, not: 0, xor: 0 };
+    function walk(node) {
+        if (!node) return;
+        if (node.op === 'VAR') return;
+        if (node.op === 'AND') { counts.and++; walk(node.l); walk(node.r); }
+        else if (node.op === 'OR') { counts.or++; walk(node.l); walk(node.r); }
+        else if (node.op === 'NOT') { counts.not++; walk(node.l); }
+        else if (node.op === 'XOR') { counts.xor++; walk(node.l); walk(node.r); }
+        else if (node.op === 'NAND') { counts.and++; counts.not++; walk(node.l); walk(node.r); }
+        else if (node.op === 'NOR') { counts.or++; counts.not++; walk(node.l); walk(node.r); }
+        else if (node.op === 'XNOR') { counts.xor++; counts.not++; walk(node.l); walk(node.r); }
+        else if (node.op === 'IMPLIES') { counts.or++; counts.not++; walk(node.l); walk(node.r); }
+    }
+    walk(tree);
+    return counts;
+}
+
+function renderKMap(minterms, numVars) {
+    if (numVars > 4 || numVars < 2) return '';
+
+    var cellSize = 70;
+    var headerSize = 35;
+    var labelPad = 12;
+
+    // Proper Gray code generation
+    function grayCode(n) { return (n >>> 1) ^ n; }
+
+    var colBits = numVars - Math.floor(numVars / 2);
+    var rowBits = Math.floor(numVars / 2);
+    var colCount = 1 << colBits;
+    var rowCount = 1 << rowBits;
+
+    // Variable names for axes
+    var allVars = [];
+    for (var v = 0; v < numVars; v++) allVars.push(String.fromCharCode(65 + v));
+    var colVars = allVars.slice(rowBits); // upper variables for columns
+    var rowVars = allVars.slice(0, rowBits); // lower variables for rows
+
+    var totalW = colCount * cellSize + headerSize + labelPad;
+    var totalH = rowCount * cellSize + headerSize + labelPad;
+
+    var html = '<div style="text-align:center;overflow-x:auto;">';
+    html += '<svg width="' + totalW + '" height="' + totalH + '" style="background:#1a1a2e;border-radius:8px;">';
+
+    // Draw grid background
+    html += '<rect x="0" y="0" width="' + totalW + '" height="' + totalH + '" fill="#1a1a2e" rx="8"/>';
+
+    // Column headers (top)
+    for (var c = 0; c < colCount; c++) {
+        var gc = grayCode(c);
+        var x = headerSize + c * cellSize;
+
+        // Column label - variable name
+        var colVarIdx = rowBits + (colBits > 1 ? Math.floor(c / (1 << (colBits - 1))) : 0);
+        var colVar = allVars[colVarIdx] || '';
+
+        // Gray code binary value
+        var grayStr = gc.toString(2).padStart(colBits, '0');
+
+        // Header cell
+        html += '<rect x="' + (x + 1) + '" y="0" width="' + (cellSize - 2) + '" height="' + headerSize + '" fill="#16213e" stroke="#0f3460" stroke-width="1"/>';
+        html += '<text x="' + (x + cellSize / 2) + '" y="16" text-anchor="middle" fill="#a5d6ff" font-size="13" font-weight="bold">' + colVar + '</text>';
+        html += '<text x="' + (x + cellSize / 2) + '" y="30" text-anchor="middle" fill="#8899aa" font-size="11">' + grayStr + '</text>';
+    }
+
+    // Row headers (left)
+    for (var r = 0; r < rowCount; r++) {
+        var gr = grayCode(r);
+        var y = headerSize + r * cellSize;
+
+        // Row variable names (all row variables)
+        var rowVarNames = [];
+        for (var rv = 0; rv < rowBits; rv++) {
+            rowVarNames.push(allVars[rv]);
+        }
+
+        // Gray code binary value for this row
+        var grayStrR = gr.toString(2).padStart(rowBits, '0');
+
+        // Header cell
+        html += '<rect x="0" y="' + (y + 1) + '" width="' + headerSize + '" height="' + (cellSize - 2) + '" fill="#16213e" stroke="#0f3460" stroke-width="1"/>';
+        html += '<text x="' + (headerSize / 2) + '" y="' + (y + cellSize / 2 - 6) + '" text-anchor="middle" dominant-baseline="middle" fill="#a5d6ff" font-size="12" font-weight="bold">' + rowVarNames.join('') + '</text>';
+        html += '<text x="' + (headerSize / 2) + '" y="' + (y + cellSize / 2 + 10) + '" text-anchor="middle" dominant-baseline="middle" fill="#8899aa" font-size="11">' + grayStrR + '</text>';
+    }
+
+    // Cells
+    for (var r = 0; r < rowCount; r++) {
+        var gr2 = grayCode(r);
+        for (var c = 0; c < colCount; c++) {
+            var gc2 = grayCode(c);
+
+            // Combine row and column bits to get minterm index
+            var combined = (gr2 << colBits) | gc2;
+            var isMinterm = (minterms & (1 << combined)) !== 0;
+
+            var x = headerSize + c * cellSize;
+            var y = headerSize + r * cellSize;
+
+            // Cell background
+            if (isMinterm) {
+                html += '<rect x="' + (x + 1) + '" y="' + (y + 1) + '" width="' + (cellSize - 2) + '" height="' + (cellSize - 2) + '" fill="#0d47a1" stroke="#1565c0" stroke-width="1.5" rx="4"/>';
+                html += '<text x="' + (x + cellSize / 2) + '" y="' + (y + cellSize / 2 + 5) + '" text-anchor="middle" dominant-baseline="middle" fill="#64b5f6" font-size="20" font-weight="bold">1</text>';
+            } else {
+                html += '<rect x="' + (x + 1) + '" y="' + (y + 1) + '" width="' + (cellSize - 2) + '" height="' + (cellSize - 2) + '" fill="#0d1b2a" stroke="#1b2838" stroke-width="1" rx="4"/>';
+                html += '<text x="' + (x + cellSize / 2) + '" y="' + (y + cellSize / 2 + 5) + '" text-anchor="middle" dominant-baseline="middle" fill="#445566" font-size="20">0</text>';
+            }
+        }
+    }
+
+    html += '</svg></div>';
+    return html;
+}
+
+function renderCircuitDiagram(exprStr, tree) {
+    if (!tree || !exprStr) return '';
+
+    // Collect all nodes in a flat structure
+    var nodes = [];
+    var nodeMap = {};
+    var nodeIdCounter = 0;
+
+    function registerNode(node, type, label) {
+        var id = nodeIdCounter++;
+        nodes.push({ id: id, type: type, label: label || '', node: node });
+        nodeMap[id] = nodes[nodes.length - 1];
+        return id;
+    }
+
+    function buildTree(node) {
+        if (!node) return -1;
+
+        if (node.op === 'VAR') {
+            return registerNode(node, 'input', node.name);
+        }
+
+        // NAND/NOR/XNOR expand to AND/OR/XOR + NOT
+        if (node.op === 'NOT' && node.l && !node.r) {
+            var inner = node.l;
+            if (inner.op === 'AND') {
+                // NAND = NOT(AND)
+                var andId = registerNode(inner, 'gate', 'AND');
+                nodeMap[andId].leftId = buildTree(inner.l);
+                nodeMap[andId].rightId = buildTree(inner.r);
+                var notId = registerNode(node, 'gate', 'NOT');
+                nodeMap[notId].childId = andId;
+                return notId;
+            }
+            if (inner.op === 'OR') {
+                // NOR = NOT(OR)
+                var orId = registerNode(inner, 'gate', 'OR');
+                nodeMap[orId].leftId = buildTree(inner.l);
+                nodeMap[orId].rightId = buildTree(inner.r);
+                var notId = registerNode(node, 'gate', 'NOT');
+                nodeMap[notId].childId = orId;
+                return notId;
+            }
+            if (inner.op === 'XOR') {
+                // XNOR = NOT(XOR)
+                var xorId = registerNode(inner, 'gate', 'XOR');
+                nodeMap[xorId].leftId = buildTree(inner.l);
+                nodeMap[xorId].rightId = buildTree(inner.r);
+                var notId = registerNode(node, 'gate', 'NOT');
+                nodeMap[notId].childId = xorId;
+                return notId;
+            }
+        }
+
+        if (node.op === 'NOT') {
+            var childId = buildTree(node.l);
+            var notId = registerNode(node, 'gate', 'NOT');
+            nodeMap[notId].childId = childId;
+            return notId;
+        }
+
+        if (node.op === 'AND' || node.op === 'OR' || node.op === 'XOR' ||
+            node.op === 'IMPLIES') {
+            var leftId = buildTree(node.l);
+            var rightId = buildTree(node.r);
+            var gateId = registerNode(node, 'gate', node.op);
+            nodeMap[gateId].leftId = leftId;
+            nodeMap[gateId].rightId = rightId;
+            return gateId;
+        }
+
+        return -1;
+    }
+
+    var rootId = buildTree(tree);
+    if (rootId < 0) return '';
+
+    // Compute depth for each node (topological level)
+    var depths = {};
+    function getDepth(id) {
+        if (depths[id] !== undefined) return depths[id];
+        var n = nodeMap[id];
+        if (!n || n.type === 'input') {
+            depths[id] = 0;
+            return 0;
+        }
+        var maxChildDepth = -1;
+        if (n.childId !== undefined) {
+            var d = getDepth(n.childId);
+            if (d > maxChildDepth) maxChildDepth = d;
+        }
+        if (n.leftId !== undefined && n.rightId !== undefined) {
+            var ld = getDepth(n.leftId);
+            var rd = getDepth(n.rightId);
+            if (ld > maxChildDepth) maxChildDepth = ld;
+            if (rd > maxChildDepth) maxChildDepth = rd;
+        }
+        depths[id] = maxChildDepth + 1;
+        return depths[id];
+    }
+
+    getDepth(rootId);
+
+    // Group nodes by depth
+    var maxDepth = 0;
+    for (var i = 0; i < nodes.length; i++) {
+        if (depths[nodes[i].id] > maxDepth) maxDepth = depths[nodes[i].id];
+    }
+
+    var depthGroups = [];
+    for (var d = 0; d <= maxDepth; d++) {
+        depthGroups[d] = [];
+    }
+    for (var i = 0; i < nodes.length; i++) {
+        var dd = depths[nodes[i].id];
+        if (dd <= maxDepth) depthGroups[dd].push(nodes[i].id);
+    }
+
+    // Layout parameters
+    var gateW = 80, gateH = 50;
+    var inputW = 40, inputH = 36;
+    var hGap = 120; // horizontal gap between depth levels
+    var vGap = 55;  // vertical gap between nodes in same level
+
+    // Assign positions
+    var layout = {};
+    for (var d = 0; d <= maxDepth; d++) {
+        var group = depthGroups[d];
+        for (var i = 0; i < group.length; i++) {
+            var id = group[i];
+            layout[id] = {
+                x: d * (gateW + hGap) + 60,
+                y: i * vGap + 30
+            };
+        }
+    }
+
+    // Compute SVG dimensions
+    var maxX = 0, maxY = 0;
+    for (var i = 0; i < nodes.length; i++) {
+        var id = nodes[i].id;
+        if (!layout[id]) continue;
+        var n = nodeMap[id];
+        var w = (n.type === 'input') ? inputW : gateW;
+        var h = (n.type === 'input') ? inputH : gateH;
+        var px = layout[id].x + w;
+        var py = layout[id].y + h;
+        if (px > maxX) maxX = px;
+        if (py > maxY) maxY = py;
+    }
+
+    var svgW = maxX + 40;
+    var svgH = maxY + 40;
+
+    // Gate colors by type
+    var gateColors = {
+        'AND': '#3498db', 'OR': '#e74c3c', 'NOT': '#f39c12',
+        'XOR': '#9b59b6', 'NAND': '#1abc9c', 'NOR': '#e67e22',
+        'XNOR': '#e91e63', 'IMPLIES': '#00bcd4'
+    };
+
+    var html = '<div style="text-align:center;overflow-x:auto;">';
+    html += '<svg width="' + svgW + '" height="' + svgH + '" style="background:#1a1a2e;border-radius:8px;">';
+
+    // Draw wires first (behind gates)
+    for (var i = 0; i < nodes.length; i++) {
+        var id = nodes[i].id;
+        var n = nodeMap[id];
+        if (!layout[id]) continue;
+
+        // Wire from child to NOT gate
+        if (n.childId !== undefined && layout[n.childId]) {
+            var src = layout[n.childId];
+            var dst = layout[id];
+            var srcW = (nodeMap[n.childId].type === 'input') ? inputW : gateW;
+            var srcH = (nodeMap[n.childId].type === 'input') ? inputH : gateH;
+            html += '<line x1="' + (src.x + srcW) + '" y1="' + (src.y + srcH / 2) + '" x2="' + dst.x + '" y2="' + (dst.y + srcH / 2) + '" stroke="#4a90d9" stroke-width="2.5" fill="none"/>';
+        }
+
+        // Wires from left/right inputs to gate
+        if (n.leftId !== undefined && layout[n.leftId]) {
+            var src = layout[n.leftId];
+            var dst = layout[id];
+            var srcW2 = (nodeMap[n.leftId].type === 'input') ? inputW : gateW;
+            html += '<line x1="' + (src.x + srcW2) + '" y1="' + (src.y + 18) + '" x2="' + dst.x + '" y2="' + (dst.y + 14) + '" stroke="#4a90d9" stroke-width="2.5" fill="none"/>';
+        }
+        if (n.rightId !== undefined && layout[n.rightId]) {
+            var src2 = layout[n.rightId];
+            var dst2 = layout[id];
+            var srcW3 = (nodeMap[n.rightId].type === 'input') ? inputW : gateW;
+            html += '<line x1="' + (src2.x + srcW3) + '" y1="' + (src2.y + 18) + '" x2="' + dst2.x + '" y2="' + (dst2.y + 36) + '" stroke="#4a90d9" stroke-width="2.5" fill="none"/>';
+        }
+    }
+
+    // Draw gates and inputs
+    for (var i = 0; i < nodes.length; i++) {
+        var id2 = nodes[i].id;
+        var n2 = nodeMap[id2];
+        if (!layout[id2]) continue;
+        var pos = layout[id2];
+
+        if (n2.type === 'input') {
+            // Input variable box
+            html += '<rect x="' + pos.x + '" y="' + pos.y + '" width="' + inputW + '" height="' + inputH + '" rx="6" fill="#16213e" stroke="#4a90d9" stroke-width="2"/>';
+            html += '<text x="' + (pos.x + inputW / 2) + '" y="' + (pos.y + inputH / 2 + 5) + '" text-anchor="middle" fill="#a5d6ff" font-size="14" font-weight="bold">' + n2.label + '</text>';
+        } else {
+            var color = gateColors[n2.label] || '#3498db';
+
+            if (n2.label === 'NOT') {
+                // NOT gate: triangle with circle at output
+                var cx = pos.x + gateW / 2;
+                var cy = pos.y + gateH / 2;
+                html += '<polygon points="' + (pos.x) + ',' + (pos.y + gateH / 2) + ' ' + (pos.x + gateW * 0.65) + ',' + pos.y + ' ' + (pos.x + gateW * 0.65) + ',' + (pos.y + gateH) + '" fill="' + color + '" stroke="' + color + '" stroke-width="1.5" opacity="0.9"/>';
+                html += '<circle cx="' + (pos.x + gateW * 0.82) + '" cy="' + (pos.y + gateH / 2) + '" r="4" fill="' + color + '"/>';
+                html += '<text x="' + cx + '" y="' + (pos.y - 6) + '" text-anchor="middle" fill="' + color + '" font-size="10" font-weight="bold">NOT</text>';
+            } else {
+                // Other gates: rounded rectangle with label
+                html += '<rect x="' + pos.x + '" y="' + pos.y + '" width="' + gateW + '" height="' + gateH + '" rx="8" fill="' + color + '" stroke="' + color + '" stroke-width="1.5" opacity="0.85"/>';
+                html += '<text x="' + (pos.x + gateW / 2) + '" y="' + (pos.y + gateH / 2 + 4) + '" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">' + n2.label + '</text>';
+            }
+        }
+    }
+
+    // Output label on root
+    if (layout[rootId]) {
+        var rPos = layout[rootId];
+        var rNode = nodeMap[rootId];
+        var outX = layout[rootId].x + gateW;
+        var outY = rPos.y + gateH / 2;
+        html += '<line x1="' + outX + '" y1="' + outY + '" x2="' + (outX + 20) + '" y2="' + outY + '" stroke="#4a90d9" stroke-width="2.5"/>';
+        html += '<circle cx="' + (outX + 24) + '" cy="' + outY + '" r="5" fill="#e74c3c"/>';
+        html += '<text x="' + (outX + 34) + '" y="' + (outY + 4) + '" fill="#e74c3c" font-size="11" font-weight="bold">OUT</text>';
+    }
+
+    html += '</svg></div>';
+    return html;
+}
+
 var aCalcTimeout = null;
 
 function triggerEval() {
@@ -1492,16 +1976,27 @@ function triggerEval() {
 
         function clearAll() {
             gbyId('a-d-simp').innerHTML = 'Enter expression';
+            gbyId('a-d-cnf').innerHTML = '';
+            gbyId('a-simp-gates').innerHTML = '';
             gbyId('a-d-res').innerHTML = 'Enter expression';
             gbyId('a-table-container').innerHTML = '';
             gbyId('a-complexity').innerHTML = '';
             gbyId('a-circuit').innerHTML = '';
             gbyId('a-prime-implicants').innerHTML = '';
+            gbyId('a-kmap-container').innerHTML = '';
+            gbyId('a-circuit-container').innerHTML = '';
         }
 
         if (!expr) { clearAll(); return; }
 
-        var result = evaluateTruthTable(expr);
+        var result;
+        try {
+            result = evaluateTruthTable(expr);
+        } catch(e) {
+            gbyId('a-d-simp').innerHTML = '<span style="color:#ff6b6b;">Error: ' + e.message + '</span>';
+            gbyId('a-d-res').innerHTML = '<span style="color:#ff6b6b;">Error</span>';
+            clearAll(); return;
+        }
 
         if (!result || !result.vars || result.vars.length === 0) {
             var errorMsg = result && result.error ? '<span style="color:#ff6b6b;">' + result.error + '</span>' : 'Enter expression';
@@ -1513,10 +2008,24 @@ function triggerEval() {
         gbyId('a-d-res').innerHTML = 'Table Generated';
         gbyId('a-table-container').innerHTML = result.html;
 
-        gbyId('a-complexity').innerHTML = computeComplexity(expr, result.vars, result.tableData);
-        gbyId('a-circuit').innerHTML = analyzeCircuit(expr, result.vars);
+        var isMultiOutput = !result.tableData && !result.minterms;
 
-        displayPrimeImplicants(expr, result.vars);
+        if (!isMultiOutput) {
+            try { gbyId('a-complexity').innerHTML = computeComplexity(expr, result.vars, result.tableData); } catch(e) { console.error('computeComplexity error:', e); gbyId('a-complexity').innerHTML = '<span style="color:#ff6b6b;">Error: ' + e.message + '</span>'; }
+            try { gbyId('a-circuit').innerHTML = analyzeCircuit(expr, result.vars); } catch(e) { console.error('analyzeCircuit error:', e); gbyId('a-circuit').innerHTML = '<span style="color:#ff6b6b;">Error: ' + e.message + '</span>'; }
+
+            try { displayPrimeImplicants(expr, result.vars); } catch(e) { console.error('displayPrimeImplicants error:', e); gbyId('a-prime-implicants').innerHTML = '<span style="color:#ff6b6b;">Error: ' + e.message + '</span>'; }
+
+            try { var kmapHtml = renderKMap(result.minterms, result.vars.length); if (kmapHtml) gbyId('a-kmap-container').innerHTML = kmapHtml; } catch(e) { console.error('renderKMap error:', e); gbyId('a-kmap-container').innerHTML = '<span style="color:#ff6b6b;">Error: ' + e.message + '</span>'; }
+
+            try { var circuitHtml = renderCircuitDiagram(expr, result.tree); if (circuitHtml) gbyId('a-circuit-container').innerHTML = circuitHtml; } catch(e) { console.error('renderCircuitDiagram error:', e); gbyId('a-circuit-container').innerHTML = '<span style="color:#ff6b6b;">Error: ' + e.message + '</span>'; }
+        } else {
+            gbyId('a-complexity').innerHTML = 'Multi-output expression — complexity analysis available for single expressions';
+            gbyId('a-circuit').innerHTML = '';
+            gbyId('a-prime-implicants').innerHTML = 'Prime implicant analysis available for single expressions';
+            gbyId('a-kmap-container').innerHTML = '';
+            gbyId('a-circuit-container').innerHTML = '';
+        }
 
         addToHistory(expr);
     }, 150);
@@ -1526,7 +2035,46 @@ gbyId('a-btn-eval').onclick = triggerEval;
 
 gbyId('a-btn-copy').onclick = function() {
     var expr = gs('a-i-expr'); if (!expr) return;
-    navigator.clipboard.writeText('Expression: ' + expr).then(function() { showToast('Copied!'); });
+
+    // Gather all available data
+    var simp = gbyId('a-d-simp') ? gbyId('a-d-simp').innerText : '';
+    var cnf = gbyId('a-d-cnf') ? gbyId('a-d-cnf').innerText : '';
+    var gates = gbyId('a-simp-gates') ? gbyId('a-simp-gates').innerText : '';
+    var varsText = gbyId('a-complexity') ? gbyId('a-complexity').innerText : '';
+    var circuitText = gbyId('a-circuit') ? gbyId('a-circuit').innerText : '';
+    var primesText = gbyId('a-prime-implicants') ? gbyId('a-prime-implicants').innerText : '';
+
+    var lines = [];
+    lines.push('A-CALC v1.5');
+    lines.push('--- Expression ---');
+    lines.push(expr);
+    if (simp) {
+        lines.push('--- Simplified (DNF) ---');
+        lines.push(simp);
+    }
+    if (cnf) {
+        lines.push('--- Simplified (CNF) ---');
+        lines.push(cnf);
+    }
+    if (gates) {
+        lines.push('--- Simplified Gate Counts ---');
+        lines.push(gates);
+    }
+    if (varsText) {
+        lines.push('--- Complexity ---');
+        lines.push(varsText);
+    }
+    if (circuitText) {
+        lines.push('--- Circuit Analysis ---');
+        lines.push(circuitText);
+    }
+    if (primesText) {
+        lines.push('--- Prime Implicants ---');
+        lines.push(primesText);
+    }
+
+    var text = lines.join('\n');
+    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
 
 })(); // end A-CALC IIFE
@@ -1684,12 +2232,12 @@ gbyId('t-btn-copy').onclick = function() {
 ;(function() {
 
 var MATERIAL_DATA = {
-    steel:    { yield: 36000, name: 'Steel' },
-    aluminum: { yield: 35000, name: 'Aluminum' },
-    titanium: { yield: 130000, name: 'Titanium' },
-    brass:    { yield: 20000, name: 'Brass' },
-    abs:      { yield: 7000, name: 'ABS Plastic' },
-    pla:      { yield: 10000, name: 'PLA' }
+    steel:    { yield: 36000, e: 29e6, name: 'Steel' },
+    aluminum: { yield: 35000, e: 10e6, name: 'Aluminum' },
+    titanium: { yield: 130000, e: 16e6, name: 'Titanium' },
+    brass:    { yield: 20000, e: 15e6, name: 'Brass' },
+    abs:      { yield: 7000, e: 0.35e6, name: 'ABS Plastic' },
+    pla:      { yield: 10000, e: 0.35e6, name: 'PLA' }
 };
 
 var PLA_INFILL_FACTOR = {
@@ -1706,6 +2254,10 @@ var PLA_WALL_FACTOR = {
 };
 
 var DEFAULT_WALL_THICKNESS = 0.4; // mm per pass, ~0.016in
+
+// FDM layer adhesion factor — even 100% infill rarely achieves bulk strength
+// due to interlayer voids, raster direction, thermal history
+var PLA_LAYER_ADHESION_FACTOR = 0.5; // conservative: ~50% of bulk strength
 
 var _sResult = null;
 
@@ -1753,38 +2305,37 @@ function sCalc_calc() {
     var stressInfoParts = [];
     var isSafe = true;
 
-    // === LAYER 1: Servo limit check ===
+    // === LAYER 1: Static stall estimate ===
     var servoLines = [];
-    servoLines.push('<b>1. Servo Limit Check</b><br>');
-    servoLines.push('Peak torque (stall): ' + torque.toFixed(0) + ' in·lbf — short-duration peak only<br>');
-    servoLines.push('⚠ Stall torque is NOT a continuous rating — sustained stall causes overheating and gear damage<br>');
-    servoLines.push('Required joint torque: ' + bendMoment.toFixed(1) + ' in·lbf<br>');
-    servoLines.push('Arm length: ' + arm.toFixed(2) + '"<br>');
-    servoLines.push('Linkage ratio: ' + ma.toFixed(2) + ':1' + (ma > 1 ? ' force multiplication' : ma < 1 ? ' speed multiplication' : ' direct drive') + '<br>');
-    if (ma > 1) {
-        servoLines.push('→ Output force = ' + ma.toFixed(2) + '× input, but servo must move ' + ma.toFixed(2) + '× further for same output travel<br>');
-        servoLines.push('→ Effective stall torque at load: ' + (torque * ma).toFixed(1) + ' in·lbf');
-    } else if (ma < 1) {
-        servoLines.push('→ Output speed = ' + (1/ma).toFixed(2) + '× input, but force reduced to ' + ma.toFixed(2) + '×<br>');
-        servoLines.push('→ Effective stall torque at load: ' + (torque * ma).toFixed(1) + ' in·lbf');
-    } else {
-        servoLines.push('→ Effective stall torque at load: ' + (torque * ma).toFixed(1) + ' in·lbf');
-    }
-
+    servoLines.push('<b>1. Static Stall Estimate</b><br>');
+    servoLines.push('Servo stall torque: ' + torque.toFixed(0) + ' in·lbf<br>');
+    servoLines.push('Arm radius: ' + arm.toFixed(2) + '"<br>');
+    servoLines.push('Peak theoretical static force: ' + forceLb.toFixed(0) + ' lbf<br>');
     if (!isNaN(contTorque) && contTorque > 0) {
         contForce = (contTorque / arm) * ma;
-        servoLines.push('Continuous torque: ' + contTorque.toFixed(0) + ' in·lbf<br>');
-        servoLines.push('Continuous force: ~' + contForce.toFixed(1) + ' lbf<br>');
+        servoLines.push('Continuous force capability: ' + contForce.toFixed(1) + ' lbf<br>');
+    } else {
+        servoLines.push('Continuous force capability: unknown — check servo datasheet<br>');
+    }
+
+    // === LAYER 1b: Sustained load assessment ===
+    var sustainLines = [];
+    sustainLines.push('<br><b>1b. Sustained Load Assessment</b><br>');
+    if (!isNaN(contTorque) && contTorque > 0) {
         var sfCont = torque / contTorque;
-        servoLines.push('Stall/continuous ratio: ' + sfCont.toFixed(1) + ':1<br>');
-        if (sfCont < 2.0) {
-            servoLines.push('⚠ Continuous torque too close to stall — undersized for sustained duty');
+        if (forceLb > contForce * 0.8) {
+            sustainLines.push('⚠ Sustained operation near stall may overheat servo<br>');
         } else {
-            servoLines.push('✓ Continuous torque well within stall limit (SF ≥ 2)');
+            sustainLines.push('✓ Force within continuous rating — sustained duty OK<br>');
+        }
+        if (sfCont < 2.0) {
+            sustainLines.push('⚠ Stall/continuous ratio only ' + sfCont.toFixed(1) + ':1 — undersized for sustained duty');
+        } else {
+            sustainLines.push('✓ Stall/continuous ratio: ' + sfCont.toFixed(1) + ':1');
         }
     } else {
-        servoLines.push('Continuous torque: unknown — check servo datasheet<br>');
-        servoLines.push('⚠ Cannot validate sustained-load capability without continuous torque rating');
+        sustainLines.push('⚠ Continuous torque rating not provided<br>');
+        sustainLines.push('⚠ Sustained operation near stall may overheat servo');
     }
 
     // === LAYER 2: Horn / bracket torque check ===
@@ -1816,12 +2367,17 @@ function sCalc_calc() {
                 var wallCount = gv('s-i-walls');
                 var wallThickIn = gv('s-i-wallThick');
 
+                // FDM layer adhesion — even 100% infill rarely achieves bulk strength
+                yieldPsi *= PLA_LAYER_ADHESION_FACTOR;
+                printFactors += 'FDM layer adhesion factor: ×' + PLA_LAYER_ADHESION_FACTOR.toFixed(2) + ' (conservative)<br>';
+                printFactors += 'Bulk PLA yield: 10.0 ksi → after layer adhesion: ' + (yieldPsi / 1000).toFixed(2) + ' ksi<br>';
+
                 if (!isNaN(infillPct) && infillPct > 0) {
                     var infillFactor = Math.max(0.1, infillPct / 100);
                     var patternFactor = PLA_INFILL_FACTOR[infillType] || 1.0;
                     yieldPsi *= infillFactor * patternFactor;
                     printFactors += 'Infill: ' + infillPct + '% ' + infillType + ' (×' + patternFactor.toFixed(2) + ')<br>';
-                    printFactors += 'Effective yield: ' + (yieldPsi / 1000).toFixed(2) + ' ksi<br>';
+                    printFactors += 'Estimated effective yield for printed part: ' + (yieldPsi / 1000).toFixed(2) + ' ksi<br>';
                 }
 
                 if (!isNaN(wallCount) && wallCount > 0) {
@@ -1831,7 +2387,10 @@ function sCalc_calc() {
                         var wallContrib = Math.min(1, wallAreaEst / (crossSec * 0.5));
                         yieldPsi *= (0.3 + 0.7 * wallContrib);
                         printFactors += 'Walls: ' + wallCount + ' × ~' + (wt * 25.4).toFixed(1) + 'mm (~' + wt.toFixed(3) + '" each)<br>';
-                        printFactors += 'Wall contribution factor: ×' + wallContrib.toFixed(2) + '<br>';
+                        printFactors += 'Shell contribution to bending stiffness: ×' + wallContrib.toFixed(2) + '<br>';
+                        printFactors += '  → Solid perimeter walls carry ~70% of bending load in FDM parts (shell dominates infill)<br>';
+                        printFactors += '  → Higher = more wall area relative to cross-section; max ×1.0 at full-wall section<br>';
+                        printFactors += '  → Applies to bending and axial stress; shear is less affected<br>';
                     }
                 }
 
@@ -1846,23 +2405,40 @@ function sCalc_calc() {
             var bendStressPsi = hasSModulus ? (bendMoment / sModulus) : 0;
             var shearStressPsi = forceLb / crossSec;
             var axialStressPsi = forceLb / crossSec;
+
+            // von Mises equivalent stress for ductile materials: σ_vm = sqrt(σ_b² + 3τ²)
+            // This is the physically correct combination for yielding prediction in ductile materials
+            var vonMisesStressPsi = hasSModulus ? Math.sqrt(bendStressPsi * bendStressPsi + 3 * shearStressPsi * shearStressPsi) : 0;
+
+            // Direct addition (conservative upper bound — both are normal stresses at outer fiber)
             var combinedStressPsi = hasSModulus ? (bendStressPsi + axialStressPsi) : 0;
+
+            // von Mises safety factor (primary — physically correct for ductile materials)
+            var sfVonMises = hasSModulus ? (yieldPsi / vonMisesStressPsi) : 0;
+
+            // Direct-add safety factor (conservative bound)
             var sfCombined = hasSModulus ? (yieldPsi / combinedStressPsi) : 0;
+
             var mAllowable = hasSModulus ? (yieldPsi * sModulus) : 0;
             var utilRatio = hasSModulus ? (bendMoment / mAllowable) : 0;
-            var recommendedMaxForce = (yieldPsi / 3) * crossSec;
+            var recommendedMaxForce = hasSModulus ? (forceLb * sfVonMises / 3) : 0;
 
             // SF label
             var sfLabel = '';
             if (hasSModulus) {
-                if (sfCombined >= 4) sfLabel = 'Very overbuilt';
-                else if (sfCombined >= 2) sfLabel = 'Good safety margin';
-                else if (sfCombined >= 1.25) sfLabel = 'Adequate for static load';
-                else if (sfCombined >= 1) sfLabel = '⚠ Marginal — dynamic loads may cause failure';
+                if (sfVonMises >= 4) sfLabel = 'Very overbuilt';
+                else if (sfVonMises >= 2) sfLabel = 'Good safety margin';
+                else if (sfVonMises >= 1.25) sfLabel = 'Adequate for static load';
+                else if (sfVonMises >= 1) sfLabel = '⚠ Marginal — dynamic loads may cause failure';
                 else sfLabel = '⚠ FAIL — immediate risk under stall';
             }
 
-            var sfColor = hasSModulus ? (sfCombined >= 1.0 ? '#40c057' : '#ff6b6b') : '#ffd43b';
+            var sfColor = hasSModulus ? (sfVonMises >= 1.0 ? '#40c057' : '#ff6b6b') : '#ffd43b';
+
+            // Individual failure mode safety factors
+            var axialFoS = !isNaN(crossSec) && crossSec > 0 ? (yieldPsi / axialStressPsi) : 0;
+            var shearFoS = !isNaN(crossSec) && crossSec > 0 ? (yieldPsi / 2 / shearStressPsi) : 0; // approx. ductile shear yield estimate (σ_yield / 2)
+            var bendingFoS = hasSModulus ? (yieldPsi / bendStressPsi) : 0;
 
             // Build table rows
             var tRows = '';
@@ -1878,25 +2454,187 @@ function sCalc_calc() {
                 tRows += '<tr><td style="color:#888;padding:3px 0;">Bending stress (σ = M/S)</td><td>' + (bendStressPsi / 1000).toFixed(2) + ' ksi (' + bendStressPsi.toFixed(0) + ' psi)</td></tr>';
                 tRows += '<tr><td style="color:#888;padding:3px 0;">Shear stress (τ = F/A)</td><td>' + (shearStressPsi / 1000).toFixed(2) + ' ksi (' + shearStressPsi.toFixed(0) + ' psi)</td></tr>';
                 tRows += '<tr><td style="color:#888;padding:3px 0;">Axial stress (σ = F/A)</td><td>' + (axialStressPsi / 1000).toFixed(2) + ' ksi (' + axialStressPsi.toFixed(0) + ' psi)</td></tr>';
-                tRows += '<tr><td style="color:#888;padding:3px 0;">Combined stress</td><td>' + (combinedStressPsi / 1000).toFixed(2) + ' ksi</td></tr>';
-                tRows += '<tr><td style="color:#888;padding:3px 0;">Safety factor</td><td style="color:' + sfColor + ';font-weight:bold;">' + sfCombined.toFixed(2) + ' — ' + sfLabel + '</td></tr>';
+                tRows += '<tr><td style="color:#888;padding:3px 0;">von Mises stress (σ = √(σ_b² + 3τ²))</td><td style="font-weight:bold;">' + (vonMisesStressPsi / 1000).toFixed(2) + ' ksi</td></tr>';
+                tRows += '<tr><td style="color:#888;padding:3px 0;">Direct-add (σ_b + σ_a, conservative)</td><td>' + (combinedStressPsi / 1000).toFixed(2) + ' ksi</td></tr>';
+                tRows += '<tr><td style="color:#888;padding:3px 0;">Safety factor (von Mises)</td><td style="color:' + sfColor + ';font-weight:bold;">' + sfVonMises.toFixed(2) + '</td></tr>';
+                tRows += '<tr><td style="color:#888;padding:3px 0;">Safety factor (direct-add, conservative)</td><td style="color:' + sfColor + ';font-weight:bold;">' + sfCombined.toFixed(2) + '</td></tr>';
                 tRows += '<tr><td style="color:#888;padding:3px 0;">Utilization (M_applied/M_allow)</td><td>' + (utilRatio * 100).toFixed(1) + '%</td></tr>';
                 tRows += '<tr><td style="color:#888;padding:3px 0;">Max working load (SF=3)</td><td>' + recommendedMaxForce.toFixed(1) + ' lbf</td></tr>';
             } else {
                 tRows += '<tr><td style="color:#888;padding:3px 0;">Bending stress</td><td style="color:#ff6b6b;">UNKNOWN — enter S above</td></tr>';
                 tRows += '<tr><td style="color:#888;padding:3px 0;">Shear stress (τ = F/A)</td><td>' + (shearStressPsi / 1000).toFixed(2) + ' ksi (' + shearStressPsi.toFixed(0) + ' psi)</td></tr>';
                 tRows += '<tr><td style="color:#888;padding:3px 0;">Axial stress (σ = F/A)</td><td>' + (axialStressPsi / 1000).toFixed(2) + ' ksi (' + axialStressPsi.toFixed(0) + ' psi)</td></tr>';
-                tRows += '<tr><td style="color:#888;padding:3px 0;">Safety factor</td><td style="color:#ffd43b;">N/A — bending unknown (dominant mode)</td></tr>';
+                tRows += '<tr><td style="color:#888;padding:3px 0;">Safety factor (von Mises)</td><td style="color:#ffd43b;">N/A — bending unknown (dominant mode)</td></tr>';
+            }
+
+            // Add individual FoS summary table
+            if (matKey === 'pla' && !isNaN(crossSec) && crossSec > 0) {
+                var axialFosColor = axialFoS >= 4 ? '#40c057' : (axialFoS >= 2 ? '#ffd43b' : '#ff6b6b');
+                var shearFosColor = shearFoS >= 4 ? '#40c057' : (shearFoS >= 2 ? '#ffd43b' : '#ff6b6b');
+                var bendFosColor = hasSModulus ? (bendingFoS >= 4 ? '#40c057' : (bendingFoS >= 2 ? '#ffd43b' : '#ff6b6b')) : '#888';
+                var vonMisesFosColor = hasSModulus ? (sfVonMises >= 4 ? '#40c057' : (sfVonMises >= 2 ? '#ffd43b' : '#ff6b6b')) : '#888';
+                var combinedFosColor2 = hasSModulus ? (sfCombined >= 4 ? '#40c057' : (sfCombined >= 2 ? '#ffd43b' : '#ff6b6b')) : '#888';
+                tRows += '<tr><td colspan="2" style="padding-top:8px;color:#aaa;font-size:0.8em;">Failure Mode Summary (FoS vs estimated printed yield):</td></tr>';
+                tRows += '<tr><td style="color:#888;padding:2px 0;">Axial</td><td>' + (axialStressPsi / 1000).toFixed(2) + ' ksi → FoS: <span style="color:' + axialFosColor + ';font-weight:bold;">' + axialFoS.toFixed(1) + '</span></td></tr>';
+                tRows += '<tr><td style="color:#888;padding:2px 0;">Shear (approx. ductile shear yield)</td><td>' + (shearStressPsi / 1000).toFixed(2) + ' ksi → FoS: <span style="color:' + shearFosColor + ';font-weight:bold;">' + shearFoS.toFixed(1) + '</span></td></tr>';
+                if (hasSModulus) {
+                    tRows += '<tr><td style="color:#888;padding:2px 0;">Bending</td><td>' + (bendStressPsi / 1000).toFixed(2) + ' ksi → FoS: <span style="color:' + bendFosColor + ';font-weight:bold;">' + bendingFoS.toFixed(1) + '</span></td></tr>';
+                    tRows += '<tr><td style="color:#888;padding:2px 0;">Combined (von Mises, σ = √(σ_b² + 3τ²))</td><td>' + (vonMisesStressPsi / 1000).toFixed(2) + ' ksi → FoS: <span style="color:' + vonMisesFosColor + ';font-weight:bold;">' + sfVonMises.toFixed(1) + '</span></td></tr>';
+                    tRows += '<tr><td style="color:#888;padding:2px 0;">Combined (direct-add, conservative)</td><td>' + (combinedStressPsi / 1000).toFixed(2) + ' ksi → FoS: <span style="color:' + combinedFosColor2 + ';font-weight:bold;">' + sfCombined.toFixed(1) + '</span></td></tr>';
+                } else {
+                    tRows += '<tr><td style="color:#888;padding:2px 0;">Combined (von Mises)</td><td style="color:#ff6b6b;">Unknown — enter S above</td></tr>';
+                }
             }
 
             if (printFactors) {
-                structLines.push('<br><b>3a. 3D Print Factors</b><br>');
-                structLines.push('<div style="font-size:0.85em;color:#aaa;margin-top:2px;">' + printFactors + '</div>');
+                var pfRows = '';
+                var pfLines = printFactors.split('<br>');
+                for (var _i = 0; _i < pfLines.length; _i++) {
+                    var pfLine = pfLines[_i];
+                    if (pfLine) {
+                        var eqIdx = pfLine.indexOf(':');
+                        if (eqIdx > 0) {
+                            var pfKey = pfLine.substring(0, eqIdx + 1);
+                            var pfVal = pfLine.substring(eqIdx + 1).trim();
+                            pfRows += '<tr><td style="color:#888;padding:2px 0;">' + pfKey + '</td><td>' + pfVal + '</td></tr>';
+                        } else {
+                            pfRows += '<tr><td colspan="2" style="color:#ffd43b;padding:2px 0;">' + pfLine + '</td></tr>';
+                        }
+                    }
+                }
+                structLines.push('<br><b>2a. 3D Print Factors</b><br>');
+                structLines.push('<table style="width:100%;border-collapse:collapse;margin-top:4px;font-size:0.85em;">' + pfRows + '</table>');
             }
 
-            structLines.push('<b>3. Structural Stress Analysis</b><br>');
+            structLines.push('<br><b>3. Structural Stress Analysis</b><br>');
             structLines.push('<table style="width:100%;border-collapse:collapse;margin-top:4px;font-size:0.9em;">' + tRows + '</table>');
         }
+    }
+
+    // === LAYER 4: Deflection Estimation (cantilever beam) ===
+    var deflLines = [];
+    if (!isNaN(sModulus) && sModulus > 0 && matKey) {
+        var hornLen = gv('s-i-hornLen');
+        if (!isNaN(hornLen) && hornLen > 0) {
+            var matDataDefl = MATERIAL_DATA[matKey];
+            if (matDataDefl && !isNaN(matDataDefl.e) && matDataDefl.e > 0) {
+                // For rectangular/tube/round shapes, compute I from S (S = I / c where c is outer fiber distance)
+                // For a round rod: S = πd³/32, I = πd⁴/64 → I = S × d / 2
+                // For a rectangle: S = bh²/6, I = bh³/12 → I = S × h / 2
+                // For a tube: S = π(OD⁴-ID⁴)/(32×OD), I = π(OD⁴-ID⁴)/64 → I = S × OD / 2
+                // General: I ≈ S × c where c is the distance from neutral axis to outer fiber
+                // For simplicity, assume c ≈ sqrt(Area/π) for circular-ish sections (conservative)
+                var cEst = Math.sqrt(crossSec / Math.PI); // estimated outer fiber distance
+                var momentOfInertia = sModulus * cEst;
+                var youngsModulus = matDataDefl.e;
+
+                // Cantilever deflection: δ = F × L³ / (3 × E × I)
+                var deflection = (forceLb * Math.pow(hornLen, 3)) / (3 * youngsModulus * momentOfInertia);
+                var deflectionRatio = hornLen > 0 ? (deflection / hornLen * 100) : 0;
+
+                deflLines.push('<b>4. Deflection Estimation</b><br>');
+                deflLines.push('Horn length: ' + hornLen.toFixed(2) + '"<br>');
+                deflLines.push('Estimated Young\'s Modulus: ' + (youngsModulus / 1e6).toFixed(2) + ' Msi<br>');
+                deflLines.push('Estimated moment of inertia: ' + (momentOfInertia * 1e6).toFixed(4) + ' in⁴<br>');
+                deflLines.push('Cantilever deflection (δ = FL³/3EI): ' + deflection.toFixed(4) + '"<br>');
+                deflLines.push('Deflection ratio: ' + deflectionRatio.toFixed(2) + '% of horn length<br>');
+
+                if (deflection < 0.01) {
+                    deflLines.push('<span style="color:#40c057;">✓ Deflection negligible (< 0.01")</span>');
+                } else if (deflection < 0.05) {
+                    deflLines.push('<span style="color:#ffd43b;">~ Deflection acceptable for most applications (< 0.05")</span>');
+                } else if (deflection < hornLen * 0.1) {
+                    deflLines.push('<span style="color:#ff922b;">⚠ Deflection noticeable — may affect precision (< 10% of length)</span>');
+                } else {
+                    deflLines.push('<span style="color:#ff6b6b;">✗ Excessive deflection (> 10% of length) — reinforce horn</span>');
+                }
+
+                // PLA/ABS creep warning for deflection
+                if (matKey === 'pla' || matKey === 'abs') {
+                    deflLines.push('<br><span style="color:#ff922b;">⚠ ' + (matKey === 'pla' ? 'PLA' : 'ABS') + ' creeps under sustained load — actual deflection may be 2–5× higher over time</span>');
+                }
+            }
+        } else {
+            deflLines.push('<b>4. Deflection Estimation</b><br>');
+            deflLines.push('Enter horn length above to estimate deflection');
+        }
+    }
+
+    // === LAYER 5: Engineering Assessment (synthesis/verdict) ===
+    var assessLines = [];
+
+    if (!isNaN(crossSec) && crossSec > 0 && matKey) {
+        var matData = MATERIAL_DATA[matKey];
+        if (matData && !isNaN(sModulus) && sModulus > 0) {
+            var hasLowAxial = axialFoS >= 3;
+            var hasLowShear = shearFoS >= 2;
+            var hasLowBending = bendingFoS >= 1.5;
+            var isPLA = matKey === 'pla';
+
+            // Continuous duty assessment
+            if (!isNaN(contTorque) && contTorque > 0) {
+                var dutyRatio = forceLb / contForce;
+                if (dutyRatio > 1) {
+                    assessLines.push('⚠ Continuous-duty capability cannot be verified — stall force exceeds continuous rating by ' + dutyRatio.toFixed(1) + '×');
+                } else {
+                    assessLines.push('✓ Continuous-duty force: ' + contForce.toFixed(1) + ' lbf (at ' + (dutyRatio * 100).toFixed(0) + '% of stall)');
+                }
+            } else {
+                assessLines.push('⚠ Continuous-duty force unknown — check servo datasheet');
+            }
+
+            // Stress mode assessment
+            if (hasLowAxial) {
+                assessLines.push('✓ Axial stress is low relative to ' + matData.name.toUpperCase() + ' yield (FoS: ' + axialFoS.toFixed(1) + ')');
+            } else {
+                assessLines.push('⚠ Axial stress is high — consider larger cross-section or stronger material (FoS: ' + axialFoS.toFixed(1) + ')');
+            }
+
+            if (hasLowShear) {
+                assessLines.push('✓ Shear stress is within safe limits (FoS: ' + shearFoS.toFixed(1) + ')');
+            } else {
+                assessLines.push('⚠ Shear stress is elevated — check fastener shear and keyway strength (FoS: ' + shearFoS.toFixed(1) + ')');
+            }
+
+            if (hasSModulus) {
+                if (hasLowBending) {
+                    assessLines.push('✓ Bending stress is manageable at this load (FoS: ' + bendingFoS.toFixed(1) + ')');
+                } else {
+                    assessLines.push('⚠ Bending stress is the limiting factor — reinforce horn root or shorten arm (FoS: ' + bendingFoS.toFixed(1) + ')');
+                }
+            } else {
+                assessLines.push('⚠ Bending stress unknown — enter section modulus above for bending assessment');
+            }
+
+            // PLA-specific assessment
+            if (isPLA) {
+                assessLines.push('⚠ PLA is brittle and temperature-sensitive — avoid impact loading and sustained loads near yield');
+                if (hasSModulus && bendingFoS < 2) {
+                    assessLines.push('⚠ Likely limiting factors: horn bending, servo gearbox plastic gears');
+                } else if (!hasSModulus) {
+                    assessLines.push('⚠ PLA bending adequacy unknown — enter section modulus to verify');
+                } else {
+                    assessLines.push('✓ PLA part appears adequate for static loads if printed with good layer adhesion');
+                }
+            }
+
+            // Servo shaft radial load warning (important real-world failure mode)
+            if (!isNaN(arm) && arm > 0.5 && forceLb > 20) {
+                var radialLoad = forceLb; // side load on shaft ≈ output force for perpendicular arm
+                assessLines.push('⚠ Large radial load (' + radialLoad.toFixed(0) + ' lbf) on servo shaft — long unsupported arms can damage output bearings even when torque is within rating');
+            }
+
+            // Overall verdict
+            var riskCount = assessLines.filter(function(l) { return l.indexOf('⚠') >= 0; }).length;
+            var okCount = assessLines.filter(function(l) { return l.indexOf('✓') >= 0; }).length;
+            assessLines.push('<br><b>Verdict:</b> ' + (riskCount >= 3 ? '⚠ Multiple concerns — review design before prototyping' : (riskCount >= 1 ? '⚠ Some concerns — acceptable for low-duty-cycle use' : '✓ Design appears sound for intended application')));
+        } else if (matData) {
+            assessLines.push('⚠ Enter section modulus above for full stress analysis and assessment');
+        } else {
+            assessLines.push('⚠ Select material and enter cross-section for assessment');
+        }
+    } else {
+        assessLines.push('⚠ Enter material and cross-section for stress analysis');
     }
 
     // === LAYER 4: System failure warning (dominant real-world outcome) ===
@@ -1936,6 +2674,16 @@ function sCalc_calc() {
         failLines.push('⚠ Shock/impact loading can exceed static loads by 2–3× (gear stripping, screw shear)<br>');
     }
 
+    // Stall load unrealistic heuristic
+    if (!isNaN(contTorque) && contTorque > 0) {
+        var stallToContRatio = torque / contTorque;
+        if (stallToContRatio > 5) {
+            failLines.push('⚠ Stall force (' + forceLb.toFixed(0) + ' lbf) is unrealistic for sustained use — servo can only deliver ~' + contForce.toFixed(0) + ' lbf continuously (ratio: ' + stallToContRatio.toFixed(1) + ':1)<br>');
+        } else if (stallToContRatio > 3) {
+            failLines.push('⚠ Stall force significantly exceeds continuous capability — design for sustained loads at ~' + contForce.toFixed(0) + ' lbf, not ' + forceLb.toFixed(0) + ' lbf<br>');
+        }
+    }
+
     // Continuous stall warning
     if (!isNaN(contTorque) && contTorque > 0 && forceLb >= contForce) {
         failLines.push('⚠ Running at or near stall will overheat servo — duty cycle limited<br>');
@@ -1948,20 +2696,68 @@ function sCalc_calc() {
         failLines.push('Monitor horn/bracket for deformation under sustained load');
     }
 
+    // Servo shaft radial load warning (critical real-world failure mode)
+    if (!isNaN(arm) && arm > 0.5 && forceLb > 20) {
+        failLines.push('⚠ Large radial load (' + forceLb.toFixed(0) + ' lbf) on servo shaft — long unsupported arms can damage output bearings even when torque is within rating');
+    } else if (!isNaN(arm) && arm > 0.3) {
+        failLines.push('⚠ Radial load on servo shaft — avoid side loads on unsupported output');
+    }
+
     stressInfoParts.push(servoLines.join(''));
-    stressInfoParts.push('<br>');
+    stressInfoParts.push('<br><br>');
+    stressInfoParts.push(sustainLines.join(''));
+    stressInfoParts.push('<br><br>');
     stressInfoParts.push(jointLines.join(''));
-    stressInfoParts.push('<br>');
+    stressInfoParts.push('<br><br>');
     stressInfoParts.push(structLines.join(''));
-    stressInfoParts.push('<br>');
+    stressInfoParts.push('<br><br>');
     stressInfoParts.push(failLines.join(''));
+    stressInfoParts.push('<br><br>');
+    if (deflLines.length > 0) {
+        stressInfoParts.push(deflLines.join(''));
+        stressInfoParts.push('<br><br>');
+    }
+    if (assessLines.length > 0) {
+        stressInfoParts.push('<b>5. Engineering Assessment</b><br>');
+        for (var _i2 = 0; _i2 < assessLines.length; _i2++) {
+            stressInfoParts.push(assessLines[_i2] + '<br>');
+        }
+    }
 
     // Display force prominently
+    var peakLabel = '<span style="font-size:1.4em;color:#74c0fc;">' + forceLb.toFixed(2) + ' lbf</span>';
+    var sustainLabel = '';
+    if (!isNaN(contTorque) && contTorque > 0) {
+        sustainLabel = '<br><span style="font-size:0.9em; color:#aaa;">Continuous force: ' + contForce.toFixed(1) + ' lbf</span>';
+    } else {
+        sustainLabel = '<br><span style="font-size:0.9em; color:#ffd43b;">Continuous force: unknown</span>';
+    }
+
+    // Duty cycle estimate based on force ratio vs stall
+    var dutyCycleHtml = '';
+    if (!isNaN(contTorque) && contTorque > 0 && stallForceLb > 0) {
+        var forcePct = (forceLb / stallForceLb * 100);
+        var dutyLabel = '', dutyColor = '#40c057';
+        if (forcePct <= 30) {
+            dutyLabel = 'Continuous duty acceptable';
+        } else if (forcePct <= 50) {
+            dutyLabel = 'Intermittent duty only';
+        } else if (forcePct <= 70) {
+            dutyLabel = 'Short bursts only';
+        } else {
+            dutyLabel = 'Stall — not for sustained use';
+            dutyColor = '#ff6b6b';
+        }
+        dutyCycleHtml = '<br><span style="font-size:0.85em; color:#aaa;">Duty cycle guide: ' + forcePct.toFixed(0) + '% of stall → <span style="color:' + dutyColor + ';font-weight:bold;">' + dutyLabel + '</span></span>';
+        dutyCycleHtml += '<br><span style="font-size:0.75em; color:#888;">Continuous &lt;30% · Intermittent 30–50% · Short bursts 50–70% · Stall &gt;70%</span>';
+    }
+
     gbyId('s-d-res').innerHTML = 
         '<div style="text-align:left;">' +
-        '<b>Output Force</b><br>' +
-        'Linear Force at Arm: <span style="font-size:1.4em;color:#74c0fc;">' + forceLb.toFixed(2) + ' lbf</span>' +
-        '<br><span style="font-size:0.9em; color:#aaa;">Joint Moment (F × r): ' + jointMoment.toFixed(1) + ' in·lbf</span>' +
+        '<b>Static Stall Estimate</b><br>' +
+        'Peak theoretical force: ' + peakLabel + '<br>' +
+        sustainLabel +
+        dutyCycleHtml +
         '</div>';
 
     gbyId('s-d-stats').innerHTML = stressInfoParts.join('\n');
@@ -1978,6 +2774,51 @@ gbyId('s-i-material').onchange = function() {
     gbyId('s-wall-opts').style.display = isPLA ? '' : 'none';
 };
 gbyId('s-i-material').onchange();
+
+// Section modulus auto-calculation from geometry presets
+function sCalc_updateSmod() {
+    var shape = gbyId('s-i-shape').value;
+    var smodInput = gbyId('s-i-smod');
+    if (!shape) {
+        gbyId('s-dim-rect').style.display = 'none';
+        gbyId('s-dim-tube').style.display = 'none';
+        gbyId('s-dim-round').style.display = 'none';
+        return;
+    }
+    var S = 0;
+    if (shape === 'rect') {
+        gbyId('s-dim-rect').style.display = '';
+        gbyId('s-dim-tube').style.display = 'none';
+        gbyId('s-dim-round').style.display = 'none';
+        var b = gv('s-i-rectB'), h = gv('s-i-rectH');
+        if (!isNaN(b) && b > 0 && !isNaN(h) && h > 0) {
+            S = b * h * h / 6;
+        }
+    } else if (shape === 'tube') {
+        gbyId('s-dim-rect').style.display = 'none';
+        gbyId('s-dim-tube').style.display = '';
+        gbyId('s-dim-round').style.display = 'none';
+        var od = gv('s-i-tubeOD'), id_ = gv('s-i-tubeID');
+        if (!isNaN(od) && od > 0 && !isNaN(id_) && id_ >= 0 && id_ < od) {
+            S = Math.PI * (Math.pow(od, 4) - Math.pow(id_, 4)) / (32 * od);
+        }
+    } else if (shape === 'round') {
+        gbyId('s-dim-rect').style.display = 'none';
+        gbyId('s-dim-tube').style.display = 'none';
+        gbyId('s-dim-round').style.display = '';
+        var d = gv('s-i-roundD');
+        if (!isNaN(d) && d > 0) {
+            S = Math.PI * d * d * d / 32;
+        }
+    }
+    if (S > 0) {
+        smodInput.value = S.toFixed(4);
+    }
+}
+gbyId('s-i-shape').onchange = sCalc_updateSmod;
+['s-i-rectB','s-i-rectH','s-i-tubeOD','s-i-tubeID','s-i-roundD'].forEach(function(id) {
+    gbyId(id).oninput = sCalc_updateSmod;
+});
 
 gbyId('s-btn-copy').onclick = function() {
     var result = _sResult; if (!result) { sCalc_calc(); result = _sResult; }
@@ -2001,6 +2842,7 @@ gbyId('s-btn-copy').onclick = function() {
                 var wallCount = gv('s-i-walls');
                 stressLine += '\n\n--- 3D Print Settings ---\nInfill: ' + (isNaN(infillPct) ? 'N/A' : infillPct + '%') + ' ' + infillType;
                 stressLine += '\nWalls: ' + (isNaN(wallCount) ? 'N/A' : wallCount);
+                stressLine += '\nFDM layer adhesion factor: ×0.50 (conservative)';
             }
         }
     }
