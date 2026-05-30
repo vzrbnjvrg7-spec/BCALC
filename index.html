@@ -130,7 +130,7 @@
         <button class="btn btn-copy" id="b-btn-copy">Copy Result</button>
         <div class="row"><div class="col"><label>Weight (gr)</label><input type="number" id="b-i-wt" inputmode="decimal" value="35"></div></div>
         <div class="row"><div class="col"><label>Velocity (fps)</label><input type="number" id="b-i-vel" inputmode="decimal" value="4000"></div></div>
-        <div class="row"><label>BC (G1)</label><input type="number" id="b-i-bc" inputmode="decimal" value="0.2"></div>
+        <div class="row"><label>BC & Model</label><input type="number" id="b-i-bc" inputmode="decimal" value="0.256" step="0.001" style="flex:1;margin-right:4px;"><select id="b-i-bcmodel" style="width:65px;padding:4px;background:#2a2a2a;color:#ccc;border:1px solid #555;border-radius:4px;"><option value="g7" selected>G7</option><option value="g1">G1</option></select></div>
         <h3 style="margin-top:15px;">Atmosphere</h3>
         <div class="row">
             <div class="col"><label>Temp (°F)</label><input type="number" id="b-i-temp" value="70" inputmode="decimal"></div>
@@ -141,6 +141,12 @@
             <div class="col"><label>Hum (%)</label><input type="number" id="b-i-hum" value="25" inputmode="decimal"></div>
         </div>
         <button class="btn btn-calc" id="b-btn-calc">Calculate FPE</button>
+        <h3 style="margin-top:15px;">Rifle & Sight Geometry</h3>
+        <div class="row">
+            <div class="col"><label>Sight Height (in)</label><input type="number" id="b-i-sightht" value="1.75" min="0" step="0.125" inputmode="decimal"></div>
+            <div class="col"><label>Zero Distance (yds)</label><input type="number" id="b-i-zero" value="0" min="0" inputmode="decimal" placeholder="0 = no zero"></div>
+        </div>
+        <h3 style="margin-top:15px;">Trajectory</h3>
         <div class="row" style="margin-top:15px;"><div class="col"><label>Range (yards)</label><input type="number" id="b-i-range" value="500" inputmode="decimal"></div></div>
         <button class="btn btn-graph" id="b-btn-go">Show Trajectory</button>
         <div class="result-box" id="b-d-res">Energy: 0.00 ft-lbs</div>
@@ -846,7 +852,41 @@ var navLabels = ['B-CALC', 'A-CALC', 'T-CALC', 'S-CALC', 'W-CALC', 'P-CALC'];
 
 var _bResult = null;
 
-function bCalc_calc() {
+// ---- G7 Reference Drag Coefficients (Cd) at reference velocities (fps) ----
+var _G7V = [1000, 2000, 3000, 4000, 5000, 6000];
+var _G7Cd = [0.1214, 0.1085, 0.1039, 0.09598, 0.08246, 0.06315];
+// ---- G1 Reference Drag Coefficients (Cd) at reference velocities (fps) ----
+var _G1V = [2000, 3000, 4000, 5000, 6000];
+var _G1Cd = [0.284, 0.269, 0.257, 0.236, 0.184];
+
+function _interp(xv, xv0, xv1, yv0, yv1) {
+    var t = (xv - xv0) / (xv1 - xv0);
+    return yv0 + t * (yv1 - yv0);
+}
+
+function _cdAtVel(vel, bcModel) {
+    var vTab, cTab;
+    if (bcModel === 'g7') { vTab = _G7V; cTab = _G7Cd; }
+    else { vTab = _G1V; cTab = _G1Cd; }
+    if (vel <= vTab[0]) return cTab[0];
+    if (vel >= vTab[vTab.length - 1]) return cTab[cTab.length - 1];
+    for (var i = 0; i < vTab.length - 1; i++) {
+        if (vel >= vTab[i] && vel <= vTab[i + 1]) {
+            return _interp(vel, vTab[i], vTab[i + 1], cTab[i], cTab[i + 1]);
+        }
+    }
+    return cTab[cTab.length - 1];
+}
+
+function _decel(vel, bc, bcModel, dRatio) {
+    // Standard external ballistics: a = 0.5 × ρ × v² × i
+    // where form factor i = Cd_ref(vel) / BC
+    if (bc <= 0 || vel < 1) return 0;
+    var cdRef = _cdAtVel(vel, bcModel);
+    return 0.5 * vel * vel * (cdRef / bc) * 0.002378 * (dRatio || 1.0);
+}
+
+function bCalc_calc(){
     var wt = gv('b-i-wt'); var vel = gv('b-i-vel');
     if (isNaN(wt) || isNaN(vel)) { gbyId('b-d-res').innerHTML = 'Enter weight & velocity'; _bResult = null; return null; }
 
@@ -860,19 +900,26 @@ function bCalc_calc() {
         var Tk = (T + 459.67) * 5 / 9; var Pk = effP * 3.38639;
         var sTk = (59 + 459.67) * 5 / 9; var sPk = 29.92 * 3.38639;
         ratio = (Pk / (287.05 * Tk)) / (sPk / (287.05 * sTk));
-        if (!isNaN(H)) { ratio *= (1 + (H / 100 * 0.003)); }
+        if (!isNaN(H)) { ratio *= (1 - (H / 100 * 0.003)); }
     }
 
     var cVel = vel * Math.sqrt(1 / ratio);
     var actualFpe = (wt * vel * vel) / 450436;
     var slEquivFpe = (wt * cVel * cVel) / 450436;
 
-    _bResult = { wt: wt, actualVel: vel, slEquivVel: cVel, actualFpe: actualFpe, slEquivFpe: slEquivFpe };
+    var sightHtIn = parseFloat(gs('b-i-sightht')); if (isNaN(sightHtIn) || sightHtIn <= 0) sightHtIn = 1.75;
+    var zeroYards = parseFloat(gs('b-i-zero')); if (isNaN(zeroYards) || zeroYards < 0) zeroYards = 0;
+    var bcModel = gs('b-i-bcmodel'); if (!bcModel || (bcModel !== 'g7' && bcModel !== 'g1')) bcModel = 'g7';
+    var bcVal = parseFloat(gs('b-i-bc')); if (isNaN(bcVal)) bcVal = 0.2;
+
+    _bResult = { wt: wt, actualVel: vel, slEquivVel: cVel, actualFpe: actualFpe, slEquivFpe: slEquivFpe, sightHtIn: sightHtIn, zeroYards: zeroYards, bcModel: bcModel, atmoRatio: ratio };
 
     gbyId('b-d-res').innerHTML =
         '<b style="font-size:1.3em;">' + actualFpe.toFixed(2) + ' ft-lbs [Actual]</b>' +
         '<br><span style="font-size:1.1em; color:#a5d6ff;">' + slEquivFpe.toFixed(2) + ' ft-lbs [SL Equiv]</span>' +
-        '<br><span style="font-size:0.85em; color:#aaa;">Actual: ' + vel.toFixed(0) + ' fps | SL Equiv: ' + cVel.toFixed(0) + ' fps</span>';
+        '<br><span style="font-size:0.85em; color:#aaa;">Actual: ' + vel.toFixed(0) + ' fps | SL Equiv: ' + cVel.toFixed(0) + ' fps</span>' +
+        '<br><span style="font-size:0.85em; color:#aaa;">BC: ' + bcVal.toFixed(3) + ' (' + (bcModel==='g7'?'G7':'G1') + ')</span>' +
+        (zeroYards > 0 ? '<br><span style="font-size:0.85em; color:#aaa;">Sight height: ' + sightHtIn.toFixed(2) + '" | Zero: ' + zeroYards.toFixed(0) + ' yds</span>' : '');
 
     return _bResult;
 }
@@ -884,7 +931,8 @@ gbyId('b-btn-copy').onclick = function() {
     if (!res) return;
 
     var bc = parseFloat(gs('b-i-bc')); if (isNaN(bc)) bc = 0.2;
-    var text = 'B-CALC v1.6\nWeight: ' + res.wt.toFixed(2) + 'gr\nVel: ' + res.actualVel.toFixed(0) + 'fps (Actual)\nBC: ' + bc + '\n\n--- Energy ---\nActual: ' + res.actualFpe.toFixed(2) + ' ft-lbs\nSL Equiv: ' + res.slEquivFpe.toFixed(2) + ' ft-lbs\nSL Equiv Vel: ' + res.slEquivVel.toFixed(0) + ' fps';
+    var bcModel = res.bcModel || 'g7';
+    var text = 'B-CALC v1.6\nWeight: ' + res.wt.toFixed(2) + 'gr\nVel: ' + res.actualVel.toFixed(0) + 'fps (Actual)\nBC: ' + bc + ' (' + (bcModel==='g7'?'G7':'G1') + ')\n\n--- Energy ---\nActual: ' + res.actualFpe.toFixed(2) + ' ft-lbs\nSL Equiv: ' + res.slEquivFpe.toFixed(2) + ' ft-lbs\nSL Equiv Vel: ' + res.slEquivVel.toFixed(0) + ' fps';
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
 
@@ -892,22 +940,182 @@ gbyId('b-btn-go').onclick = function() {
     var data = _bResult; if (!data) { bCalc_calc(); data = _bResult; }
     if (!data) return;
     var maxYards = parseInt(gs('b-i-range')); if (isNaN(maxYards)) maxYards = 500;
-    var g = 32.17 * 12; var container = gbyId('b-traj-container');
+    var g = 32.174; var container = gbyId('b-traj-container');
     var step = maxYards < 50 ? Math.max(1, Math.floor(maxYards / 5)) : 10;
-    var bc = parseFloat(gs('b-i-bc')); if (isNaN(bc)) bc = 0.2;
-    var dragFactor = 0.0001 / bc;
+        var bcModel = gs('b-i-bcmodel'); if (!bcModel || (bcModel !== 'g7' && bcModel !== 'g1')) bcModel = 'g7';
+    var bcVal = parseFloat(gs('b-i-bc')); if (isNaN(bcVal)) bcVal = 0.2;
+    var sightHtIn = data.sightHtIn;
+    var zeroYards = data.zeroYards;
+    var sightHtFt = sightHtIn / 12.0;
+    var zeroYardsActual = zeroYards > 0 ? zeroYards : 0;
+    var maxDistFt = maxYards * 3;
 
-    var html = '<table class="traj-table"><thead><tr><th style="width:40%">Dist</th><th style="width:30%">FPE</th><th style="width:30%">Drop</th></tr></thead><tbody>';
-    for (var y = 0; y <= maxYards; y += step) {
-        var distFt = y * 3;
-        var t = distFt / data.actualVel;
-        var dropInches = 0.5 * g * t * t;
-        var velAtY = data.actualVel * Math.exp(-dragFactor * distFt);
-        var fpeAtY = (data.wt * velAtY * velAtY) / 450436;
-        html += '<tr><td>' + y + 'y</td><td>' + fpeAtY.toFixed(1) + '</td><td>' + dropInches.toFixed(2) + '"</td></tr>';
+    // Integrate horizontal velocity + cumulative time (1-ft steps)
+    var vxPts = [{ d: 0, vx: data.actualVel, t: 0 }];
+    var curVx = data.actualVel;
+    var cumT = 0;
+    for (var i = 1; i <= maxDistFt; i++) {
+        var decelAtI = _decel(curVx, bcVal, bcModel, data.atmoRatio);
+        var vxAfter = curVx - decelAtI / curVx;
+        var vxAvg = (curVx + Math.max(vxAfter, 0.001)) / 2;
+        var dt = 1.0 / vxAvg;
+        cumT += dt;
+        curVx = Math.max(vxAfter, 0);
+        vxPts.push({ d: i, vx: curVx, t: cumT });
     }
-    html += '</tbody></table>';
-    container.innerHTML = html;
+
+    // Linear interpolation for time at any foot distance
+    function _cumT(ft) {
+        ft = Math.max(0, ft);
+        var i = Math.min(Math.floor(ft), vxPts.length - 1);
+        if (i >= vxPts.length - 1) return vxPts[vxPts.length - 1].t;
+        if (i <= 0 && ft < 1) return vxPts[ft] ? vxPts[ft].t : 0;
+        var frac = ft - i;
+        return vxPts[i].t + frac * (vxPts[Math.min(i+1, vxPts.length-1)].t - vxPts[i].t);
+    }
+
+    if (zeroYardsActual > 0) {
+        var zeroFt = zeroYardsActual * 3;
+        var tZero = _cumT(zeroFt);
+
+        // vInitY so bullet hits LOS (sight height) at zero distance
+        var v0y = (sightHtFt + 0.5 * g * tZero * tZero) / tZero;
+
+        var prevAbove = (v0y * _cumT(0) - 0.5 * g * _cumT(0) * _cumT(0) - sightHtFt) > 0;
+        var firstCrossYards = 0, secondCrossYards = 0;
+        for (var y2 = 1; y2 <= maxYards; y2++) {
+            var d2 = y2 * 3;
+            if (d2 > vxPts.length - 1) break;
+            var t2 = _cumT(d2);
+            var yBullet2 = v0y * t2 - 0.5 * g * t2 * t2;
+            var curAbove = (yBullet2 - sightHtFt) >= 0;
+            if (firstCrossYards === 0 && !prevAbove && curAbove) {
+                var dPrev = (y2 - 1) * 3, tPrev = _cumT(dPrev);
+                var yBulPrev = v0y * tPrev - 0.5 * g * tPrev * tPrev;
+                var dropPrev = (yBulPrev - sightHtFt) * 12;
+                var dropCur = (yBullet2 - sightHtFt) * 12;
+                firstCrossYards = (y2 - 1) + (-dropPrev / (dropCur - dropPrev));
+            }
+            if (secondCrossYards === 0 && firstCrossYards > 0 && prevAbove && !curAbove) {
+                var dPrev2 = (y2 - 1) * 3, tPrev2 = _cumT(dPrev2);
+                var yBulPrev2 = v0y * tPrev2 - 0.5 * g * tPrev2 * tPrev2;
+                var dropPrev2 = (yBulPrev2 - sightHtFt) * 12;
+                var dropCur2 = (yBullet2 - sightHtFt) * 12;
+                secondCrossYards = (y2 - 1) + (-dropPrev2 / (dropCur2 - dropPrev2));
+            }
+            prevAbove = curAbove;
+        }
+
+        var dropFmt = function(dFt) {
+            var dIn = dFt * 12;
+            if (dIn >= 0) { var s = '+' + dIn.toFixed(dIn < 1 ? 2 : 1) + '"'; }
+            else { var s = '-' + ((-dIn)).toFixed((-dIn) < 1 ? 2 : 1) + '"'; }
+            if (Math.abs(dIn) < 0.05) s = '±0"';
+            return s;
+        };
+
+        var tofFmt = function(t) {
+            if (t >= 1) return t.toFixed(2) + ' s';
+            return Math.round(t * 1000) + ' ms';
+        };
+
+        var html2 = '<table class="traj-table"><thead><tr>';
+        html2 += '<th style="width:14%">Dist</th><th style="width:13%">FPE</th>';
+        html2 += '<th style="width:26%">Drop (to LOS)</th>';
+        html2 += '<th style="width:18%">Velocity</th><th style="width:14%">TOF</th>';
+        html2 += '</tr></thead><tbody>';
+
+        var summaryRows = {};
+        for (var y3 = 0; y3 <= maxYards; y3 += step) {
+            var d3 = y3 * 3;
+            if (d3 > vxPts.length - 1) break;
+            var velAtDist = Math.max(vxPts[d3].vx, 0);
+            var t3 = _cumT(d3);
+            var yBullet3 = v0y * t3 - 0.5 * g * t3 * t3;
+            var dropToLOS = yBullet3 - sightHtFt;
+            var fpeAtY = (data.wt * velAtDist * velAtDist) / 450436;
+
+            var dropStr = dropFmt(dropToLOS);
+            if (firstCrossYards > 0 && y3 === Math.round(firstCrossYards)) { dropStr += ' ▲Near Zero'; }
+            if (y3 === Math.round(zeroYardsActual)) { dropStr += ' ★ZERO'; }
+            else if (secondCrossYards > 0 && Math.abs(y3 - secondCrossYards) < step / 2 && y3 !== Math.round(zeroYardsActual)) { dropStr += ' ▼Far Zero'; }
+
+            html2 += '<tr><td>' + y3 + 'y</td><td>' + fpeAtY.toFixed(1) + '</td>';
+            html2 += '<td>' + dropStr + '</td>';
+            html2 += '<td>' + velAtDist.toFixed(0) + ' fps</td>';
+            html2 += '<td>' + tofFmt(t3) + '</td></tr>';
+
+            if (y3 === 100 || y3 === 200 || y3 === 300) {
+                summaryRows[y3] = { fpe: fpeAtY, vel: velAtDist, tof: t3 };
+            }
+        }
+
+        if (firstCrossYards > 0) {
+            var nzD = firstCrossYards * 3;
+            var nzT = _cumT(nzD);
+            var nzVel = Math.max(vxPts[Math.min(Math.round(nzD), vxPts.length - 1)].vx, 0);
+            var nzFpe = (data.wt * nzVel * nzVel) / 450436;
+            html2 += '<tr style="background:#1a3a1a;"><td>~' + firstCrossYards.toFixed(0) + 'y ▲</td>';
+            html2 += '<td>' + nzFpe.toFixed(1) + '</td><td>±0" Near Zero</td>';
+            html2 += '<td>' + nzVel.toFixed(0) + ' fps</td><td>' + tofFmt(nzT) + '</td></tr>';
+        }
+
+        html2 += '</tbody></table>';
+
+        if (Object.keys(summaryRows).length > 0) {
+            html2 += '<table class="traj-table" style="margin-top:8px;"><thead><tr>';
+            html2 += '<th>Summary</th><th>FPE</th><th>Velocity</th><th>TOF</th>';
+            html2 += '</tr></thead><tbody>';
+            for (var sy of [100, 200, 300]) {
+                if (summaryRows[sy]) {
+                    var sr = summaryRows[sy];
+                    html2 += '<tr><td>' + sy + ' yds</td>';
+                    html2 += '<td>' + sr.fpe.toFixed(1) + '</td>';
+                    html2 += '<td>' + sr.vel.toFixed(0) + ' fps</td>';
+                    html2 += '<td>' + tofFmt(sr.tof) + '</td></tr>';
+                }
+            }
+            html2 += '</tbody></table>';
+        }
+
+        html2 += '<div style="margin-top:6px;font-size:0.85em;color:#aaa;">';
+        html2 += 'Sight height: ' + sightHtIn.toFixed(2) + '" | Zero range: ' + zeroYardsActual.toFixed(0) + ' yds';
+        if (firstCrossYards > 0) { html2 += ' | Near zero: ~' + firstCrossYards.toFixed(0) + ' yds'; }
+        if (secondCrossYards > 0 && Math.abs(secondCrossYards - zeroYardsActual) > step / 2) {
+            html2 += ' | Far zero: ~' + secondCrossYards.toFixed(0) + ' yds';
+        }
+        html2 += '</div>';
+        container.innerHTML = html2;
+    } else {
+        // Pure gravity drop (no zero — bullet fired horizontally, drops by gravity only)
+        var tofFmtG = function(t) {
+            if (t >= 1) return t.toFixed(2) + ' s';
+            return Math.round(t * 1000) + ' ms';
+        };
+
+        var html3 = '<table class="traj-table"><thead><tr>';
+        html3 += '<th style="width:18%">Dist</th><th style="width:16%">FPE</th>';
+        html3 += '<th style="width:22%">Drop (Gravity)</th>';
+        html3 += '<th style="width:18%">Velocity</th><th style="width:16%">TOF</th>';
+        html3 += '</tr></thead><tbody>';
+
+        for (var y4 = 0; y4 <= maxYards; y4 += step) {
+            var d4 = y4 * 3;
+            if (d4 > vxPts.length - 1) break;
+            var velAtDist = Math.max(vxPts[d4].vx, 0);
+            var t4 = _cumT(d4);
+            var dropInches = 0.5 * g * t4 * t4;
+            var fpeAtY = (data.wt * velAtDist * velAtDist) / 450436;
+            html3 += '<tr><td>' + y4 + 'y</td>';
+            html3 += '<td>' + fpeAtY.toFixed(1) + '</td>';
+            html3 += '<td>' + dropInches.toFixed(dropInches < 1 ? 2 : 1) + '"</td>';
+            html3 += '<td>' + velAtDist.toFixed(0) + ' fps</td>';
+            html3 += '<td>' + tofFmtG(t4) + '</td></tr>';
+        }
+
+        html3 += '</tbody></table>';
+        container.innerHTML = html3;
+    }
 };
 
 })(); // end B-CALC IIFE
