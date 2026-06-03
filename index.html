@@ -104,6 +104,52 @@
         .coin-history-item.t { background: rgba(80,200,120,0.15); border-color: #4cc792; color: #a7f3d0; }
         .toss-hint { color: #aaa; font-size: 0.85em; margin-top: 10px; }
 
+        /* === SOLAR CALC VIEW === */
+        .solar-dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+        .solar-kpi { background: #0c2d48; padding: 12px; border-radius: 6px; text-align: center; }
+        .solar-kpi-label { font-size: 0.75em; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .solar-kpi-value { font-size: 1.3em; font-weight: 700; color: #a5d6ff; }
+        .solar-kpi-value.highlight { color: #40c057; }
+        .solar-kpi-value.warn { color: #fab005; }
+        .solar-kpi-full { grid-column: 1 / -1; }
+        .solar-loss-bar-container { background: #2a2a2a; padding: 14px; border-radius: 6px; margin-top: 14px; }
+        .solar-loss-bar-label { font-size: 0.8em; color: #aaa; margin-bottom: 4px; }
+        .solar-loss-bar { height: 20px; background: #1a1a2e; border-radius: 4px; overflow: hidden; display: flex; margin-bottom: 6px; }
+        .solar-loss-seg { height: 100%; transition: width 0.3s ease; }
+        .solar-loss-seg.efficiency { background: #40c057; }
+        .solar-loss-seg.heat { background: #ff6b6b; }
+        .solar-loss-seg.inverter { background: #fab005; }
+        .solar-loss-seg.wiring { background: #74c0fc; }
+        .solar-loss-seg.soiling { background: #b19700; }
+        .solar-legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.75em; color: #aaa; }
+        .solar-legend-item { display: flex; align-items: center; gap: 4px; }
+        .solar-legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+        .solar-legend-dot.eff { background: #40c057; }
+        .solar-legend-dot.heat-l { background: #ff6b6b; }
+        .solar-legend-dot.inv-l { background: #fab005; }
+        .solar-legend-dot.wire-l { background: #74c0fc; }
+        .solar-legend-dot.soil-l { background: #b19700; }
+        .solar-loss-detail { font-size: 0.8em; color: #aaa; padding: 4px 0; border-bottom: 1px solid #333; }
+        .solar-loss-detail span { color: #a5d6ff; font-weight: 700; }
+        .solar-compare-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.85em; }
+        .solar-compare-table th { background: #2a2a2a; color: #aaa; padding: 8px; text-align: left; border-bottom: 2px solid #444; }
+        .solar-compare-table td { padding: 8px; border-bottom: 1px solid #333; color: #ddd; }
+        .solar-compare-table tr.solar-row-active td { background: #0c2d48; color: #a5d6ff; }
+        .solar-season-toggle { display: flex; gap: 8px; margin-top: 10px; justify-content: center; }
+        .solar-season-btn { padding: 8px 20px; border-radius: 6px; border: 1px solid rgba(116,192,252,0.4); background: rgba(116,192,252,0.1); color: #74c0fc; font-size: 0.85em; font-weight: 600; cursor: pointer; touch-action: manipulation; }
+        .solar-season-btn.active { background: rgba(116,192,252,0.3); color: #fff; }
+        .solar-season-btn:hover { background: rgba(116,192,252,0.2); }
+        .solar-battery-bar-container { background: #2a2a2a; padding: 14px; border-radius: 6px; margin-top: 14px; }
+        .solar-battery-visual { height: 28px; background: #1a1a2e; border-radius: 6px; overflow: hidden; position: relative; margin-bottom: 8px; }
+        .solar-battery-fill { height: 100%; background: linear-gradient(90deg, #ff6b6b, #fab005, #40c057); border-radius: 6px; transition: width 0.3s ease; }
+        .solar-battery-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.8em; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        .solar-presets { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+        .solar-preset-btn { padding: 6px 10px; border-radius: 4px; border: 1px solid rgba(179,136,255,0.4); background: rgba(179,136,255,0.1); color: #b388ff; font-size: 0.75em; font-weight: 600; cursor: pointer; touch-action: manipulation; }
+        .solar-preset-btn.active { background: rgba(179,136,255,0.3); color: #fff; }
+        .solar-preset-btn:hover { background: rgba(179,136,255,0.2); }
+        .solar-manual-row { display: none; margin-bottom: 10px; }
+        .solar-manual-row.visible { display: flex; }
+
     </style>
 </head>
 <body>
@@ -124,33 +170,238 @@
             <button class="calc-nav-btn" data-view="tcalc">T</button>
             <button class="calc-nav-btn" data-view="pcalc">P</button>
             <button class="calc-nav-btn active" data-view="bcalc">B</button>
+            <button class="calc-nav-btn" data-view="solar">PV</button>
             <button class="calc-nav-btn" data-view="magic8ball">?</button>
         </nav>
-        <h2>B-CALC v1.6</h2>
+        <h2>B-CALC v1.7</h2>
         <button class="btn btn-copy" id="b-btn-copy">Copy Result</button>
-        <div class="row"><div class="col"><label>Weight (gr)</label><input type="number" id="b-i-wt" inputmode="decimal" value="35"></div></div>
-        <div class="row"><div class="col"><label>Velocity (fps)</label><input type="number" id="b-i-vel" inputmode="decimal" value="4000"></div></div>
-        <div class="row"><label>BC & Model</label><input type="number" id="b-i-bc" inputmode="decimal" value="0.256" step="0.001" style="flex:1;margin-right:4px;"><select id="b-i-bcmodel" style="width:65px;padding:4px;background:#2a2a2a;color:#ccc;border:1px solid #555;border-radius:4px;"><option value="g7" selected>G7</option><option value="g1">G1</option></select></div>
+        <div class="row"><div class="col"><label>Weight (gr)</label><input type="number" id="b-i-wt" inputmode="decimal" value="35"></div><div class="col"><label>Velocity (fps)</label><input type="number" id="b-i-vel" inputmode="decimal" value="4000"></div></div>
         <h3 style="margin-top:15px;">Atmosphere</h3>
         <div class="row">
             <div class="col"><label>Temp (°F)</label><input type="number" id="b-i-temp" value="70" inputmode="decimal"></div>
-            <div class="col"><label>Alt (ft)</label><input type="number" id="b-i-alt" value="4600" inputmode="decimal"></div>
+            <div class="col"><label>Press (inHg)</label><input type="number" id="b-i-press" value="29.89" inputmode="decimal"></div>
         </div>
         <div class="row">
-            <div class="col"><label>Press (inHg)</label><input type="number" id="b-i-press" value="29.89" inputmode="decimal"></div>
+            <div class="col"><label>Alt (ft)</label><input type="number" id="b-i-alt" value="4600" inputmode="decimal"></div>
             <div class="col"><label>Hum (%)</label><input type="number" id="b-i-hum" value="25" inputmode="decimal"></div>
         </div>
-        <button class="btn btn-calc" id="b-btn-calc">Calculate FPE</button>
-        <h3 style="margin-top:15px;">Rifle & Sight Geometry</h3>
+        <h3 style="margin-top:15px;">Sight & Zero</h3>
         <div class="row">
-            <div class="col"><label>Sight Height (in)</label><input type="number" id="b-i-sightht" value="1.75" min="0" step="0.125" inputmode="decimal"></div>
-            <div class="col"><label>Zero Distance (yds)</label><input type="number" id="b-i-zero" value="0" min="0" inputmode="decimal" placeholder="0 = no zero"></div>
+            <div class="col"><label>Sight Height (in)</label><input type="number" id="b-i-sightht" value="1.75" step="any"></div>
+            <div class="col"><label>Zero Distance (yds)</label><input type="number" id="b-i-zero" value="100" inputmode="decimal"></div>
         </div>
-        <h3 style="margin-top:15px;">Trajectory</h3>
+        <div class="row">
+            <div class="col"><label>BC Model</label><select id="b-i-bcmodel">
+                <option value="g7" selected>G7</option>
+                <option value="g1">G1</option>
+            </select></div>
+            <div class="col"><label>Ballistic Coefficient</label><input type="number" id="b-i-bc" inputmode="decimal" value="0.2"></div>
+        </div>
+        <div class="row">
+            <div class="col"><label>Bullet Diameter (in)</label><input type="number" id="b-i-dia" value="0.224" step="any"></div>
+        </div>
+        <button class="btn btn-calc" id="b-btn-calc">Calculate FPE</button>
         <div class="row" style="margin-top:15px;"><div class="col"><label>Range (yards)</label><input type="number" id="b-i-range" value="500" inputmode="decimal"></div></div>
         <button class="btn btn-graph" id="b-btn-go">Show Trajectory</button>
         <div class="result-box" id="b-d-res">Energy: 0.00 ft-lbs</div>
         <div id="b-traj-container"></div>
+    </div>
+
+    <!-- PV-CALC -->
+    <div id="view-solar" class="view">
+        <nav class="calc-nav">
+            <button class="calc-nav-btn" data-view="scalc">S</button>
+            <button class="calc-nav-btn" data-view="wcalc">W</button>
+            <button class="calc-nav-btn" data-view="acalc">A</button>
+            <button class="calc-nav-btn" data-view="tcalc">T</button>
+            <button class="calc-nav-btn" data-view="pcalc">P</button>
+            <button class="calc-nav-btn" data-view="bcalc">B</button>
+            <button class="calc-nav-btn active" data-view="solar">PV</button>
+            <button class="calc-nav-btn" data-view="magic8ball">?</button>
+        </nav>
+        <h2>PV-CALC v1.6 Solar Yield</h2>
+        <button class="btn btn-copy" id="solar-btn-copy">Copy Report</button>
+
+        <h3 style="margin-top:15px;">☀️ Region Presets</h3>
+        <div style="margin-bottom:10px;">
+            <label style="font-size:0.85em;color:#aaa;display:block;margin-bottom:6px;">Select Region</label>
+            <select id="s-i-region" style="width:100%;padding:8px;border-radius:4px;background:#2a2a2a;color:#ddd;border:1px solid rgba(116,192,252,0.4);">
+                <option value="sw">SW (Phoenix, AZ) — PSH: 6.0 | Temp Penalty: 12% | Soiling: 3%</option>
+                <option value="saintdavid" selected>DMR: Saint David (SE AZ) — PSH: 5.8 | Temp Penalty: 10% | Soiling: 5%</option>
+                <option value="se">Tucson (SE AZ) — PSH: 5.8 | Temp Penalty: 16% | Soiling: 5%</option>
+                <option value="midwest">Midwest/NE (Omaha, NE) — PSH: 4.5 | Temp Penalty: 6% | Soiling: 4%</option>
+                <option value="pnw">PNW (Portland, OR) — PSH: 3.8 | Temp Penalty: 2% | Soiling: 5%</option>
+                <option value="custom">Custom — Set your own parameters</option>
+            </select>
+        </div>
+
+        <details id="solar-region-details" style="display:none;margin-bottom:10px;">
+            <summary>Region Details</summary>
+            <div id="solar-region-info" style="font-size:0.8em;color:#aaa;padding:8px 4px;"></div>
+        </details>
+
+        <h3 style="margin-top:15px;">⚙️ Hardware Specs</h3>
+        <div class="row">
+            <div class="col"><label>Panel Wattage (W)</label><input type="number" id="s-i-panelW" value="300" min="0"></div>
+            <div class="col"><label>Panel Qty</label><input type="number" id="s-i-qty" value="18" min="0"></div>
+        </div>
+        <div class="row">
+            <div class="col"><label>Temp Coeff (%/°C)</label><input type="number" id="s-i-tempCoeff" value="-0.35" step="any"></div>
+            <div class="col"><label>Charger/Inverter Efficiency (%)</label><input type="number" id="s-i-inverterEff" value="96" min="0" max="100"></div>
+        </div>
+
+        <h3 style="margin-top:15px;">🔧 Installation & Mounting</h3>
+        <div class="row">
+            <div class="col"><label>Mounting Type</label><select id="s-i-mount">
+                <option value="roof">Rooftop (low clearance)</option>
+                <option value="ground" selected>Ground Mount (open air)</option>
+                <option value="carport">Carport / Canopy</option>
+            </select></div>
+            <div class="col"><label>Tilt Angle (°)</label><input type="number" id="s-i-tilt" value="16" min="0" max="90"></div>
+        </div>
+        <div class="row">
+            <div class="col"><label>Soiling Condition</label><select id="s-i-soiling">
+                <option value="">Default (region preset)</option>
+                <option value="0">1: Perfectly Clean</option>
+                <option value="2" selected>2: Some Dust (2% loss)</option>
+                <option value="5">3: Moderate Dirt/Debris (5% loss)</option>
+                <option value="10">4: Extreme Cover/Soiling (10% loss)</option>
+            </select></div>
+        </div>
+        <div class="row">
+            <div class="col" style="flex:1;">
+                <label>Ambient Temp</label>
+                <div style="display:flex;gap:6px;margin-top:4px;">
+                    <input type="number" id="s-i-ambientTemp" value="95" style="flex:1;">
+                    <button class="solar-season-btn" id="solar-unit-toggle" style="padding:6px 14px;min-width:auto;">°F</button>
+                </div>
+            </div>
+            <div class="col"><label>Wiring Losses (%)</label><input type="number" id="s-i-wiringLoss" value="2" min="0" max="100"></div>
+        </div>
+
+        <h3 style="margin-top:15px;">🔋 Battery Storage</h3>
+        <div class="row">
+            <div class="col"><label>Battery Capacity (kWh)</label><input type="number" id="s-i-battKwh" value="21" step="any"></div>
+            <div class="col"><label>Depth of Discharge (%)</label><input type="number" id="s-i-dod" value="90" min="0" max="100"></div>
+        </div>
+        <div class="row">
+            <div class="col"><label>Daily Load Draw (kWh/day)</label><input type="number" id="s-i-dailyDraw" value="15" step="any"></div>
+            <div class="col"><label>Battery Autonomy</label><input type="text" id="s-i-autonomyDisplay" readonly style="background:#1a1e29;color:#74c0fc;cursor:default;"></div>
+        </div>
+
+        <h3 style="margin-top:15px;">🌤️ Season</h3>
+        <div class="solar-season-toggle">
+            <button class="solar-season-btn active" data-season="summer">☀️ Summer</button>
+            <button class="solar-season-btn" data-season="winter">❄️ Winter</button>
+        </div>
+
+        <h3 style="margin-top:15px;">☀️ Solar Parameters</h3>
+        <div class="row">
+            <div class="col"><label>Peak Sun Hours (PSH) — adjustable</label><input type="number" id="s-i-psp" value="5.8" step="any"></div>
+            <div class="col"><label>Elevation (ft)</label><input type="number" id="s-i-elevation" value="4500" min="0"></div>
+        </div>
+
+        <h3 style="margin-top:15px;">🔧 Custom Region Parameters</h3>
+        <div id="solar-custom-panel" style="display:none;">
+            <p style="font-size:0.8em;color:#aaa;margin-bottom:10px;">These parameters override the region presets when "Custom" is selected.</p>
+            <div class="row">
+                <div class="col"><label>Peak Sun Hours (PSH)</label><input type="number" id="s-i-psp-custom" value="5.0" step="any"></div>
+                <div class="col"><label>Temperature Penalty (%)</label><input type="number" id="s-i-tempPenalty" value="10" step="any"></div>
+            </div>
+            <div class="row">
+                <div class="col"><label>Soiling Condition</label><select id="s-i-soiling-custom">
+                    <option value="0">1: Perfectly Clean</option>
+                    <option value="2" selected>2: Some Dust (2% loss)</option>
+                    <option value="5">3: Moderate Dirt/Debris (5% loss)</option>
+                    <option value="10">4: Extreme Cover/Soiling (10% loss)</option>
+                </select></div>
+            </div>
+        </div>
+
+        <button class="btn btn-calc" id="solar-btn-calc" style="margin-top:15px;">Calculate Solar Yield</button>
+
+        <div class="solar-dashboard" id="solar-results" style="display:none;">
+            <div class="solar-kpi">
+                <div class="solar-kpi-label">Daily Yield</div>
+                <div class="solar-kpi-value" id="solar-daily">—</div>
+            </div>
+            <div class="solar-kpi">
+                <div class="solar-kpi-label">Monthly Yield</div>
+                <div class="solar-kpi-value" id="solar-monthly">—</div>
+            </div>
+            <div class="solar-kpi solar-kpi-full">
+                <div class="solar-kpi-label">Annual Yield</div>
+                <div class="solar-kpi-value highlight" id="solar-annual">—</div>
+            </div>
+
+            <div class="solar-kpi solar-kpi-full">
+                <div class="solar-kpi-label">System Efficiency</div>
+                <div class="solar-kpi-value" id="solar-sysEff">—</div>
+            </div>
+
+            <div class="solar-loss-bar-container solar-kpi-full">
+                <div class="solar-loss-bar-label">Loss Breakdown</div>
+                <div class="solar-loss-bar" id="solar-loss-bar">
+                    <div class="solar-loss-seg efficiency" style="width:0%"></div>
+                    <div class="solar-loss-seg heat" style="width:0%"></div>
+                    <div class="solar-loss-seg inverter" style="width:0%"></div>
+                    <div class="solar-loss-seg wiring" style="width:0%"></div>
+                    <div class="solar-loss-seg soiling" style="width:0%"></div>
+                </div>
+                <div class="solar-legend">
+                    <span class="solar-legend-item"><span class="solar-legend-dot eff"></span>System Eff</span>
+                    <span class="solar-legend-item"><span class="solar-legend-dot heat-l"></span>Heat Loss</span>
+                    <span class="solar-legend-item"><span class="solar-legend-dot inv-l"></span>Inverter</span>
+                    <span class="solar-legend-item"><span class="solar-legend-dot wire-l"></span>Wiring</span>
+                    <span class="solar-legend-item"><span class="solar-legend-dot soil-l"></span>Soiling</span>
+                </div>
+            </div>
+
+            <div class="solar-kpi-full">
+                <div class="solar-loss-bar-label" style="margin-bottom:8px;">Loss Details</div>
+                <div class="solar-loss-detail">Panel Array: <span id="solar-arrayW">—</span></div>
+                <div class="solar-loss-detail">Raw Energy (PSH): <span id="solar-rawEnergy">—</span></div>
+                <div class="solar-loss-detail">Thermal Derate (Temp): <span id="solar-tempLoss">—</span></div>
+                <div class="solar-loss-detail">Inverter Loss: <span id="solar-invLoss">—</span></div>
+                <div class="solar-loss-detail">Soiling Loss: <span id="solar-soilLoss">—</span></div>
+                <div class="solar-loss-detail">Wiring Loss: <span id="solar-wireLoss">—</span></div>
+                <div class="solar-loss-detail" style="color:#4caf50;">Elevation Bonus: <span id="solar-elevBonus">—</span></div>
+            </div>
+
+            <div class="solar-kpi">
+                <div class="solar-kpi-label">Battery Runtime</div>
+                <div class="solar-kpi-value" id="solar-battRuntime">—</div>
+            </div>
+            <div class="solar-kpi">
+                <div class="solar-kpi-label">Load Coverage</div>
+                <div class="solar-kpi-value" id="solar-coverage">—</div>
+            </div>
+
+            <div class="solar-kpi solar-kpi-full">
+                <div class="solar-loss-bar-label" style="margin-bottom:8px;">Battery Autonomy Visual</div>
+                <div class="solar-battery-bar-container" style="margin-top:0;padding:8px 14px;">
+                    <div class="solar-battery-visual">
+                        <div class="solar-battery-fill" id="solar-battFill" style="width:0%"></div>
+                        <div class="solar-battery-text" id="solar-battText">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="solar-kpi-full">
+                <div class="solar-loss-bar-label" style="margin-bottom:8px;">Season Comparison</div>
+                <table class="solar-compare-table">
+                    <thead><tr><th>Metric</th><th>☀️ Summer</th><th>❄️ Winter</th></tr></thead>
+                    <tbody id="solar-compare-body">
+                        <tr><td>Daily Yield (kWh)</td><td id="cmp-summer-daily">—</td><td id="cmp-winter-daily">—</td></tr>
+                        <tr><td>Monthly Yield (kWh)</td><td id="cmp-summer-monthly">—</td><td id="cmp-winter-monthly">—</td></tr>
+                        <tr><td>Annual Yield (kWh)</td><td id="cmp-summer-annual">—</td><td id="cmp-winter-annual">—</td></tr>
+                        <tr><td>System Efficiency (%)</td><td id="cmp-summer-eff">—</td><td id="cmp-winter-eff">—</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="solar-error" style="color:#ff6b6b;font-size:0.9em;margin-top:10px;"></div>
     </div>
 
     <!-- A-CALC -->
@@ -162,6 +413,7 @@
             <button class="calc-nav-btn" data-view="tcalc">T</button>
             <button class="calc-nav-btn" data-view="pcalc">P</button>
             <button class="calc-nav-btn" data-view="bcalc">B</button>
+            <button class="calc-nav-btn" data-view="solar">PV</button>
             <button class="calc-nav-btn" data-view="magic8ball">?</button>
         </nav>
         <h2>A-CALC v1.6</h2>
@@ -220,6 +472,7 @@
             <button class="calc-nav-btn active" data-view="tcalc">T</button>
             <button class="calc-nav-btn" data-view="pcalc">P</button>
             <button class="calc-nav-btn" data-view="bcalc">B</button>
+            <button class="calc-nav-btn" data-view="solar">PV</button>
             <button class="calc-nav-btn" data-view="magic8ball">?</button>
         </nav>
         <h2>T-CALC v1.6</h2>
@@ -257,6 +510,7 @@
             <button class="calc-nav-btn" data-view="tcalc">T</button>
             <button class="calc-nav-btn" data-view="pcalc">P</button>
             <button class="calc-nav-btn" data-view="bcalc">B</button>
+            <button class="calc-nav-btn" data-view="solar">PV</button>
             <button class="calc-nav-btn" data-view="magic8ball">?</button>
         </nav>
         <h2>S-CALC v1.6</h2>
@@ -338,6 +592,7 @@
             <button class="calc-nav-btn" data-view="tcalc">T</button>
             <button class="calc-nav-btn" data-view="pcalc">P</button>
             <button class="calc-nav-btn" data-view="bcalc">B</button>
+            <button class="calc-nav-btn" data-view="solar">PV</button>
             <button class="calc-nav-btn" data-view="magic8ball">?</button>
         </nav>
         <h2>W-CALC v1.6</h2>
@@ -465,6 +720,7 @@
             <button class="calc-nav-btn" data-view="tcalc">T</button>
             <button class="calc-nav-btn active" data-view="pcalc">P</button>
             <button class="calc-nav-btn" data-view="bcalc">B</button>
+            <button class="calc-nav-btn" data-view="solar">PV</button>
             <button class="calc-nav-btn" data-view="magic8ball">?</button>
         </nav>
         <h2>P-CALC v1.6</h2>
@@ -540,9 +796,9 @@
             <div class="col"><label>Calcium Hardness (ppm)</label><input type="number" id="p-i-ch" placeholder="e.g. 300" value="300"></div>
             <div class="col"><label>Salt (ppm)</label><input type="number" id="p-i-salt" placeholder="e.g. 3200" value="3200"></div>
         </div>
-        <div class="row">
-            <div class="col"><label>Temperature (°F)</label><input type="number" id="p-i-temp" placeholder="e.g. 84" value="84" inputmode="decimal"></div>
-        </div>
+            <div class="row">
+                <div class="col"><label>Temperature Penalty (%)</label><input type="number" id="s-i-tempPenalty" value="10" step="any"></div>
+            </div>
         <button class="btn btn-calc" id="p-btn-tacorr">Check Alkalinity</button>
         <div class="result-box" id="p-d-tacorr">Enter TA & pH</div>
         <div class="result-box" id="p-d-tacorr-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
@@ -576,6 +832,7 @@
             <button class="calc-nav-btn" data-view="tcalc">T</button>
             <button class="calc-nav-btn" data-view="pcalc">P</button>
             <button class="calc-nav-btn" data-view="bcalc">B</button>
+            <button class="calc-nav-btn" data-view="solar">PV</button>
             <button class="calc-nav-btn active" data-view="magic8ball">?</button>
         </nav>
         <div class="eightball-container">
@@ -855,9 +1112,11 @@ var _bResult = null;
 // ---- G7 Reference Drag Coefficients (Cd) at reference velocities (fps) ----
 var _G7V = [1000, 2000, 3000, 4000, 5000, 6000];
 var _G7Cd = [0.1214, 0.1085, 0.1039, 0.09598, 0.08246, 0.06315];
+var _G7_REF_CD = 0.091; // IAU G7 reference Cd at Mach ~2.5
 // ---- G1 Reference Drag Coefficients (Cd) at reference velocities (fps) ----
 var _G1V = [2000, 3000, 4000, 5000, 6000];
 var _G1Cd = [0.284, 0.269, 0.257, 0.236, 0.184];
+var _G1_REF_CD = 0.269; // IAU G1 reference Cd at Mach ~3
 
 function _interp(xv, xv0, xv1, yv0, yv1) {
     var t = (xv - xv0) / (xv1 - xv0);
@@ -878,12 +1137,16 @@ function _cdAtVel(vel, bcModel) {
     return cTab[cTab.length - 1];
 }
 
-function _decel(vel, bc, bcModel, dRatio) {
-    // Standard external ballistics: a = 0.5 × ρ × v² × i
-    // where form factor i = Cd_ref(vel) / BC
-    if (bc <= 0 || vel < 1) return 0;
-    var cdRef = _cdAtVel(vel, bcModel);
-    return 0.5 * vel * vel * (cdRef / bc) * 0.002378 * (dRatio || 1.0);
+function _decel(vel, wt_grains, dia_in, bcVal, bcModel, dRatio) {
+    if (wt_grains <= 0 || vel < 1) return 0;
+    var rho = 0.002378 * (dRatio || 1.0);
+    var cd = _cdAtVel(vel, bcModel);
+    // Correct physics: a = 0.5 * rho_air * v² * Cd_actual * A / m_slugs
+    // With BC = SD/i where i = formFactor, Cd_actual = i * Cd_ref(v)
+    // Simplified: a = rho_air * v² * Cd_ref(v) / BC * K
+    // where K = pi*g/1152 ≈ 0.0879 (unit conversion from inches to ft)
+    var K = Math.PI * 32.174 / 1152;
+    return rho * vel * vel * cd / bcVal * K;
 }
 
 function bCalc_calc(){
@@ -904,8 +1167,8 @@ function bCalc_calc(){
     }
 
     var cVel = vel * Math.sqrt(1 / ratio);
-    var actualFpe = (wt * vel * vel) / 450436;
-    var slEquivFpe = (wt * cVel * cVel) / 450436;
+    var actualFpe = (wt * vel * vel) / 450400;
+    var slEquivFpe = (wt * cVel * cVel) / 450400;
 
     var sightHtIn = parseFloat(gs('b-i-sightht')); if (isNaN(sightHtIn) || sightHtIn <= 0) sightHtIn = 1.75;
     var zeroYards = parseFloat(gs('b-i-zero')); if (isNaN(zeroYards) || zeroYards < 0) zeroYards = 0;
@@ -932,7 +1195,7 @@ gbyId('b-btn-copy').onclick = function() {
 
     var bc = parseFloat(gs('b-i-bc')); if (isNaN(bc)) bc = 0.2;
     var bcModel = res.bcModel || 'g7';
-    var text = 'B-CALC v1.6\nWeight: ' + res.wt.toFixed(2) + 'gr\nVel: ' + res.actualVel.toFixed(0) + 'fps (Actual)\nBC: ' + bc + ' (' + (bcModel==='g7'?'G7':'G1') + ')\n\n--- Energy ---\nActual: ' + res.actualFpe.toFixed(2) + ' ft-lbs\nSL Equiv: ' + res.slEquivFpe.toFixed(2) + ' ft-lbs\nSL Equiv Vel: ' + res.slEquivVel.toFixed(0) + ' fps';
+    var text = 'B-CALC v1.7\nWeight: ' + res.wt.toFixed(2) + 'gr\nVel: ' + res.actualVel.toFixed(0) + 'fps (Actual)\nBC: ' + bc + ' (' + (bcModel==='g7'?'G7':'G1') + ')\n\n--- Energy ---\nActual: ' + res.actualFpe.toFixed(2) + ' ft-lbs\nSL Equiv: ' + res.slEquivFpe.toFixed(2) + ' ft-lbs\nSL Equiv Vel: ' + res.slEquivVel.toFixed(0) + ' fps';
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
 
@@ -955,7 +1218,8 @@ gbyId('b-btn-go').onclick = function() {
     var curVx = data.actualVel;
     var cumT = 0;
     for (var i = 1; i <= maxDistFt; i++) {
-        var decelAtI = _decel(curVx, bcVal, bcModel, data.atmoRatio);
+        var dia_in = parseFloat(gs('b-i-dia')); if (isNaN(dia_in) || dia_in <= 0) dia_in = 0.224;
+        var decelAtI = _decel(curVx, data.wt, dia_in, bcVal, bcModel, data.atmoRatio);
         var vxAfter = curVx - decelAtI / curVx;
         var vxAvg = (curVx + Math.max(vxAfter, 0.001)) / 2;
         var dt = 1.0 / vxAvg;
@@ -1033,10 +1297,10 @@ gbyId('b-btn-go').onclick = function() {
             var t3 = _cumT(d3);
             var yBullet3 = v0y * t3 - 0.5 * g * t3 * t3;
             var dropToLOS = yBullet3 - sightHtFt;
-            var fpeAtY = (data.wt * velAtDist * velAtDist) / 450436;
+            var fpeAtY = (data.wt * velAtDist * velAtDist) / 450400;
 
             var dropStr = dropFmt(dropToLOS);
-            if (firstCrossYards > 0 && y3 === Math.round(firstCrossYards)) { dropStr += ' ▲Near Zero'; }
+            if (firstCrossYards > 0 && Math.abs(y3 - firstCrossYards) < step / 2) { dropStr += ' ▲Near Zero'; }
             if (y3 === Math.round(zeroYardsActual)) { dropStr += ' ★ZERO'; }
             else if (secondCrossYards > 0 && Math.abs(y3 - secondCrossYards) < step / 2 && y3 !== Math.round(zeroYardsActual)) { dropStr += ' ▼Far Zero'; }
 
@@ -1054,10 +1318,20 @@ gbyId('b-btn-go').onclick = function() {
             var nzD = firstCrossYards * 3;
             var nzT = _cumT(nzD);
             var nzVel = Math.max(vxPts[Math.min(Math.round(nzD), vxPts.length - 1)].vx, 0);
-            var nzFpe = (data.wt * nzVel * nzVel) / 450436;
+            var nzFpe = (data.wt * nzVel * nzVel) / 450400;
             html2 += '<tr style="background:#1a3a1a;"><td>~' + firstCrossYards.toFixed(0) + 'y ▲</td>';
             html2 += '<td>' + nzFpe.toFixed(1) + '</td><td>±0" Near Zero</td>';
             html2 += '<td>' + nzVel.toFixed(0) + ' fps</td><td>' + tofFmt(nzT) + '</td></tr>';
+        }
+
+        if (secondCrossYards > 0) {
+            var szD = secondCrossYards * 3;
+            var szT = _cumT(szD);
+            var szVel = Math.max(vxPts[Math.min(Math.round(szD), vxPts.length - 1)].vx, 0);
+            var szFpe = (data.wt * szVel * szVel) / 450400;
+            html2 += '<tr style="background:#1a3a1a;"><td>~' + secondCrossYards.toFixed(0) + 'y ▼</td>';
+            html2 += '<td>' + szFpe.toFixed(1) + '</td><td>±0" Far Zero</td>';
+            html2 += '<td>' + szVel.toFixed(0) + ' fps</td><td>' + tofFmt(szT) + '</td></tr>';
         }
 
         html2 += '</tbody></table>';
@@ -1105,7 +1379,7 @@ gbyId('b-btn-go').onclick = function() {
             var velAtDist = Math.max(vxPts[d4].vx, 0);
             var t4 = _cumT(d4);
             var dropInches = 0.5 * g * t4 * t4;
-            var fpeAtY = (data.wt * velAtDist * velAtDist) / 450436;
+            var fpeAtY = (data.wt * velAtDist * velAtDist) / 450400;
             html3 += '<tr><td>' + y4 + 'y</td>';
             html3 += '<td>' + fpeAtY.toFixed(1) + '</td>';
             html3 += '<td>' + dropInches.toFixed(dropInches < 1 ? 2 : 1) + '"</td>';
@@ -1119,6 +1393,389 @@ gbyId('b-btn-go').onclick = function() {
 };
 
 })(); // end B-CALC IIFE
+
+// =========================================
+// === PV-CALC: Solar Yield Calculator     ===
+// =========================================
+
+;(function() {
+
+var regionPresets = {
+    sw:         { psh: 6.0, tempPenalty: 18, soilingPct: 3, desc: 'SW (Phoenix)', elevation: 1086 },
+    saintdavid: { psh: 5.8, tempPenalty: 10, soilingPct: 5, desc: 'Saint David Special (SE AZ)', elevation: 4500 },
+    se:         { psh: 5.8, tempPenalty: 16, soilingPct: 5, desc: 'Tucson (SE AZ)', elevation: 2400 },
+    midwest:{ psh: 4.5, tempPenalty: 6,  soilingPct: 4, desc: 'Midwest/NE (Omaha)', elevation: 1000 },
+    pnw:    { psh: 3.8, tempPenalty: 2,  soilingPct: 5, desc: 'PNW (Portland)', elevation: 200 },
+    custom: { psh: 5.0, tempPenalty: 10, soilingPct: 3, desc: 'Custom', elevation: 4500 }
+};
+
+var seasonFactors = {
+    summer: { pshMult: 1.0, tempAddC: 5, loadWatts: 200 },
+    winter: { pshMult: 0.65, tempAddC: -10, loadWatts: 350 }
+};
+
+var mountPenalties = { roof: 4, ground: 0, carport: 2 };
+
+var activeRegion = 'saintdavid';
+var activeSeason = 'summer';
+var tempUnit = 'F'; // default to Fahrenheit
+
+function fToC(f) { return (f - 32) * 5 / 9; }
+
+function solarCalc() {
+    var errEl = gbyId('solar-error');
+    if (errEl) errEl.innerHTML = '';
+
+    var panelW = parseFloat(gs('s-i-panelW'));
+    var qty = parseInt(gs('s-i-qty'));
+    var tempCoeff = parseFloat(gs('s-i-tempCoeff'));
+    var inverterEff = parseFloat(gs('s-i-inverterEff'));
+    var mount = gs('s-i-mount');
+    var tilt = parseFloat(gs('s-i-tilt')) || 30; // degrees from horizontal, default 30°
+    var ambientTemp = parseFloat(gs('s-i-ambientTemp'));
+
+    // Convert F to C if needed
+    if (tempUnit === 'F') {
+        ambientTemp = fToC(ambientTemp);
+    }
+
+    var wiringLoss = parseFloat(gs('s-i-wiringLoss'));
+    var battKwh = parseFloat(gs('s-i-battKwh'));
+    var dod = parseFloat(gs('s-i-dod'));
+    var elevation = parseFloat(gs('s-i-elevation')) || 0;
+    var dailyDrawKwh = parseFloat(gs('s-i-dailyDraw')) || 5.0;
+    var soilingOverride = gbyId('s-i-soiling').value;
+
+    if (isNaN(panelW) || isNaN(qty) || isNaN(tempCoeff) || isNaN(inverterEff) ||
+        isNaN(ambientTemp) || isNaN(wiringLoss) || isNaN(battKwh) || isNaN(dod)) {
+        if (errEl) errEl.innerHTML = '⚠️ Please fill in all fields.';
+        return null;
+    }
+
+    if (panelW <= 0 || qty <= 0) {
+        if (errEl) errEl.innerHTML = '⚠️ Panel wattage and quantity must be positive.';
+        return null;
+    }
+    if (inverterEff <= 0 || inverterEff > 100) {
+        if (errEl) errEl.innerHTML = '⚠️ Inverter efficiency must be between 0 and 100%.';
+        return null;
+    }
+    if (dod <= 0 || dod > 100) {
+        if (errEl) errEl.innerHTML = '⚠️ Depth of Discharge must be between 0 and 100%.';
+        return null;
+    }
+
+    var preset = regionPresets[activeRegion];
+    var season = seasonFactors[activeSeason];
+
+    var psh, tempPenaltyPct, soilingPct;
+    if (activeRegion === 'custom') {
+        psh = parseFloat(gs('s-i-psp-custom')) || 5.0;
+        tempPenaltyPct = parseFloat(gs('s-i-tempPenalty')) || 10;
+        soilingPct = gs('s-i-soiling-custom') ? parseFloat(gs('s-i-soiling-custom').value) : 3;
+    } else {
+        psh = parseFloat(gs('s-i-psp')) || preset.psh;
+        tempPenaltyPct = preset.tempPenalty + (season.tempAddC > 0 ? season.tempAddC * 0.5 : Math.abs(season.tempAddC) * 0.3);
+        soilingPct = soilingOverride ? parseFloat(soilingOverride) : preset.soilingPct;
+    }
+
+    var arrayW = panelW * qty;
+
+    // Tilt PSH factor: optimal tilt ≈ 30° for mid-latitudes, 90° = vertical wall
+    var tiltDeviation = Math.abs(tilt - 30);
+    var tiltPshFactor = Math.max(0.75, 1 - (tiltDeviation / 90) * 0.25);
+
+    // Elevation bonus — thinner air = better panel cooling & more irradiance
+    function elevationMult(ft) {
+        if (ft <= 1000) return 1.00;
+        if (ft <= 3000) return 1.01;
+        if (ft <= 5000) return 1.03;
+        if (ft <= 7000) return 1.05;
+        return 1.07; // 7k–10k+ ft
+    }
+    var elevMult = elevationMult(preset.elevation);
+
+    // Raw energy from PSH adjusted for tilt
+    var rawEnergy = arrayW * psh / 1000 * tiltPshFactor; // kWh
+
+    // Thermal derate — tilt affects convective cooling: vertical panels run cooler
+    var tiltCooling = (tilt - 30) / 90 * 2; // +2°C at 90° tilt (cooler), -2°C at 0°
+    var panelTemp = ambientTemp + tempPenaltyPct / 100 * (ambientTemp - 25) + mountPenalties[mount] / 10 - tiltCooling;
+    var tempDelta = panelTemp - 25; // °C above STC
+    var tempLossPct = Math.max(0, -tempDelta * (tempCoeff || -0.35));
+    var thermalAdj = rawEnergy * (1 - tempLossPct / 100);
+
+    // Inverter loss
+    var inverterFactor = inverterEff / 100;
+    var acYield = thermalAdj * inverterFactor;
+
+    // Soiling loss
+    var soilingLossPct = soilingPct / 100;
+    acYield *= (1 - soilingLossPct);
+
+    // Wiring loss
+    var wiringFactor = 1 - (wiringLoss / 100);
+    acYield *= wiringFactor;
+
+    // Elevation bonus
+    acYield *= elevMult;
+
+    // Final daily yield (for currently selected season, WITH elevation bonus)
+    var dailyYield = Math.max(0, acYield);
+
+    // System efficiency: current-season yield vs raw energy (matches loss breakdown)
+    var sysEff = arrayW > 0 ? (dailyYield / rawEnergy * 100) : 0;
+
+    // Monthly/annual based on current season
+    var monthlyYield = dailyYield * 30;
+    var annualYield = dailyYield * 365;
+
+    // Compute other season for comparison display
+    var otherSeason = activeSeason === 'summer' ? seasonFactors.winter : seasonFactors.summer;
+    var otherDailyYield = dailyYield * otherSeason.pshMult;
+
+    // Battery runtime & autonomy based on user's daily draw
+    var usableBattKwh = battKwh * (dod / 100);
+    var dailyDrawWatts = dailyDrawKwh * 1000; // convert kWh to Wh
+    var avgDrawWatts = dailyDrawWatts / 24; // average continuous draw
+    var battRuntimeHours = avgDrawWatts > 0 ? (usableBattKwh * 1000 / avgDrawWatts) : 0;
+    var autonomyDays = dailyDrawKwh > 0 ? (usableBattKwh / dailyDrawKwh) : 0;
+    var coveragePct = dailyYield > 0 ? Math.min(100, (dailyYield / dailyDrawKwh) * 100) : 0;
+
+    // Update autonomy display
+    if (gbyId('s-i-autonomyDisplay')) {
+        gbyId('s-i-autonomyDisplay').value = autonomyDays.toFixed(1) + ' days';
+    }
+
+    // Render results
+    gbyId('solar-results').style.display = 'grid';
+
+    gbyId('solar-daily').textContent = dailyYield.toFixed(2) + ' kWh';
+    gbyId('solar-monthly').textContent = monthlyYield.toFixed(2) + ' kWh';
+    gbyId('solar-annual').textContent = annualYield.toFixed(2) + ' kWh';
+    gbyId('solar-sysEff').textContent = sysEff.toFixed(1) + '%';
+
+    // Loss bar
+    var heatPct = tempLossPct;
+    var invPct = (1 - inverterFactor) * 100;
+    var wirePct = wiringLoss;
+    var soilPct = soilingPct;
+    var effPct = Math.max(0, 100 - heatPct - invPct - wirePct - soilPct);
+    var totalPct = heatPct + invPct + wirePct + soilPct;
+    if (totalPct <= 0) totalPct = 1;
+
+    var bars = gbyId('solar-loss-bar').children;
+    for (var i = 0; i < bars.length; i++) {
+        var pct = [effPct, heatPct, invPct, wirePct, soilPct][i];
+        bars[i].style.width = pct + '%';
+    }
+
+    // Loss details
+    gbyId('solar-arrayW').textContent = arrayW.toFixed(0) + ' W';
+    gbyId('solar-rawEnergy').textContent = rawEnergy.toFixed(2) + ' kWh';
+    gbyId('solar-tempLoss').textContent = tempLossPct.toFixed(2) + '%';
+    gbyId('solar-invLoss').textContent = invPct.toFixed(2) + '%';
+    gbyId('solar-soilLoss').textContent = soilPct.toFixed(2) + '%';
+    gbyId('solar-wireLoss').textContent = wirePct.toFixed(2) + '%';
+    gbyId('solar-elevBonus').textContent = '+' + ((elevMult - 1) * 100).toFixed(2) + '%';
+
+    // Battery
+    gbyId('solar-battRuntime').textContent = battRuntimeHours.toFixed(1) + ' hrs';
+    gbyId('solar-coverage').textContent = coveragePct.toFixed(0) + '%';
+    gbyId('solar-battFill').style.width = Math.min(100, autonomyDays * 25) + '%';
+    gbyId('solar-battText').textContent = autonomyDays.toFixed(1) + ' days autonomy';
+
+    // Season comparison — calculate both
+    var cmpRows = [
+        ['cmp-summer-daily', 'cmp-winter-daily'],
+        ['cmp-summer-monthly', 'cmp-winter-monthly'],
+        ['cmp-summer-annual', 'cmp-winter-annual'],
+        ['cmp-summer-eff', 'cmp-winter-eff']
+    ];
+
+    var seasons = ['summer', 'winter'];
+    var resultsMap = {};
+    for (var s = 0; s < seasons.length; s++) {
+        var se = seasonFactors[seasons[s]];
+        var sp = activeRegion === 'custom' ? regionPresets.custom : regionPresets[activeRegion];
+        var spsh = sp.psh * se.pshMult;
+
+        // Tilt PSH factor — same as main calc
+        var tiltDeviation = Math.abs(tilt - 30);
+        var tiltPshFactor = Math.max(0.75, 1 - (tiltDeviation / 90) * 0.25);
+        var tiltCooling = (tilt - 30) / 90 * 2;
+
+        var spshAdj = spsh * tiltPshFactor;
+        var sTempPen = sp.tempPenalty + (se.tempAddC > 0 ? se.tempAddC * 0.5 : Math.abs(se.tempAddC) * 0.3);
+        var sSoiling = soilingOverride ? parseFloat(soilingOverride) : (activeRegion === 'custom' && gs('s-i-soiling-custom') ? parseFloat(gs('s-i-soiling-custom').value) : sp.soilingPct);
+
+        var sRaw = arrayW * spshAdj / 1000;
+        var sPanelTemp = ambientTemp + sTempPen / 100 * (ambientTemp - 25) + mountPenalties[mount] / 10 - tiltCooling;
+        var sTempDelta = sPanelTemp - 25;
+        var sTempLossPct = Math.max(0, -sTempDelta * (tempCoeff || -0.35));
+        var sThermal = sRaw * (1 - sTempLossPct / 100);
+        var sInvFac = inverterEff / 100;
+        var sAC = sThermal * sInvFac;
+        sAC *= (1 - sSoiling / 100);
+        sAC *= (1 - wiringLoss / 100);
+        sAC *= elevationMult(sp.elevation);
+
+        resultsMap[seasons[s]] = {
+            daily: Math.max(0, sAC),
+            monthly: Math.max(0, sAC) * 30,
+            annual: Math.max(0, sAC) * 365,
+            eff: arrayW > 0 ? (Math.max(0, sAC) / sRaw * 100) : 0
+        };
+    }
+
+    gbyId('cmp-summer-daily').textContent = resultsMap.summer.daily.toFixed(2) + ' kWh';
+    gbyId('cmp-winter-daily').textContent = resultsMap.winter.daily.toFixed(2) + ' kWh';
+    gbyId('cmp-summer-monthly').textContent = resultsMap.summer.monthly.toFixed(2) + ' kWh';
+    gbyId('cmp-winter-monthly').textContent = resultsMap.winter.monthly.toFixed(2) + ' kWh';
+    gbyId('cmp-summer-annual').textContent = resultsMap.summer.annual.toFixed(2) + ' kWh';
+    gbyId('cmp-winter-annual').textContent = resultsMap.winter.annual.toFixed(2) + ' kWh';
+    gbyId('cmp-summer-eff').textContent = resultsMap.summer.eff.toFixed(1) + '%';
+    gbyId('cmp-winter-eff').textContent = resultsMap.winter.eff.toFixed(1) + '%';
+
+    return { daily: dailyYield, monthly: monthlyYield, annual: annualYield };
+}
+
+// Region details map
+var regionDetails = {
+    sw:         'Southwest — Hot, dry desert climate. High PSH (6.0) but significant heat derate.',
+    saintdavid: 'Saint David Special — High elevation desert (4500ft+), moderate temp penalty due to altitude.',
+    se:         'Tucson — Hot desert climate with significant heat derate at lower elevation.',
+    midwest:    'Midwest/Nebraska — Moderate PSH, mild temps, seasonal variation.',
+    pnw:        'Pacific Northwest — Low PSH due to cloud cover, mild temps, moderate soiling.',
+    custom:     'Custom — All parameters (PSH, temp penalty, soiling) are user-defined.'
+};
+
+// Region dropdown handler
+var regionSelect = gbyId('s-i-region');
+var customPanel = gbyId('solar-custom-panel');
+var regionDetailsEl = gbyId('solar-region-details');
+var regionInfoEl = gbyId('solar-region-info');
+
+regionSelect.onchange = function() {
+    activeRegion = this.value;
+
+    // Show/hide custom panel and populate main PSH input
+    if (activeRegion === 'custom') {
+        customPanel.style.display = 'block';
+    } else {
+        customPanel.style.display = 'none';
+        var pshInput = gbyId('s-i-psp');
+        if (pshInput) pshInput.value = regionPresets[activeRegion].psh;
+    }
+
+    // Show region details
+    if (regionDetailsEl && regionInfoEl) {
+        regionInfoEl.innerHTML = '<div style="padding:6px 0;border-bottom:1px solid #333;"><strong>' + regionPresets[activeRegion].desc.split('—')[0] + '</strong></div>' +
+            '<div style="padding:4px 0;">Peak Sun Hours: <span style="color:#a5d6ff;font-weight:bold;">' + regionPresets[activeRegion].psh.toFixed(1) + 'h</span></div>' +
+            '<div style="padding:4px 0;">Temperature Penalty: <span style="color:#a5d6ff;font-weight:bold;">' + regionPresets[activeRegion].tempPenalty.toFixed(0) + '%</span></div>' +
+            '<div style="padding:4px 0;">Soiling Loss: <span style="color:#a5d6ff;font-weight:bold;">' + regionPresets[activeRegion].soilingPct.toFixed(0) + '%</span></div>' +
+            '<div style="padding:6px 0;margin-top:4px;font-style:italic;color:#888;">' + (regionDetails[activeRegion] || '') + '</div>';
+        regionDetailsEl.open = true;
+    }
+};
+
+// Trigger initial state
+regionSelect.onchange();
+
+gbyId('solar-btn-calc').onclick = solarCalc;
+
+// Auto-recalculate when soiling, daily draw, or PSH changes (with null safety)
+(function() {
+    var soilingEl = gbyId('s-i-soiling');
+    var customSoilEl = gbyId('s-i-soiling-custom');
+    var dailyDrawEl = gbyId('s-i-dailyDraw');
+    var pshEl = gbyId('s-i-psp');
+    if (soilingEl) soilingEl.onchange = function() { try { solarCalc(); } catch(e) {} };
+    if (customSoilEl) customSoilEl.onchange = function() { try { solarCalc(); } catch(e) {} };
+    if (dailyDrawEl) { dailyDrawEl.oninput = function() { try { solarCalc(); } catch(e) {} };
+                      dailyDrawEl.onchange = function() { try { solarCalc(); } catch(e) {} }; }
+    if (pshEl) { pshEl.oninput = function() { try { solarCalc(); } catch(e) {} };
+                pshEl.onchange = function() { try { solarCalc(); } catch(e) {} }; }
+})();
+
+// Season toggle & temp unit toggle logic — isolated to solar section only
+(function() {
+    var solarSection = gbyId('view-solar');
+    if (!solarSection) return;
+
+    solarSection.addEventListener('click', function(e) {
+        if (e.target.id === 'solar-unit-toggle') {
+            // Temperature unit toggle
+            if (tempUnit === 'F') {
+                tempUnit = 'C';
+                var btn = gbyId('solar-unit-toggle');
+                if (btn) btn.textContent = '°C';
+                // Convert current value from F to C
+                var valF = parseFloat(gs('s-i-ambientTemp'));
+                if (!isNaN(valF)) {
+                    var inp = gbyId('s-i-ambientTemp');
+                    if (inp) inp.value = fToC(valF).toFixed(1);
+                }
+            } else {
+                tempUnit = 'F';
+                var btn2 = gbyId('solar-unit-toggle');
+                if (btn2) btn2.textContent = '°F';
+                // Convert current value from C to F
+                var valC = parseFloat(gs('s-i-ambientTemp'));
+                if (!isNaN(valC)) {
+                    var inp2 = gbyId('s-i-ambientTemp');
+                    if (inp2) inp2.value = (valC * 9 / 5 + 32).toFixed(1);
+                }
+            }
+            return;
+        }
+
+        if (e.target.classList.contains('solar-season-btn')) {
+            var btns = solarSection.querySelectorAll('.solar-season-btn');
+            for (var i = 0; i < btns.length; i++) {
+                if (btns[i].id !== 'solar-unit-toggle') btns[i].classList.remove('active');
+            }
+            e.target.classList.add('active');
+            var newSeason = e.target.getAttribute('data-season');
+
+            // Update PSH input bidirectionally
+            var pspEl = gbyId('s-i-psp');
+            if (pspEl && activeRegion !== 'custom') {
+                var currentPsh = parseFloat(pspEl.value);
+                if (!isNaN(currentPsh) && currentPsh > 0) {
+                    if (newSeason === 'winter') {
+                        pspEl.value = (currentPsh * seasonFactors.winter.pshMult).toFixed(2);
+                    } else {
+                        pspEl.value = (currentPsh / seasonFactors.winter.pshMult).toFixed(2);
+                    }
+                }
+            }
+
+            activeSeason = newSeason;
+        }
+    }, false); // bubble phase — standard event delegation, won't interfere with other calculators
+
+})();
+
+gbyId('solar-btn-copy').onclick = function() {
+    var res = solarCalc();
+    if (!res) return;
+
+    var text = 'PV-CALC v1.6 — Solar Yield Report\n' +
+        'Region: ' + (activeRegion === 'custom' ? 'Custom' : regionPresets[activeRegion].desc) + '\n' +
+        'Season: ' + activeSeason.toUpperCase() + '\n\n' +
+        'Daily Yield: ' + res.daily.toFixed(2) + ' kWh\n' +
+        'Monthly Yield: ' + res.monthly.toFixed(2) + ' kWh\n' +
+        'Annual Yield: ' + res.annual.toFixed(2) + ' kWh\n' +
+        '\nCopy to clipboard!';
+
+    navigator.clipboard.writeText(text).then(function() {
+        showToast('PV report copied!');
+    });
+};
+
+})(); // end PV-CALC IIFE
+
 
 // =========================================
 // === A-CALC: Grammar-Faithful Parser     ===
@@ -4508,9 +5165,9 @@ gbyId('p-btn-alerts').onclick = function() {
 })();
 
 // === INIT: Trigger tire calc on load (no input value writes) ===
-window.onload = function() {
+window.addEventListener('load', function() {
     gbyId('t-btn-calc').click();
-};
+});
 
 </script>
 </body>
