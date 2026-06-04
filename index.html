@@ -1808,13 +1808,65 @@ gbyId('solar-btn-copy').onclick = function() {
     var res = solarCalc();
     if (!res) return;
 
+    function gv(id) { var el = gbyId(id); return el ? (el.value || el.textContent || '') : ''; }
+
+    var region = activeRegion === 'custom' ? 'Custom' : regionPresets[activeRegion].desc;
+    var mount = gv('s-i-mount');
+    var tilt = gv('s-i-tilt') + '°';
+    var ambient = gv('s-i-ambientTemp');
+    if (tempUnit === 'F') ambient += ' °F'; else ambient = parseFloat(ambient).toFixed(1) + ' °C';
+    var regionStr = activeRegion === 'custom' ? gv('s-i-psp-custom') + ' PSH, Temp Penalty: ' + gv('s-i-tempPenalty') + '%' : region;
+    var soiling = gv('s-i-soiling');
+    if (!soiling) soiling = 'Default (region preset)';
+    else { var soilingOpts = document.getElementById('s-i-soiling').options; for(var i=0;i<soilingOpts.length;i++){if(soilingOpts[i].value===soiling){soiling=soilingOpts[i].text;break;}}}
+    var customSoil = gv('s-i-soiling-custom');
+    if (activeRegion === 'custom' && customSoil) { var csOpts = document.getElementById('s-i-soiling-custom').options; for(var j=0;j<csOpts.length;j++){if(csOpts[j].value===customSoil){customSoil=csOpts[j].text;break;}}}
+
     var text = 'PV-CALC v1.0 — Solar Yield Report\n' +
-        'Region: ' + (activeRegion === 'custom' ? 'Custom' : regionPresets[activeRegion].desc) + '\n' +
+        '═══════════════════════════════════════\n\n' +
+        '── INPUTS ──\n' +
+        'Region: ' + regionStr + '\n' +
         'Season: ' + activeSeason.toUpperCase() + '\n\n' +
+        'Hardware:\n' +
+        '  Panel Wattage: ' + gv('s-i-panelW') + ' W\n' +
+        '  Panel Qty: ' + gv('s-i-qty') + '\n' +
+        '  Temp Coeff: ' + gv('s-i-tempCoeff') + '%/°C\n' +
+        '  Inverter Efficiency: ' + gv('s-i-inverterEff') + '%\n\n' +
+        'Installation:\n' +
+        '  Mounting: ' + mount + '\n' +
+        '  Tilt Angle: ' + tilt + '\n' +
+        '  Soiling Condition: ' + (activeRegion === 'custom' ? (customSoil || soiling) : soiling) + '\n' +
+        '  Ambient Temp: ' + ambient + '\n' +
+        '  Wiring Losses: ' + gv('s-i-wiringLoss') + '%\n' +
+        '  Elevation: ' + gv('s-i-elevation') + ' ft\n\n' +
+        'Battery:\n' +
+        '  Capacity: ' + gv('s-i-battKwh') + ' kWh\n' +
+        '  Depth of Discharge: ' + gv('s-i-dod') + '%\n' +
+        '  Daily Load Draw: ' + gv('s-i-dailyDraw') + ' kWh/day\n\n' +
+        '── RESULTS ──\n' +
         'Daily Yield: ' + res.daily.toFixed(2) + ' kWh\n' +
         'Monthly Yield: ' + res.monthly.toFixed(2) + ' kWh\n' +
         'Annual Yield: ' + res.annual.toFixed(2) + ' kWh\n' +
-        '\nCopy to clipboard!';
+        'System Efficiency: ' + gv('solar-sysEff') + '\n\n' +
+        '── LOSS BREAKDOWN ──\n' +
+        'Panel Array: ' + gv('solar-arrayW') + '\n' +
+        'Raw Energy (PSH): ' + gv('solar-rawEnergy') + '\n' +
+        'Thermal Derate: ' + gv('solar-tempLoss') + '\n' +
+        'Inverter Loss: ' + gv('solar-invLoss') + '\n' +
+        'Soiling Loss: ' + gv('solar-soilLoss') + '\n' +
+        'Wiring Loss: ' + gv('solar-wireLoss') + '\n' +
+        'Elevation Bonus: ' + gv('solar-elevBonus') + '\n\n' +
+        '── BATTERY ──\n' +
+        'Battery Runtime: ' + gv('solar-battRuntime') + '\n' +
+        'Load Coverage: ' + gv('solar-coverage') + '\n' +
+        'Autonomy: ' + gv('solar-battText') + '\n\n' +
+        '── SEASON COMPARISON ──\n' +
+        'Summer Daily: ' + gv('cmp-summer-daily') + '\n' +
+        'Winter Daily: ' + gv('cmp-winter-daily') + '\n' +
+        'Summer Monthly: ' + gv('cmp-summer-monthly') + '\n' +
+        'Winter Monthly: ' + gv('cmp-winter-monthly') + '\n' +
+        'Blended Annual: ' + gv('cmp-annual-blended') + '\n' +
+        '\n═══════════════════════════════════════';
 
     navigator.clipboard.writeText(text).then(function() {
         showToast('PV report copied!');
