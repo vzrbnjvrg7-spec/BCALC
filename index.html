@@ -64,6 +64,7 @@
 
         /* Calculator Navigation Bar */
         .calc-nav { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+        .calc-nav-row { display: flex; gap: 6px; justify-content: center; margin-bottom: 6px; width: 100%; }
         .calc-nav-btn { padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(116, 192, 252, 0.4); background: rgba(116, 192, 252, 0.1); color: #74c0fc; font-size: 0.8em; font-weight: 600; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; transition: all 0.15s ease; min-width: 48px; }
         .calc-nav-btn:hover, .calc-nav-btn.active { background: rgba(116, 192, 252, 0.25); color: #fff; }
         .calc-nav-btn:active { transform: scale(0.95); }
@@ -164,14 +165,18 @@
     <!-- B-CALC -->
     <div id="view-bcalc" class="view active">
         <nav class="calc-nav">
-            <button class="calc-nav-btn" data-view="scalc">S</button>
-            <button class="calc-nav-btn" data-view="wcalc">W</button>
-            <button class="calc-nav-btn" data-view="acalc">A</button>
-            <button class="calc-nav-btn" data-view="tcalc">T</button>
-            <button class="calc-nav-btn" data-view="pcalc">P</button>
-            <button class="calc-nav-btn active" data-view="bcalc">B</button>
-            <button class="calc-nav-btn" data-view="solar">PV</button>
-            <button class="calc-nav-btn" data-view="magic8ball">?</button>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn" data-view="scalc">S</button>
+                <button class="calc-nav-btn" data-view="wcalc">W</button>
+                <button class="calc-nav-btn" data-view="acalc">A</button>
+                <button class="calc-nav-btn" data-view="tcalc">T</button>
+            </div>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn" data-view="pcalc">P</button>
+                <button class="calc-nav-btn active" data-view="bcalc">B</button>
+                <button class="calc-nav-btn" data-view="solar">PV</button>
+                <button class="calc-nav-btn" data-view="magic8ball">?</button>
+            </div>
         </nav>
         <h2>B-CALC v1.7</h2>
         <button class="btn btn-copy" id="b-btn-copy">Copy Result</button>
@@ -210,14 +215,18 @@
     <!-- PV-CALC -->
     <div id="view-solar" class="view">
         <nav class="calc-nav">
-            <button class="calc-nav-btn" data-view="scalc">S</button>
-            <button class="calc-nav-btn" data-view="wcalc">W</button>
-            <button class="calc-nav-btn" data-view="acalc">A</button>
-            <button class="calc-nav-btn" data-view="tcalc">T</button>
-            <button class="calc-nav-btn" data-view="pcalc">P</button>
-            <button class="calc-nav-btn" data-view="bcalc">B</button>
-            <button class="calc-nav-btn active" data-view="solar">PV</button>
-            <button class="calc-nav-btn" data-view="magic8ball">?</button>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn" data-view="scalc">S</button>
+                <button class="calc-nav-btn" data-view="wcalc">W</button>
+                <button class="calc-nav-btn" data-view="acalc">A</button>
+                <button class="calc-nav-btn" data-view="tcalc">T</button>
+            </div>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn" data-view="pcalc">P</button>
+                <button class="calc-nav-btn" data-view="bcalc">B</button>
+                <button class="calc-nav-btn active" data-view="solar">PV</button>
+                <button class="calc-nav-btn" data-view="magic8ball">?</button>
+            </div>
         </nav>
         <h2>PV-CALC v1.0 Solar Yield</h2>
         <button class="btn btn-copy" id="solar-btn-copy">Copy Report</button>
@@ -407,14 +416,18 @@
     <!-- A-CALC -->
     <div id="view-acalc" class="view">
         <nav class="calc-nav">
-            <button class="calc-nav-btn" data-view="scalc">S</button>
-            <button class="calc-nav-btn" data-view="wcalc">W</button>
-            <button class="calc-nav-btn active" data-view="acalc">A</button>
-            <button class="calc-nav-btn" data-view="tcalc">T</button>
-            <button class="calc-nav-btn" data-view="pcalc">P</button>
-            <button class="calc-nav-btn" data-view="bcalc">B</button>
-            <button class="calc-nav-btn" data-view="solar">PV</button>
-            <button class="calc-nav-btn" data-view="magic8ball">?</button>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn" data-view="scalc">S</button>
+                <button class="calc-nav-btn" data-view="wcalc">W</button>
+                <button class="calc-nav-btn active" data-view="acalc">A</button>
+                <button class="calc-nav-btn" data-view="tcalc">T</button>
+            </div>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn" data-view="pcalc">P</button>
+                <button class="calc-nav-btn" data-view="bcalc">B</button>
+                <button class="calc-nav-btn" data-view="solar">PV</button>
+                <button class="calc-nav-btn" data-view="magic8ball">?</button>
+            </div>
         </nav>
         <h2>A-CALC v1.6</h2>
         <button class="btn btn-copy" id="a-btn-copy">Copy Result</button>
@@ -466,14 +479,18 @@
     <!-- T-CALC -->
     <div id="view-tcalc" class="view">
         <nav class="calc-nav">
-            <button class="calc-nav-btn" data-view="scalc">S</button>
-            <button class="calc-nav-btn" data-view="wcalc">W</button>
-            <button class="calc-nav-btn" data-view="acalc">A</button>
-            <button class="calc-nav-btn active" data-view="tcalc">T</button>
-            <button class="calc-nav-btn" data-view="pcalc">P</button>
-            <button class="calc-nav-btn" data-view="bcalc">B</button>
-            <button class="calc-nav-btn" data-view="solar">PV</button>
-            <button class="calc-nav-btn" data-view="magic8ball">?</button>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn" data-view="scalc">S</button>
+                <button class="calc-nav-btn" data-view="wcalc">W</button>
+                <button class="calc-nav-btn" data-view="acalc">A</button>
+                <button class="calc-nav-btn active" data-view="tcalc">T</button>
+            </div>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn" data-view="pcalc">P</button>
+                <button class="calc-nav-btn" data-view="bcalc">B</button>
+                <button class="calc-nav-btn" data-view="solar">PV</button>
+                <button class="calc-nav-btn" data-view="magic8ball">?</button>
+            </div>
         </nav>
         <h2>T-CALC v1.6</h2>
         <button class="btn btn-copy" id="t-btn-copy">Copy Data</button>
@@ -504,14 +521,18 @@
     <!-- S-CALC -->
     <div id="view-scalc" class="view">
         <nav class="calc-nav">
-            <button class="calc-nav-btn active" data-view="scalc">S</button>
-            <button class="calc-nav-btn" data-view="wcalc">W</button>
-            <button class="calc-nav-btn" data-view="acalc">A</button>
-            <button class="calc-nav-btn" data-view="tcalc">T</button>
-            <button class="calc-nav-btn" data-view="pcalc">P</button>
-            <button class="calc-nav-btn" data-view="bcalc">B</button>
-            <button class="calc-nav-btn" data-view="solar">PV</button>
-            <button class="calc-nav-btn" data-view="magic8ball">?</button>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn active" data-view="scalc">S</button>
+                <button class="calc-nav-btn" data-view="wcalc">W</button>
+                <button class="calc-nav-btn" data-view="acalc">A</button>
+                <button class="calc-nav-btn" data-view="tcalc">T</button>
+            </div>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn" data-view="pcalc">P</button>
+                <button class="calc-nav-btn" data-view="bcalc">B</button>
+                <button class="calc-nav-btn" data-view="solar">PV</button>
+                <button class="calc-nav-btn" data-view="magic8ball">?</button>
+            </div>
         </nav>
         <h2>S-CALC v1.6</h2>
         <button class="btn btn-copy" id="s-btn-copy">Copy Result</button>
@@ -586,14 +607,18 @@
     <!-- W-CALC -->
     <div id="view-wcalc" class="view">
         <nav class="calc-nav">
-            <button class="calc-nav-btn" data-view="scalc">S</button>
-            <button class="calc-nav-btn active" data-view="wcalc">W</button>
-            <button class="calc-nav-btn" data-view="acalc">A</button>
-            <button class="calc-nav-btn" data-view="tcalc">T</button>
-            <button class="calc-nav-btn" data-view="pcalc">P</button>
-            <button class="calc-nav-btn" data-view="bcalc">B</button>
-            <button class="calc-nav-btn" data-view="solar">PV</button>
-            <button class="calc-nav-btn" data-view="magic8ball">?</button>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn" data-view="scalc">S</button>
+                <button class="calc-nav-btn active" data-view="wcalc">W</button>
+                <button class="calc-nav-btn" data-view="acalc">A</button>
+                <button class="calc-nav-btn" data-view="tcalc">T</button>
+            </div>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn" data-view="pcalc">P</button>
+                <button class="calc-nav-btn" data-view="bcalc">B</button>
+                <button class="calc-nav-btn" data-view="solar">PV</button>
+                <button class="calc-nav-btn" data-view="magic8ball">?</button>
+            </div>
         </nav>
         <h2>W-CALC v1.6</h2>
         <button class="btn btn-copy" id="w-btn-copy">Copy Heat Input</button>
@@ -714,14 +739,18 @@
 <!-- P-CALC -->
     <div id="view-pcalc" class="view">
         <nav class="calc-nav">
-            <button class="calc-nav-btn" data-view="scalc">S</button>
-            <button class="calc-nav-btn" data-view="wcalc">W</button>
-            <button class="calc-nav-btn" data-view="acalc">A</button>
-            <button class="calc-nav-btn" data-view="tcalc">T</button>
-            <button class="calc-nav-btn active" data-view="pcalc">P</button>
-            <button class="calc-nav-btn" data-view="bcalc">B</button>
-            <button class="calc-nav-btn" data-view="solar">PV</button>
-            <button class="calc-nav-btn" data-view="magic8ball">?</button>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn" data-view="scalc">S</button>
+                <button class="calc-nav-btn" data-view="wcalc">W</button>
+                <button class="calc-nav-btn" data-view="acalc">A</button>
+                <button class="calc-nav-btn" data-view="tcalc">T</button>
+            </div>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn active" data-view="pcalc">P</button>
+                <button class="calc-nav-btn" data-view="bcalc">B</button>
+                <button class="calc-nav-btn" data-view="solar">PV</button>
+                <button class="calc-nav-btn" data-view="magic8ball">?</button>
+            </div>
         </nav>
         <h2>P-CALC v1.6</h2>
         <button class="btn btn-copy" id="p-btn-copy">Copy Result</button>
@@ -826,14 +855,18 @@
     <!-- MAGIC 8-BALL VIEW -->
     <div id="view-magic8ball" class="view">
         <nav class="calc-nav">
-            <button class="calc-nav-btn" data-view="scalc">S</button>
-            <button class="calc-nav-btn" data-view="wcalc">W</button>
-            <button class="calc-nav-btn" data-view="acalc">A</button>
-            <button class="calc-nav-btn" data-view="tcalc">T</button>
-            <button class="calc-nav-btn" data-view="pcalc">P</button>
-            <button class="calc-nav-btn" data-view="bcalc">B</button>
-            <button class="calc-nav-btn" data-view="solar">PV</button>
-            <button class="calc-nav-btn active" data-view="magic8ball">?</button>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn" data-view="scalc">S</button>
+                <button class="calc-nav-btn" data-view="wcalc">W</button>
+                <button class="calc-nav-btn" data-view="acalc">A</button>
+                <button class="calc-nav-btn" data-view="tcalc">T</button>
+            </div>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn" data-view="pcalc">P</button>
+                <button class="calc-nav-btn" data-view="bcalc">B</button>
+                <button class="calc-nav-btn" data-view="solar">PV</button>
+                <button class="calc-nav-btn" data-view="magic8ball">?</button>
+            </div>
         </nav>
         <div class="eightball-container">
             <div style="position:relative; display:flex; align-items:center; justify-content:center;">
