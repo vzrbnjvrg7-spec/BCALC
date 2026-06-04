@@ -219,7 +219,7 @@
             <button class="calc-nav-btn active" data-view="solar">PV</button>
             <button class="calc-nav-btn" data-view="magic8ball">?</button>
         </nav>
-        <h2>PV-CALC v1.6 Solar Yield</h2>
+        <h2>PV-CALC v1.0 Solar Yield</h2>
         <button class="btn btn-copy" id="solar-btn-copy">Copy Report</button>
 
         <h3 style="margin-top:15px;">☀️ Region Presets</h3>
@@ -394,10 +394,10 @@
                     <tbody id="solar-compare-body">
                         <tr><td>Daily Yield (kWh)</td><td id="cmp-summer-daily">—</td><td id="cmp-winter-daily">—</td></tr>
                         <tr><td>Monthly Yield (kWh)</td><td id="cmp-summer-monthly">—</td><td id="cmp-winter-monthly">—</td></tr>
-                        <tr><td>Annual Yield (kWh)</td><td id="cmp-summer-annual">—</td><td id="cmp-winter-annual">—</td></tr>
-                        <tr><td>System Efficiency (%)</td><td id="cmp-summer-eff">—</td><td id="cmp-winter-eff">—</td></tr>
+                        <tr><td>Annual Yield (kWh) *</td><td id="cmp-annual-blended" colspan="2">—</td></tr>
                     </tbody>
                 </table>
+                <p style="font-size:0.75em;color:#8899aa;margin-top:6px;">* Blended average (92 summer days + 183 shoulder days + 90 winter days)</p>
             </div>
         </div>
 
@@ -744,6 +744,9 @@
         <div class="row" id="p-row-cya-conv">
             <div class="col"><label>Conversion (oz per 10k gal → +50 ppm CYA)</label><input type="number" id="p-i-cyaconv" placeholder="e.g. 67" value="67" min="0.01" step="any" inputmode="decimal"></div>
         </div>
+        <div class="row">
+            <div class="col"><label>Pool Temperature (°F)</label><input type="number" id="p-i-temp" placeholder="e.g. 82" value="70"></div>
+        </div>
         <!-- Breakpoint Chlorination Section -->
         <div id="p-row-breakpoint" style="display:none;">
             <div class="row" style="align-items:center; margin-bottom:8px;">
@@ -796,9 +799,6 @@
             <div class="col"><label>Calcium Hardness (ppm)</label><input type="number" id="p-i-ch" placeholder="e.g. 300" value="300"></div>
             <div class="col"><label>Salt (ppm)</label><input type="number" id="p-i-salt" placeholder="e.g. 3200" value="3200"></div>
         </div>
-            <div class="row">
-                <div class="col"><label>Temperature Penalty (%)</label><input type="number" id="s-i-tempPenalty" value="10" step="any"></div>
-            </div>
         <button class="btn btn-calc" id="p-btn-tacorr">Check Alkalinity</button>
         <div class="result-box" id="p-d-tacorr">Enter TA & pH</div>
         <div class="result-box" id="p-d-tacorr-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
@@ -1526,13 +1526,15 @@ function solarCalc() {
     // System efficiency: current-season yield vs raw energy (matches loss breakdown)
     var sysEff = arrayW > 0 ? (dailyYield / rawEnergy * 100) : 0;
 
-    // Monthly/annual based on current season
-    var monthlyYield = dailyYield * 30;
-    var annualYield = dailyYield * 365;
+    // Monthly (blended) / Annual (weighted seasonal blend)
 
-    // Compute other season for comparison display
+    // Annual: weighted by actual day counts — summer/winter peak + shoulder averaging (total kWh/year)
     var otherSeason = activeSeason === 'summer' ? seasonFactors.winter : seasonFactors.summer;
     var otherDailyYield = dailyYield * otherSeason.pshMult;
+    var annualYield = 92 * dailyYield + 90 * otherDailyYield + 183 * (dailyYield + otherDailyYield) / 2;
+
+    // Monthly (blended)
+    var monthlyYield = annualYield / 12;
 
     // Battery runtime & autonomy based on user's daily draw
     var usableBattKwh = battKwh * (dod / 100);
@@ -1586,12 +1588,6 @@ function solarCalc() {
     gbyId('solar-battText').textContent = autonomyDays.toFixed(1) + ' days autonomy';
 
     // Season comparison — calculate both
-    var cmpRows = [
-        ['cmp-summer-daily', 'cmp-winter-daily'],
-        ['cmp-summer-monthly', 'cmp-winter-monthly'],
-        ['cmp-summer-annual', 'cmp-winter-annual'],
-        ['cmp-summer-eff', 'cmp-winter-eff']
-    ];
 
     var seasons = ['summer', 'winter'];
     var resultsMap = {};
@@ -1632,10 +1628,7 @@ function solarCalc() {
     gbyId('cmp-winter-daily').textContent = resultsMap.winter.daily.toFixed(2) + ' kWh';
     gbyId('cmp-summer-monthly').textContent = resultsMap.summer.monthly.toFixed(2) + ' kWh';
     gbyId('cmp-winter-monthly').textContent = resultsMap.winter.monthly.toFixed(2) + ' kWh';
-    gbyId('cmp-summer-annual').textContent = resultsMap.summer.annual.toFixed(2) + ' kWh';
-    gbyId('cmp-winter-annual').textContent = resultsMap.winter.annual.toFixed(2) + ' kWh';
-    gbyId('cmp-summer-eff').textContent = resultsMap.summer.eff.toFixed(1) + '%';
-    gbyId('cmp-winter-eff').textContent = resultsMap.winter.eff.toFixed(1) + '%';
+    gbyId('cmp-annual-blended').textContent = annualYield.toFixed(2) + ' kWh';
 
     return { daily: dailyYield, monthly: monthlyYield, annual: annualYield };
 }
@@ -1761,7 +1754,7 @@ gbyId('solar-btn-copy').onclick = function() {
     var res = solarCalc();
     if (!res) return;
 
-    var text = 'PV-CALC v1.6 — Solar Yield Report\n' +
+    var text = 'PV-CALC v1.0 — Solar Yield Report\n' +
         'Region: ' + (activeRegion === 'custom' ? 'Custom' : regionPresets[activeRegion].desc) + '\n' +
         'Season: ' + activeSeason.toUpperCase() + '\n\n' +
         'Daily Yield: ' + res.daily.toFixed(2) + ' kWh\n' +
