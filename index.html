@@ -1,4 +1,4 @@
-<!-- STATE 5/2026 - SWAT CALC v1.6 -->
+<!-- STATE 6/2026 - SWAT CALC v1.6 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -780,7 +780,7 @@
         <div class="row">
             <div class="col"><label>Target Change (ppm or pH)</label><input type="number" id="p-i-target" placeholder="ppm (e.g. 10) or pH points (e.g. 0.2)" value="10" step="any"></div>
             <div class="col"><label>Chemical</label><select id="p-i-chem">
-                <option value="cyanuric" data-type="cya_custom" data-base="7.5" data-sideffects="Stabilizes chlorine from UV degradation">CYA Stabilizer (custom below)</option>
+                <option value="cyanuric" data-type="cya_custom" data-factor="7.5" data-sideffects="Stabilizes chlorine from UV degradation">CYA Stabilizer (custom below)</option>
                 <option value="borax" data-type="ph_up" data-factor="0.042" data-sideffects="Mild TA increase (secondary effect, not linear)">Borax (primarily raises pH, modest TA increase)</option>
                 <option value="salt" data-type="sal_ppm" data-factor="12.0" data-sideffects="No sanitation unless SWG cell present">Pool Salt (NaCl)</option>
                 <option value="muriatic" data-type="ph_control" data-sideffects="Lowers pH and TA immediately">Muriatic Acid (lower pH)</option>
@@ -4296,6 +4296,12 @@ function pCalc_dose() {
     }
     var sideEffects = sel.options[sel.selectedIndex].getAttribute('data-sideffects') || '';
 
+    // Validate target for chem types that require positive values
+    if (chemType === 'oz_ppm' || chemType === 'cya_custom') {
+        if (target <= 0) { gbyId('p-d-res').innerHTML = 'Enter a positive target ppm change'; _pResult = null; return null; }
+        if (target > 500) { gbyId('p-d-res').innerHTML = 'Target too high — max 500 ppm'; _pResult = null; return null; }
+    }
+
     var ozNeeded, lbsNeeded;
     var display = '';
     var statsInfoParts = [];
@@ -4352,6 +4358,12 @@ function pCalc_dose() {
             statsInfoParts.push('Conversion: ' + cyaConv.toFixed(1) + ' oz/10k gal → +50 ppm CYA<br>');
             statsInfoParts.push('~' + ozPerPpm.toFixed(3) + ' oz raises 10k gal by 1 ppm CYA<br>');
             statsInfoParts.push('Math: ' + mathLine + ' = ' + ozNeeded.toFixed(1) + ' oz<br>');
+            statsInfoParts.push('<br><b>Cyanuric Acid Chemistry</b><br>');
+            statsInfoParts.push('CYA (C₃H₃N₃O₃) forms a weak acid in water<br>');
+            statsInfoParts.push('Cyanurate + H⁺ ⇌ Cyanuric acid (pKa ~6.8)<br>');
+            statsInfoParts.push('Forms stable complex with free chlorine<br>');
+            statsInfoParts.push('HC₃H₂N₃O₃ + Cl⁻ ⇌ [Cl-CYA]⁻ (slow release)<br>');
+            statsInfoParts.push('Protects chlorine from UV degradation<br>');
 
             if (lbsNeeded >= 1) {
                 display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
@@ -4400,6 +4412,12 @@ function pCalc_dose() {
             statsInfoParts.push('Math: (target × gal) / (10000 × factor)<br>');
             statsInfoParts.push('      = ' + salMath + '<br>');
             statsInfoParts.push('      = ' + lbsNeeded.toFixed(2) + ' lbs<br>');
+            statsInfoParts.push('<br><b>Salt Chemistry</b><br>');
+            statsInfoParts.push('NaCl → Na⁺ + Cl⁻ (complete dissociation)<br>');
+            statsInfoParts.push('Chloride ions electrolyzed at SWG anode:<br>');
+            statsInfoParts.push('2Cl⁻ → Cl₂ + 2e⁻ (oxidation at anode)<br>');
+            statsInfoParts.push('Cl₂ + H₂O → HOCl + H⁺ + Cl⁻<br>');
+            statsInfoParts.push('Hypochlorous acid sanitizes pool water<br>');
 
             display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
 
@@ -4528,6 +4546,7 @@ function pCalc_dose() {
 
         case 'ph_up':
             // Soda Ash / Borax: raises pH, NOT ppm-based
+            if (target <= 0) { gbyId('p-d-res').innerHTML = 'Target must be positive (enter how much to raise pH)'; _pResult = null; return null; }
             if (chemName.indexOf('Borax') !== -1) {
                 // Borax: 76 oz per 10k gal → +0.2 pH
                 // Direct scaling: dose = 76 × (gal/10k) × (ΔpH / 0.2)
@@ -4568,6 +4587,14 @@ function pCalc_dose() {
                 warnings.push('⚠ Borax raises pH ~0.2 per 76 oz/10k gal — gradual buffer effect');
                 warnings.push('⚠ Mild TA increase (secondary, not linear — depends on starting alkalinity)');
                 warnings.push('⚠ Retest pH after 6+ hrs — borax effects are gradual');
+            }
+
+            // Salt chemistry display (shared for sodium-based chemicals)
+            if (chemName.indexOf('Soda') !== -1 || chemName.indexOf('Salt') !== -1) {
+                statsInfoParts.push('<br><b>Salt Chemistry</b><br>');
+                statsInfoParts.push('NaCl → Na⁺ + Cl⁻ (complete dissociation)<br>');
+                statsInfoParts.push('Sodium ions help maintain osmotic balance<br>');
+                statsInfoParts.push('Chloride ions available for SWG electrolysis');
             }
             warnings.push('⚠ Retest pH after 1–2 hrs circulation before adding more');
 
@@ -4907,11 +4934,11 @@ function pCalc_demand() {
     if (isNaN(cya)) cya = 30; // default assumption
 
     var slamFC;
-    if (cya <= 20) slamFC = Math.round(cya * 0.5);
-    else if (cya <= 30) slamFC = Math.round(cya * 0.4);
-    else if (cya <= 50) slamFC = Math.round(cya * 0.4);
-    else if (cya <= 80) slamFC = Math.round(cya * 0.35);
-    else slamFC = Math.round(cya * 0.3);
+    if (cya <= 20) slamFC = Math.max(10, Math.round(cya * 0.5));
+    else if (cya <= 30) slamFC = Math.max(12, Math.round(cya * 0.4));
+    else if (cya <= 50) slamFC = Math.max(14, Math.round(cya * 0.4));
+    else if (cya <= 80) slamFC = Math.max(16, Math.round(cya * 0.35));
+    else slamFC = Math.max(18, Math.round(cya * 0.3));
 
     var gal = gv('p-i-gal');
     // Cal hypo (65% available): lbs = (ppm × gal) / (10000 × 8.0)
@@ -5002,7 +5029,7 @@ gbyId('p-btn-copy').onclick = function() {
     var res = _pResult; if (!res) { pCalc_dose(); res = _pResult; }
     if (!res) return;
 
-    var text = 'P-CALC v1.6\nVolume: ' + res.gal.toFixed(0) + ' gallons\nChemical: ' + res.chemName + '\nTarget Change: ' + res.target.toFixed(1) + '\n\n--- Dosage ---\n' + (res.unitsNeeded === 'gal' ? res.lbsNeeded.toFixed(2) + ' gal' : (res.unitsNeeded === 'oz' ? res.ozNeeded.toFixed(2) + ' fl oz' : (res.lbsNeeded >= 1 ? res.lbsNeeded.toFixed(2) + ' lbs' : res.ozNeeded.toFixed(2) + ' oz')));
+    var text = 'P-CALC v1.6\nVolume: ' + res.gal.toFixed(0) + ' gallons\nChemical: ' + res.chemName + '\nTarget Change: ' + res.target.toFixed(1) + '\n\n--- Dosage ---\n' + (res.unitsNeeded === 'gal' ? res.galNeeded.toFixed(2) + ' gal' : (res.unitsNeeded === 'oz' ? res.ozNeeded.toFixed(2) + ' fl oz' : (res.lbsNeeded >= 1 ? res.lbsNeeded.toFixed(2) + ' lbs' : res.ozNeeded.toFixed(2) + ' oz')));
     
     // Include breakpoint chlorination data if active
     var bpActive = gbyId('p-i-breakpoint') && gbyId('p-i-breakpoint').checked;
@@ -5014,9 +5041,9 @@ gbyId('p-btn-copy').onclick = function() {
         text += '\nMultiplier: ' + bpData.mult + '× CC';
         text += '\nTarget FC: ' + bpData.breakpointPPM.toFixed(1) + ' ppm';
         text += '\nNet to dose: ' + bpData.netToDose.toFixed(1) + ' ppm';
-        if (res.unitsNeeded === 'gal') { text += '\nDosage: ' + res.lbsNeeded.toFixed(2) + ' gal liquid chlorine (~10%)'; }
+        if (res.unitsNeeded === 'gal') { text += '\nDosage: ' + res.galNeeded.toFixed(2) + ' gal liquid chlorine (~10%)'; }
         else if (res.unitsNeeded === 'lbs') { text += '\nDosage: ' + res.lbsNeeded.toFixed(2) + ' lb cal-hypo (65%)'; }
-        else if (_pResult.unitsNeeded === 'oz') { text += '\nDosage: ' + _pResult.ozNeeded.toFixed(2) + ' fl oz'; }
+        else if (res.unitsNeeded === 'oz') { text += '\nDosage: ' + res.ozNeeded.toFixed(2) + ' fl oz'; }
     }
     
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
@@ -5141,7 +5168,6 @@ gbyId('p-btn-alerts').onclick = function() {
         if (isNaN(gv('p-i-temp')) && !missing.includes('Temp')) missing.push('Temperature');
         if (isNaN(gv('p-i-ch')) && !missing.includes('CH')) missing.push('Calcium Hardness');
         if (isNaN(gv('p-i-measTA')) && !missing.includes('TA')) missing.push('Total Alkalinity');
-        if (isNaN(gv('p-i-pH')) && !missing.includes('pH')) missing.push('pH');
         if (missing.length > 0) {
             normal.push('LSI: — (enter ' + missing.join(', ') + ' to calculate)');
             colors.LSI = '#868e96';
