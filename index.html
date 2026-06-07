@@ -1,4 +1,4 @@
-<!-- STATE 6/2026 - SWAT CALC v1.6 -->
+<!-- STATE 5/2026 - SWAT CALC v1.7 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -450,7 +450,7 @@
                 <button class="calc-nav-btn" data-view="magic8ball">?</button>
             </div>
         </nav>
-        <h2>A-CALC v1.6 Boolean Logic</h2>
+        <h2>A-CALC v1.7 Boolean Logic</h2>
         <button class="btn btn-copy" id="a-btn-copy">Copy Result</button>
         <div class="row"><div class="col"><label>Expression (e.g. AB or A ` B or !A)</label><input type="text" id="a-i-expr" placeholder="AB or A ^ B or !A"></div></div>
         <h3 style="margin-top:15px;">Syntax Reference (per grammar)</h3>
@@ -513,7 +513,7 @@
                 <button class="calc-nav-btn" data-view="magic8ball">?</button>
             </div>
         </nav>
-        <h2>T-CALC v1.6 Tire Sizing</h2>
+        <h2>T-CALC v1.7 Tire Sizing</h2>
         <button class="btn btn-copy" id="t-btn-copy">Copy Data</button>
         <div class="row"><div class="col"><label>Tire Width (mm or inches) — e.g., 265/75-17 or 37x13.5x17</label><input type="text" id="t-i-width" placeholder='35 or 33x12.5' value='275'></div></div>
         <div class="row"><div class="col"><label>Aspect Ratio (%)</label><input type="number" id="t-i-aspect" placeholder='0 for AT' value='70' min="15" max="90" step="any"></div></div>
@@ -555,7 +555,7 @@
                 <button class="calc-nav-btn" data-view="magic8ball">?</button>
             </div>
         </nav>
-        <h2>S-CALC v1.6 Servo Torque & Stress</h2>
+        <h2>S-CALC v1.7 Servo Torque & Stress</h2>
         <button class="btn btn-copy" id="s-btn-copy">Copy Result</button>
         <h3 style="margin-top:15px;">Servo Torque</h3>
         <div class="row">
@@ -641,7 +641,7 @@
                 <button class="calc-nav-btn" data-view="magic8ball">?</button>
             </div>
         </nav>
-        <h2>W-CALC v1.6 Welding Heat Input</h2>
+        <h2>W-CALC v1.7 Welding Heat Input</h2>
         <button class="btn btn-copy" id="w-btn-copy">Copy Heat Input</button>
         <h3 style="margin-top:15px;">Weld Heat Input</h3>
         <div class="row">
@@ -773,22 +773,22 @@
                 <button class="calc-nav-btn" data-view="magic8ball">?</button>
             </div>
         </nav>
-        <h2>P-CALC v1.6 Pool Chemistry</h2>
+        <h2>P-CALC v1.7 Pool Chemistry</h2>
         <button class="btn btn-copy" id="p-btn-copy">Copy Result</button>
         <h3 style="margin-top:15px;">Pool Chemical Dosage</h3>
         <div class="row"><div class="col"><label>Pool Volume (gallons)</label><input type="number" id="p-i-gal" placeholder="e.g. 15000" value="24000"></div></div>
         <div class="row">
             <div class="col"><label>Target Change (ppm or pH)</label><input type="number" id="p-i-target" placeholder="ppm (e.g. 10) or pH points (e.g. 0.2)" value="10" step="any"></div>
             <div class="col"><label>Chemical</label><select id="p-i-chem">
-                <option value="cyanuric" data-type="cya_custom" data-factor="7.5" data-sideffects="Stabilizes chlorine from UV degradation">CYA Stabilizer (custom below)</option>
-                <option value="borax" data-type="ph_up" data-factor="0.042" data-sideffects="Mild TA increase (secondary effect, not linear)">Borax (primarily raises pH, modest TA increase)</option>
-                <option value="salt" data-type="sal_ppm" data-factor="12.0" data-sideffects="No sanitation unless SWG cell present">Pool Salt (NaCl)</option>
-                <option value="muriatic" data-type="ph_control" data-sideffects="Lowers pH and TA immediately">Muriatic Acid (lower pH)</option>
-                <option value="baking" data-type="ta_ppm" data-factor="7.14" data-sideffects="Slight pH increase; strong TA increase">Baking Soda (raise TA by X ppm)</option>
-                <option value="chlor" data-type="lb_ppm" data-factor="8.0" data-sideffects="Raises calcium hardness (~0.7 ppm CH per 1 ppm FC added)">Calcium Hypochlorite (1 lb → ~8ppm)</option>
-                <option value="dichlor" data-type="oz_ppm" data-factor="2.0" data-sideffects="Adds CYA (~0.9 ppm per 1 ppm FC added)">Dichlor (raises CYA, ~2 oz/10k gal → +1 ppm FC)</option>
-                <option value="liquid" data-type="oz_ppm" data-factor="13.0" data-sideffects="Adds small amount of salt over time">Liquid Chlorine 10% (~13 fl oz/10k gal → +1 ppm FC)</option>
-                <option value="sodcarbonate" data-type="ph_up" data-factor="0.2" data-sideffects="Raises pH rapidly; also raises TA significantly">Soda Ash (raise pH by X points)</option>
+                <option value="cyanuric" data-type="cya_custom" data-factor="7.5" data-sideeffects="Stabilizes chlorine from UV degradation">CYA Stabilizer (custom below)</option>
+                <option value="borax" data-type="ph_up" data-factor="0.042" data-sideeffects="Mild TA increase (secondary effect, not linear)">Borax (primarily raises pH, modest TA increase)</option>
+                <option value="salt" data-type="sal_ppm" data-factor="12.0" data-sideeffects="No sanitation unless SWG cell present">Pool Salt (NaCl)</option>
+                <option value="muriatic" data-type="ph_control" data-sideeffects="Lowers pH and TA immediately">Muriatic Acid (lower pH)</option>
+                <option value="baking" data-type="ta_ppm" data-factor="7.14" data-sideeffects="Slight pH increase; strong TA increase">Baking Soda (raise TA by X ppm)</option>
+                <option value="chlor" data-type="lb_ppm" data-factor="8.0" data-sideeffects="Raises calcium hardness (~0.7 ppm CH per 1 ppm FC added)">Calcium Hypochlorite (1 lb → ~8ppm)</option>
+                <option value="dichlor" data-type="oz_ppm" data-factor="2.0" data-sideeffects="Adds CYA (~0.9 ppm per 1 ppm FC added)">Dichlor (raises CYA, ~2 oz/10k gal → +1 ppm FC)</option>
+                <option value="liquid" data-type="oz_ppm" data-factor="13.0" data-sideeffects="Adds small amount of salt over time">Liquid Chlorine 10% (~13 fl oz/10k gal → +1 ppm FC)</option>
+                <option value="sodcarbonate" data-type="ph_up" data-factor="0.2" data-sideeffects="Raises pH rapidly; also raises TA significantly">Soda Ash (raise pH by X points)</option>
             </select></div>
         </div>
         <div class="row" id="p-row-cya-conv">
@@ -837,9 +837,10 @@
         <div class="result-box" id="p-d-res">Enter volume & target</div>
         <div class="result-box" id="p-d-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
         <h3 style="margin-top:15px;">Alkalinity Check</h3>
+        <div style="font-size:0.8em;color:#aaa;margin-bottom:8px;">Enter your water test results below. This check recommends dosing to bring TA into the 60–120 ppm range and flags when simultaneous pH/TA correction is needed.</div>
         <div class="row">
-            <div class="col"><label>Measured TA (ppm as CaCO₃)</label><input type="number" id="p-i-measTA" placeholder="e.g. 90" value="100"></div>
-            <div class="col"><label>pH</label><input type="number" id="p-i-pH" placeholder="e.g. 7.5" value="7.5"></div>
+            <div class="col"><label>Measured TA (ppm as CaCO₃)</label><input type="number" id="p-i-measTA" placeholder="Enter your test result (e.g. 90)" value=""></div>
+            <div class="col"><label>pH (from test kit)</label><input type="number" id="p-i-pH" placeholder="e.g. 7.5" value="7.5"></div>
         </div>
         <div class="row">
             <div class="col"><label>CYA (ppm)</label><input type="number" id="p-i-cya" placeholder="e.g. 40" value="45"></div>
@@ -852,6 +853,7 @@
         <button class="btn btn-calc" id="p-btn-tacorr">Check Alkalinity</button>
         <div class="result-box" id="p-d-tacorr">Enter TA & pH</div>
         <div class="result-box" id="p-d-tacorr-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
+        <div class="result-box" id="p-d-tacorr-ph" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
         <details id="p-tacorr-advanced" style="display:none;">
             <summary style="cursor:pointer;color:#74c0fc;font-size:0.9em;margin-top:8px;">Show calculation (optional)</summary>
             <div id="p-d-tacorr-adv" style="font-size:0.85em;color:#aaa;margin-top:6px;"></div>
@@ -924,7 +926,9 @@ function showToast(msg) {
     t._timer = setTimeout(function() { t.style.display = 'none'; }, 2000);
 }
 function gv(id) {
-    var v = parseFloat(document.getElementById(id).value);
+    var el = document.getElementById(id);
+    if (!el) return NaN;
+    var v = parseFloat(el.value);
     return isNaN(v) ? NaN : v;
 }
 function gs(id) { var el = document.getElementById(id); return (el && el.value !== '') ? el.value : ''; }
@@ -3161,7 +3165,7 @@ gbyId('a-btn-copy').onclick = function() {
     var primesText = gbyId('a-prime-implicants') ? gbyId('a-prime-implicants').innerText : '';
 
     var lines = [];
-    lines.push('A-CALC v1.6');
+    lines.push('A-CALC v1.7');
     lines.push('--- Expression ---');
     lines.push(expr);
     if (simp) {
@@ -4017,7 +4021,7 @@ gbyId('s-btn-copy').onclick = function() {
         }
     }
 
-    var text = 'S-CALC v1.6\n--- Servo Stall ---\nTorque: ' + result.torque.toFixed(0) + ' in-lbf\nArm Length: ' + result.arm.toFixed(2) + '"\nLinkage Ratio: ' + result.ma.toFixed(2) + '\n\n--- Output Force ---\nBase force (direct): ' + (result.torque / result.arm).toFixed(1) + ' lbf\nEffective force (×' + result.ma.toFixed(2) + '): ' + result.forceLb.toFixed(2) + ' lbf\nContinuous (est. 25% stall): ~' + ((result.torque * 0.25 / result.arm) * result.ma).toFixed(0) + ' lbf' + stressLine;
+    var text = 'S-CALC v1.7\n--- Servo Stall ---\nTorque: ' + result.torque.toFixed(0) + ' in-lbf\nArm Length: ' + result.arm.toFixed(2) + '"\nLinkage Ratio: ' + result.ma.toFixed(2) + '\n\n--- Output Force ---\nBase force (direct): ' + (result.torque / result.arm).toFixed(1) + ' lbf\nEffective force (×' + result.ma.toFixed(2) + '): ' + result.forceLb.toFixed(2) + ' lbf\nContinuous (est. 25% stall): ~' + ((result.torque * 0.25 / result.arm) * result.ma).toFixed(0) + ' lbf' + stressLine;
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
 };
 
@@ -4235,7 +4239,7 @@ gbyId('w-btn-copy').onclick = function() {
     // Get burn-through status from stats display
     var statsHTML = gbyId('w-d-stats').innerHTML;
 
-    var text = 'W-CALC v1.6\n--- Heat Input ---\nProcess: ' + (proc === 'mig' ? 'MIG/GMAW' : proc === 'stick' ? 'Stick/SMAW' : proc === 'tig' ? 'TIG/GTAW' : 'Flux-Core/FCAW') + '\nVoltage: ' + res.volts.toFixed(0) + ' V\nAmperage: ' + res.amps.toFixed(0) + ' A\nTravel Speed: ' + res.speed.toFixed(1) + '"/min | η: ' + res.eff.toFixed(2) + '\n\n' +
+    var text = 'W-CALC v1.7\n--- Heat Input ---\nProcess: ' + (proc === 'mig' ? 'MIG/GMAW' : proc === 'stick' ? 'Stick/SMAW' : proc === 'tig' ? 'TIG/GTAW' : 'Flux-Core/FCAW') + '\nVoltage: ' + res.volts.toFixed(0) + ' V\nAmperage: ' + res.amps.toFixed(0) + ' A\nTravel Speed: ' + res.speed.toFixed(1) + '"/min | η: ' + res.eff.toFixed(2) + '\n\n' +
         res.heatInputKJPerIn.toFixed(1) + ' kJ/in\n' + res.heatInputBTUPerIn.toFixed(1) + ' BTU/in' +
         '\n\nMaterial: ' + matKey + (isNaN(thick) ? '' : ' | Thick: ' + thick.toFixed(3) + '"') +
         '\n\n' + statsHTML.replace(/<[^>]+>/g, '');
@@ -4271,9 +4275,14 @@ function pCalc_dose() {
     }
 
     var sel = gbyId('p-i-chem');
-    var chemType = sel.options[sel.selectedIndex].getAttribute('data-type') || 'oz_ppm';
-    var factor = parseFloat(sel.options[sel.selectedIndex].getAttribute('data-factor')) || 10;
-    var chemName = sel.options[sel.selectedIndex].text.split('(')[0].trim();
+    if (!sel || !sel.selectedIndex) {
+        gbyId('p-d-res').innerHTML = 'Select a chemical'; _pResult = null; return null;
+    }
+    var opt = sel.options[sel.selectedIndex];
+    if (!opt) { gbyId('p-d-res').innerHTML = 'No chemical selected'; _pResult = null; return null; }
+    var chemType = opt.getAttribute('data-type') || 'oz_ppm';
+    var factor = parseFloat(opt.getAttribute('data-factor')) || 10;
+    var chemName = opt.text.split('(')[0].trim();
 
     // Chemical-specific goal text
     var goalText;
@@ -4294,7 +4303,7 @@ function pCalc_dose() {
             default: goalText = 'Adjust chemical to target ppm';
         }
     }
-    var sideEffects = sel.options[sel.selectedIndex].getAttribute('data-sideffects') || '';
+    var sideEffects = opt.getAttribute('data-sideeffects') || '';
 
     // Validate target for chem types that require positive values
     if (chemType === 'oz_ppm' || chemType === 'cya_custom') {
@@ -4394,7 +4403,8 @@ function pCalc_dose() {
 
             // Dichlor-specific: CYA warning
             if (chemName.indexOf('Dichlor') !== -1) {
-                var cyaAdd = ozNeeded * 0.7 / (gal/10000);
+                var CYA_PER_OZ_DICHOR_PER_10K = 0.7; // ppm CYA added per oz dichlor per 10k gal (dichlor is ~56% CYA by weight)
+                var cyaAdd = ozNeeded * CYA_PER_OZ_DICHOR_PER_10K / (gal/10000);
                 warnings.push('⚠ Dichlor adds ~' + cyaAdd.toFixed(1) + ' ppm CYA — long-term use raises stabilizer');
             }
 
@@ -4561,16 +4571,16 @@ function pCalc_dose() {
                 statsInfoParts.push('      = ' + ozNeeded.toFixed(0) + ' oz (' + lbsNeeded.toFixed(1) + ' lbs)<br>');
                 display = '<b style="font-size:1.3em;">' + ozNeeded.toFixed(0) + ' oz</b>';
             } else {
-                // Soda Ash: ~0.75 lb per 10k gal → +0.2 pH (factor = 3.75)
-                // lbsNeeded = target / factor × gal/10k × 0.75
+                // Soda Ash: ~0.75 lb per 10k gal → +0.2 pH
+                // factor from HTML data-factor=0.2 (pH points per dose), formula: lbs = ΔpH × 3.75 × gal/10k
+                // (target / 0.2) * 0.75 = target * 3.75 — equivalent to ~3.75 lbs per pH point per 10k gal
                 var saMath = '(' + target.toFixed(2) + ' / ' + factor.toFixed(3) + ') × ' + (gal/10000).toFixed(2) + ' × 0.75';
                 lbsNeeded = (target / factor) * (gal / 10000) * 0.75;
                 ozNeeded = lbsNeeded * 16;
 
                 statsInfoParts.push('<br><b>Formula</b><br>');
-                statsInfoParts.push('Base factor: 0.2 pH per dose<br>');
-                statsInfoParts.push('Base rule: ~0.75 lb/10k gal → +0.2 pH<br>');
-                statsInfoParts.push('Scale: (ΔpH / factor) × gal/10k × 0.75<br>');
+                statsInfoParts.push('HTML factor: ' + factor.toFixed(3) + ' pH points per dose<br>');
+                statsInfoParts.push('Derived: target × 3.75 (lbs per pH point) × gal/10k<br>');
                 statsInfoParts.push('      = ' + saMath + '<br>');
                 statsInfoParts.push('      = ' + lbsNeeded.toFixed(2) + ' lbs (' + ozNeeded.toFixed(0) + ' oz)<br>');
                 display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
@@ -4611,7 +4621,7 @@ function pCalc_dose() {
     if (sideEffects) {
         statsInfoParts.push('<br><b>Side Effects</b><br>');
         var effects = sideEffects.split(', ');
-        for (var i = 0; i < effects.length; i++) {
+        for (let i = 0; i < effects.length; i++) {
             statsInfoParts.push('&nbsp;&nbsp;' + effects[i] + '<br>');
         }
     }
@@ -4782,7 +4792,7 @@ function pCalc_calcBreakpointPreview() {
 function interpLookup(pHs, factors, pH) {
     if (pH <= pHs[0]) return factors[0];
     if (pH >= pHs[pHs.length - 1]) return factors[factors.length - 1];
-    for (var i = 0; i < pHs.length - 1; i++) {
+    for (let i = 0; i < pHs.length - 1; i++) {
         if (pH >= pHs[i] && pH <= pHs[i + 1]) {
             var t = (pH - pHs[i]) / (pHs[i + 1] - pHs[i]);
             return factors[i] + t * (factors[i + 1] - factors[i]);
@@ -4798,16 +4808,17 @@ var _BORATE_FACTOR_PHS = [6.5, 7.0, 7.2, 7.4, 7.6, 7.8, 8.0, 8.5];
 var _BORATE_FACTORS = [0.05, 0.08, 0.10, 0.13, 0.17, 0.24, 0.34, 0.83];
 
 function pCalc_taCorrection() {
-    var measTA = gv('p-i-measTA');
-    var pH = gv('p-i-pH');
-    var cya = gv('p-i-cya');
-    var borates = gv('p-i-borates');
+    var measTA = Number(gv('p-i-measTA'));
+    var pH = Number(gv('p-i-pH'));
+    var cya = Number(gv('p-i-cya'));
+    var borates = Number(gv('p-i-borates'));
 
     if (isNaN(measTA)) {
         gbyId('p-d-tacorr').innerHTML = 'Enter TA'; return;
     }
 
     if (isNaN(pH)) pH = 7.4;
+    pH = Math.max(0, Math.min(pH, 14)); // clamp to valid range
     if (isNaN(cya)) cya = 0;
     if (isNaN(borates)) borates = 0;
 
@@ -4850,21 +4861,92 @@ function pCalc_taCorrection() {
 
     gbyId('p-d-tacorr').innerHTML = mainHTML;
 
+    // --- SIMULTANEOUS DOSING: Low TA + High pH (overshoot algorithm) ---
+    // Problem: soda ash raises both TA and pH; muriatic acid lowers both.
+    // Sequential dosing fails: soda ash → pH spike → acid drops TA back down.
+    // Solution: overshoot TA target so that after pH correction, final TA ≈ desired level.
+    //
+    // Constants (empirical pool chemistry):
+    // - Soda ash: ~7 ppm TA increase per lb/10k gal; pH rises ~0.26 × (taPPM / 14) per lb/10k gal
+    // - Muriatic acid: drops TA ~7 ppm per pH point corrected; 0.2 pH drop per fl oz/10k gal
+    // - TA target for low-TA correction (80 ppm = lower end of ideal range)
+    // - pH target for simultaneous dosing (7.5 = mid-range ideal pH)
+    //
+    // Formula derived from mass balance:
+    //   final_TA = measTA + sodaPPM - acidDropTA
+    //   pH_spike = f(sodaPPM, measTA)
+    //   acidDropTA = g(pH_spike - pH_target, measTA)
+    //   Overshoot_TA = (measTA × TA_factor + pH_delta × TA_per_pH / sodaPPM_per_lb)
+    //                 / (1 - pH_delta × TA_per_pH × sodaPH_factor / sodaPPM_per_lb)
+    var TA_TARGET = 80; // target TA ppm for low-TA correction (lower end of ideal range)
+    var pH_TARGET = 7.5; // target pH for simultaneous dosing (mid-range ideal)
+    var sodaPPM_per_lb = 7.14; // per lb/10k gal
+    var sodaPH_factor = 0.26 / 7.14; // pH rise per lb/10k gal
+    var acidTA_per_pH = 7.0; // TA drop per pH point corrected
+    var acidPH_per_oz = 0.2; // pH drop per fl oz/10k gal
+    var TA_factor = sodaPPM_per_lb / (sodaPPM_per_lb + acidTA_per_pH * sodaPH_factor);
+    var dosingHTML = '';
+
     // --- STATS (basic recommendations + action items) ---
     var statsLines = [];
     if (measTA < 80) {
-        var poolVol = gv('p-i-gal');
-        if (!isNaN(poolVol)) {
-            var bakingSoda = ((80 - measTA) * poolVol / 10000) / 14.4;
-            statsLines.push('Add ~' + bakingSoda.toFixed(1) + ' lbs baking soda');
-            statsLines.push('Dissolve in a bucket, pour around perimeter, run pump overnight');
+        // Check for low TA + high pH scenario (simultaneous dosing needed)
+        if (!isNaN(pH) && pH > 7.6) {
+            var poolVol = gv('p-i-gal');
+            if (!isNaN(poolVol)) {
+                // Overshoot TA target using simultaneous dosing formula
+                var pH_delta = pH - pH_TARGET; // positive = how much to lower
+                if (pH_delta > 1.5) pH_delta = 1.5; // cap extreme pH delta for stability
+                var overshootTA = Math.round((measTA * TA_factor + pH_delta * acidTA_per_pH / sodaPPM_per_lb)
+                    / (1 - pH_delta * acidTA_per_pH * sodaPH_factor / sodaPPM_per_lb) + 0.5);
+                overshootTA = Math.max(overshootTA, measTA + 10); // minimum meaningful overshoot
+                var sodaPPM = overshootTA - measTA;
+
+                // Soda ash dose for overshoot target
+                var sodaLbs = (sodaPPM * poolVol / 10000) / sodaPPM_per_lb;
+                var pH_spike = 0.26 * (sodaPPM / sodaPPM_per_lb); // approximate pH rise
+
+                // Muriatic acid dose for pH correction
+                var newPH = Math.min(pH + pH_spike, 9.0); // cap extreme values
+                var acidPH_delta = newPH - pH_TARGET;
+                if (acidPH_delta <= 0) acidPH_delta = 0.1; // minimum correction
+                var acidOzPer10k = (acidPH_delta / acidPH_per_oz);
+                var totalAcidOz = acidOzPer10k * (poolVol / 10000);
+
+                // TA drop from muriatic acid
+                var acidTADrop = Math.round(acidPH_delta * acidTA_per_pH + 0.5);
+                var finalTA = Math.round(overshootTA - acidTADrop);
+
+                statsLines.push('⚠ Low TA + high pH — use simultaneous dosing:');
+                statsLines.push('Step 1: Add ~' + sodaLbs.toFixed(2) + ' lbs baking soda');
+                statsLines.push('  TA → ~' + overshootTA + ' ppm, pH spikes to ~' + newPH.toFixed(1));
+                statsLines.push('Step 2: Add ~' + totalAcidOz.toFixed(1) + ' fl oz muriatic acid');
+                statsLines.push('  pH → ~' + pH_TARGET + ', TA drops to ~' + finalTA + ' ppm (target: ' + TA_TARGET + ')');
+                statsLines.push('');
+                dosingHTML = '<span style="color:#fab005;">Two-Step Correction (Low TA + High pH)</span><br>';
+                dosingHTML += '<span style="color:#aaa;">Why two steps: baking soda raises TA but also pH; muriatic acid lowers pH but drops TA.</span><br>';
+                dosingHTML += '<span style="color:#aaa;">Step 1 overshoots TA to ~' + overshootTA + ' ppm so that after acid correction, final TA ≈ ' + finalTA + ' ppm.</span><br>';
+                dosingHTML += '<span style="color:#aaa;">Step 1: ' + sodaLbs.toFixed(2) + ' lbs baking soda — TA → ~' + overshootTA + ', pH spikes to ~' + newPH.toFixed(1) + '</span><br>';
+                dosingHTML += '<span style="color:#aaa;">Step 2: ' + totalAcidOz.toFixed(1) + ' fl oz muriatic acid — pH → ~' + pH_TARGET + ', TA → ~' + finalTA + '</span><br>';
+                dosingHTML += '<span style="color:#aaa;">Each dose must circulate 4–6 hrs before next step. Retest both TA and pH after completion.</span>';
+            } else {
+                statsLines.push('Need baking soda + muriatic acid — enter pool volume for simultaneous dosing dosage');
+            }
         } else {
-            statsLines.push('Need baking soda — enter pool volume for dosage');
+            var poolVol = gv('p-i-gal');
+            if (!isNaN(poolVol)) {
+                var bakingSoda = ((TA_TARGET - measTA) * poolVol / 10000) / sodaPPM_per_lb;
+                statsLines.push('Add ~' + bakingSoda.toFixed(1) + ' lbs baking soda');
+                statsLines.push('Dissolve in a bucket, pour around perimeter, run pump overnight');
+            } else {
+                statsLines.push('Need baking soda — enter pool volume for dosage');
+            }
         }
     } else if (measTA > 120) {
         var poolVol = gv('p-i-gal');
         if (!isNaN(poolVol)) {
-            var muriatic = ((measTA - 120) * poolVol / 10000) / 56;
+            var TA_DROP_PER_FL_OZ_MA = 42; // empirical: ~1 fl oz MA per 10k gal drops TA by ~1 ppm, so 42 fl oz drops TA by ~42 ppm (high-TA correction factor)
+            var muriatic = ((measTA - 120) * poolVol / 10000) / TA_DROP_PER_FL_OZ_MA;
             statsLines.push('Add ~' + muriatic.toFixed(1) + ' fl oz muriatic acid');
             statsLines.push('Pour at skimmer with pump running, retest after a few hours');
         } else {
@@ -4879,6 +4961,13 @@ function pCalc_taCorrection() {
     }
 
     gbyId('p-d-tacorr-stats').innerHTML = statsLines.join('\n');
+
+    // Display simultaneous dosing info or clear
+    if (dosingHTML) {
+        gbyId('p-d-tacorr-ph').innerHTML = dosingHTML;
+    } else {
+        gbyId('p-d-tacorr-ph').innerHTML = '';
+    }
 
     // --- ADVANCED details (hidden, shown on toggle) ---
     var advHTML = '';
@@ -4992,7 +5081,7 @@ function pCalc_demand() {
         advHTML += '5. Re-test FC often and replenish chlorine as needed<br>';
         advHTML += '<br><b>Standard FC/CYA SLAM targets:</b><br>';
         var cyaLevels = [20, 30, 40, 50, 60, 70, 80];
-        for (var i = 0; i < cyaLevels.length; i++) {
+        for (let i = 0; i < cyaLevels.length; i++) {
             var targetFC;
             if (cyaLevels[i] <= 20) targetFC = Math.round(cyaLevels[i] * 0.5);
             else if (cyaLevels[i] <= 30) targetFC = Math.round(cyaLevels[i] * 0.4);
@@ -5029,7 +5118,15 @@ gbyId('p-btn-copy').onclick = function() {
     var res = _pResult; if (!res) { pCalc_dose(); res = _pResult; }
     if (!res) return;
 
-    var text = 'P-CALC v1.6\nVolume: ' + res.gal.toFixed(0) + ' gallons\nChemical: ' + res.chemName + '\nTarget Change: ' + res.target.toFixed(1) + '\n\n--- Dosage ---\n' + (res.unitsNeeded === 'gal' ? res.galNeeded.toFixed(2) + ' gal' : (res.unitsNeeded === 'oz' ? res.ozNeeded.toFixed(2) + ' fl oz' : (res.lbsNeeded >= 1 ? res.lbsNeeded.toFixed(2) + ' lbs' : res.ozNeeded.toFixed(2) + ' oz')));
+    var dosageStr;
+    if (res.unitsNeeded === 'gal') {
+        dosageStr = res.galNeeded.toFixed(2) + ' gal';
+    } else if (res.unitsNeeded === 'oz') {
+        dosageStr = res.ozNeeded.toFixed(2) + ' fl oz';
+    } else {
+        dosageStr = res.lbsNeeded >= 1 ? res.lbsNeeded.toFixed(2) + ' lbs' : res.ozNeeded.toFixed(2) + ' oz';
+    }
+    var text = `P-CALC v1.7\nVolume: ${res.gal.toFixed(0)} gallons\nChemical: ${res.chemName}\nTarget Change: ${res.target.toFixed(1)}\n\n--- Dosage ---\n${dosageStr}`;
     
     // Include breakpoint chlorination data if active
     var bpActive = gbyId('p-i-breakpoint') && gbyId('p-i-breakpoint').checked;
@@ -5165,9 +5262,10 @@ gbyId('p-btn-alerts').onclick = function() {
         }
     } else if (!isNaN(gv('p-i-temp')) || !isNaN(gv('p-i-ch')) || !isNaN(gv('p-i-measTA'))) {
         var missing = [];
-        if (isNaN(gv('p-i-temp')) && !missing.includes('Temp')) missing.push('Temperature');
-        if (isNaN(gv('p-i-ch')) && !missing.includes('CH')) missing.push('Calcium Hardness');
-        if (isNaN(gv('p-i-measTA')) && !missing.includes('TA')) missing.push('Total Alkalinity');
+        if (isNaN(gv('p-i-pH')) && !missing.includes('pH')) missing.push('pH');
+        if (isNaN(gv('p-i-temp')) && !missing.includes('Temperature')) missing.push('Temperature');
+        if (isNaN(gv('p-i-ch')) && !missing.includes('Calcium Hardness')) missing.push('Calcium Hardness');
+        if (isNaN(gv('p-i-measTA')) && !missing.includes('Total Alkalinity')) missing.push('Total Alkalinity');
         if (missing.length > 0) {
             normal.push('LSI: — (enter ' + missing.join(', ') + ' to calculate)');
             colors.LSI = '#868e96';
@@ -5178,7 +5276,7 @@ gbyId('p-btn-alerts').onclick = function() {
     var resHTML = '';
     if (alerts.length > 0) {
         resHTML += '<b style="color:#ff6b6b;">' + alerts.length + ' ALERT</b>' + (alerts.length > 1 ? 'S' : '') + '<br>';
-        for (var i = 0; i < alerts.length; i++) {
+        for (let i = 0; i < alerts.length; i++) {
             resHTML += '<span style="color:#ff6b6b;">&nbsp;&nbsp;' + alerts[i] + '</span><br>';
         }
     } else {
