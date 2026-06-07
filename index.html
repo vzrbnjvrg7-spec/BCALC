@@ -780,7 +780,7 @@
         <div class="row">
             <div class="col"><label>Target Change (ppm or pH)</label><input type="number" id="p-i-target" placeholder="ppm (e.g. 10) or pH points (e.g. 0.2)" value="10" step="any"></div>
             <div class="col"><label>Chemical</label><select id="p-i-chem">
-                <option value="cyanuric" data-type="cya_custom" data-factor="7.5" data-sideeffects="Stabilizes chlorine from UV degradation">CYA Stabilizer (custom below)</option>
+                <option value="cyanuric" data-type="cya_custom" data-factor="13.7" data-sideeffects="Stabilizes chlorine from UV degradation">CYA Stabilizer (custom below)</option>
                 <option value="borax" data-type="ph_up" data-factor="0.042" data-sideeffects="Mild TA increase (secondary effect, not linear)">Borax (primarily raises pH, modest TA increase)</option>
                 <option value="salt" data-type="sal_ppm" data-factor="12.0" data-sideeffects="No sanitation unless SWG cell present">Pool Salt (NaCl)</option>
                 <option value="muriatic" data-type="ph_control" data-sideeffects="Lowers pH and TA immediately">Muriatic Acid (lower pH)</option>
@@ -836,8 +836,8 @@
         <button class="btn btn-calc" id="p-btn-dose">Calculate Dosage</button>
         <div class="result-box" id="p-d-res">Enter volume & target</div>
         <div class="result-box" id="p-d-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
-        <h3 style="margin-top:15px;">Alkalinity Check</h3>
-        <div style="font-size:0.8em;color:#aaa;margin-bottom:8px;">Enter your water test results below. This check recommends dosing to bring TA into the 60–120 ppm range and flags when simultaneous pH/TA correction is needed.</div>
+        <h3 style="margin-top:15px;">TA & pH Correction Check</h3>
+        <div style="font-size:0.8em;color:#aaa;margin-bottom:8px;">Enter your water test results below. This check recommends dosing to bring TA into the 60–120 ppm range and flags when simultaneous pH/TA correction is needed (low TA + high pH requires a two-step process).</div>
         <div class="row">
             <div class="col"><label>Measured TA (ppm as CaCO₃)</label><input type="number" id="p-i-measTA" placeholder="Enter your test result (e.g. 90)" value=""></div>
             <div class="col"><label>pH (from test kit)</label><input type="number" id="p-i-pH" placeholder="e.g. 7.5" value="7.5"></div>
@@ -4257,11 +4257,16 @@ gbyId('w-btn-copy').onclick = function() {
 var _pResult = null;
 
 function pCalc_dose() {
-    var gal = gv('p-i-gal');
+    var gal = Number(gv('p-i-gal'));
     var target = gv('p-i-target');
 
-    if (isNaN(gal) || isNaN(target)) {
-        gbyId('p-d-res').innerHTML = 'Enter volume & target'; _pResult = null; return null;
+    if (isNaN(gal) || gal <= 0) {
+        gbyId('p-d-res').innerHTML = 'Enter valid pool volume (> 0)'; _pResult = null; return null;
+    }
+
+    var targetNum = Number(target);
+    if (isNaN(targetNum) || target === '') {
+        gbyId('p-d-res').innerHTML = 'Enter a valid target value'; _pResult = null; return null;
     }
 
     // If breakpoint is active, use its net-to-dose as the target instead
@@ -4275,7 +4280,7 @@ function pCalc_dose() {
     }
 
     var sel = gbyId('p-i-chem');
-    if (!sel || !sel.selectedIndex) {
+    if (!sel || sel.options.length === 0) {
         gbyId('p-d-res').innerHTML = 'Select a chemical'; _pResult = null; return null;
     }
     var opt = sel.options[sel.selectedIndex];
@@ -4294,7 +4299,7 @@ function pCalc_dose() {
             case 'sal_ppm': goalText = 'Raise salinity for SWG chlorine generation'; break;
             case 'oz_ppm':
                 if (chemName.indexOf('Borax') !== -1) goalText = 'Raises pH (logarithmic scale — effect depends on alkalinity)';
-                if (chemName.indexOf('Baking') !== -1) goalText = 'Raise total alkalinity (TA) in ppm';
+                else if (chemName.indexOf('Baking') !== -1) goalText = 'Raise total alkalinity (TA) in ppm';
                 else if (chemName.indexOf('Salt') !== -1) goalText = 'Reach salt generator target level';
                 else goalText = 'Adjust chemical to target ppm';
                 break;
@@ -4305,10 +4310,13 @@ function pCalc_dose() {
     }
     var sideEffects = opt.getAttribute('data-sideeffects') || '';
 
+    // Validate target is numeric (breakpoint may have overridden it with a number)
+    if (!isNaN(Number(target))) { targetNum = Number(target); }
+
     // Validate target for chem types that require positive values
     if (chemType === 'oz_ppm' || chemType === 'cya_custom') {
-        if (target <= 0) { gbyId('p-d-res').innerHTML = 'Enter a positive target ppm change'; _pResult = null; return null; }
-        if (target > 500) { gbyId('p-d-res').innerHTML = 'Target too high — max 500 ppm'; _pResult = null; return null; }
+        if (targetNum <= 0) { gbyId('p-d-res').innerHTML = 'Enter a positive target ppm change'; _pResult = null; return null; }
+        if (targetNum > 500) { gbyId('p-d-res').innerHTML = 'Target too high — max 500 ppm'; _pResult = null; return null; }
     }
 
     var ozNeeded, lbsNeeded;
@@ -4322,17 +4330,17 @@ function pCalc_dose() {
     }
 
     // Magnitude warnings based on chemical type
-    if (chemType === 'ph_up' && target > 2) {
-        warnings.push('⚠ Target change of ' + target.toFixed(1) + ' pH points is enormous — typical dose is 0.2–0.5');
-        warnings.push('⚠ This would produce ' + (chemName.indexOf('Borax') !== -1 ? '~' + ((target * gal) / (10000 * 0.042)).toFixed(0) + ' lbs of borax' : '~' + (target / 0.2).toFixed(0) + ' lbs of soda ash') + ' — split into multiple treatments');
+    if (chemType === 'ph_up' && targetNum > 0.5) {
+        warnings.push('⚠ Target change of ' + targetNum.toFixed(2) + ' pH points is large — typical dose is 0.2–0.5');
+        warnings.push('⚠ This would produce ' + (chemName.indexOf('Borax') !== -1 ? '~' + ((targetNum * gal) / (10000 * 0.042)).toFixed(0) + ' lbs of borax' : '~' + (targetNum / 0.2 * 0.75 * (gal/10000)).toFixed(1) + ' lbs of soda ash') + ' — split into multiple treatments');
     }
 
-    if (target > 100 && chemType === 'cya_custom') {
+    if (targetNum > 100 && chemType === 'cya_custom') {
         warnings.push('⚠ Target increase > 100 ppm — split across multiple treatments');
     }
 
     // CYA warning for current pool level if user also enters CYA elsewhere
-    var cyaInput = gv('p-i-cya');
+    var cyaInput = Number(gv('p-i-cya'));
     if (!isNaN(cyaInput) && cyaInput > 200 && chemType === 'cya_custom') {
         warnings.push('⚠ Extremely high CYA detected (' + cyaInput.toFixed(0) + ' ppm > 200 ppm) — recommended partial drain/refill');
     }
@@ -4341,26 +4349,27 @@ function pCalc_dose() {
     statsInfoParts.push('Volume: ' + gal.toFixed(0) + ' gallons<br>');
     if (bpActive && bpData) {
         statsInfoParts.push('Breakpoint shock: FC=' + bpData.fc.toFixed(1) + ' + CC=' + bpData.cc.toFixed(1) + ' ×' + bpData.mult + '<br>');
-        statsInfoParts.push('Target change: +' + target.toFixed(1) + ' ppm FC (net-to-dose)<br>');
+        statsInfoParts.push('Target change: +' + targetNum.toFixed(1) + ' ppm FC (net-to-dose)<br>');
     } else if (chemType === 'ph_up') {
-        statsInfoParts.push('Target change: +' + target.toFixed(2) + ' pH points<br>');
+        statsInfoParts.push('Target change: +' + targetNum.toFixed(2) + ' pH points<br>');
     } else {
-        statsInfoParts.push('Target change: +' + target.toFixed(1) + ' ppm<br>');
+        statsInfoParts.push('Target change: +' + targetNum.toFixed(1) + ' ppm<br>');
     }
 
     // Initialize _pResult before switch cases reference it
-    _pResult = { gal: gal, target: target, chemName: chemName, lbsNeeded: 0, ozNeeded: 0, unitsNeeded: 'lbs' };
+    var targetForResult = (!isNaN(Number(target)) ? Number(target) : (bpActive && bpData ? bpData.netToDose : 0));
+    _pResult = { gal: gal, target: targetForResult, chemName: chemName, lbsNeeded: 0, ozNeeded: 0, unitsNeeded: 'lbs' };
 
     switch (chemType) {
         case 'cya_custom':
-            var cyaConv = gv('p-i-cyaconv'); // oz per 10k gal to raise CYA by 50 ppm
-            if (isNaN(cyaConv) || cyaConv <= 0) {
-                gbyId('p-d-res').innerHTML = 'Enter CYA conversion factor'; _pResult = null; return null;
+            var cyaConv = Number(gv('p-i-cyaconv')); // oz per 10k gal to raise CYA by 50 ppm (TFP wiki: ~13.7 oz dry cyanuric acid)
+            if (isNaN(cyaConv) || cyaConv <= 0.1 || cyaConv > 500) {
+                gbyId('p-d-res').innerHTML = 'Enter valid CYA factor (0.1–500 oz per 10k gal → +50 ppm)'; _pResult = null; return null;
             }
             var ozPerPpm = cyaConv / 50;
             // Show the math: (target ppm) × (gal/10k gal) × (ozPerPpm oz/ppm)
-            var mathLine = '(' + target.toFixed(0) + ' × ' + (gal/10000).toFixed(2) + ') × ' + ozPerPpm.toFixed(3);
-            ozNeeded = (target * gal / 10000) * ozPerPpm;
+            var mathLine = '(' + targetNum.toFixed(0) + ' × ' + (gal/10000).toFixed(2) + ') × ' + ozPerPpm.toFixed(3);
+            ozNeeded = (targetNum * gal / 10000) * ozPerPpm;
             lbsNeeded = ozNeeded / 16;
 
             statsInfoParts.push('<br><b>Formula</b><br>');
@@ -4380,7 +4389,7 @@ function pCalc_dose() {
                 display = '<b style="font-size:1.3em;">' + ozNeeded.toFixed(2) + ' oz</b>';
             }
 
-            if (target > 30 && chemType === 'cya_custom') {
+            if (targetNum > 30 && chemType === 'cya_custom') {
                 warnings.push('⚠ Large CYA increase (>30 ppm at once) — add slowly over 24-48 hrs');
             }
             _pResult.unitsNeeded = lbsNeeded >= 1 ? 'lbs' : 'oz';
@@ -4389,8 +4398,8 @@ function pCalc_dose() {
         case 'oz_ppm':
             // oz_per_ppm: factor = oz needed per ppm change per 10k gal
             // Dichlor: ~2 oz/10k gal → +1 ppm FC; Liquid Cl: ~13 fl oz/10k gal → +1 ppm FC
-            var ozMath = '(' + factor.toFixed(2) + ' × ' + (gal/10000).toFixed(2) + '×10k gal × ' + target.toFixed(0) + ' ppm)';
-            ozNeeded = factor * (gal / 10000) * target;
+            var ozMath = '(' + factor.toFixed(2) + ' × ' + (gal/10000).toFixed(2) + '×10k gal × ' + targetNum.toFixed(0) + ' ppm)';
+            ozNeeded = factor * (gal / 10000) * targetNum;
             lbsNeeded = ozNeeded / 16;
 
             statsInfoParts.push('<br><b>Formula</b><br>');
@@ -4399,11 +4408,12 @@ function pCalc_dose() {
             statsInfoParts.push('      = ' + ozMath + '<br>');
             statsInfoParts.push('      = ' + ozNeeded.toFixed(1) + ' oz (' + lbsNeeded.toFixed(2) + ' lbs)<br>');
 
-            display = '<b style="font-size:1.3em;">' + ozNeeded.toFixed(1) + ' oz</b>';
+            var isLiquidCl = chemName.indexOf('Liquid') !== -1;
+            display = '<b style="font-size:1.3em;">' + ozNeeded.toFixed(1) + ' ' + (isLiquidCl ? 'fl oz' : 'oz') + '</b>';
 
             // Dichlor-specific: CYA warning
             if (chemName.indexOf('Dichlor') !== -1) {
-                var CYA_PER_OZ_DICHOR_PER_10K = 0.7; // ppm CYA added per oz dichlor per 10k gal (dichlor is ~56% CYA by weight)
+                var CYA_PER_OZ_DICHOR_PER_10K = 0.9; // ppm CYA per oz dichlor/10k gal (dichlor is ~39% CYA by weight, per TFP wiki)
                 var cyaAdd = ozNeeded * CYA_PER_OZ_DICHOR_PER_10K / (gal/10000);
                 warnings.push('⚠ Dichlor adds ~' + cyaAdd.toFixed(1) + ' ppm CYA — long-term use raises stabilizer');
             }
@@ -4414,8 +4424,8 @@ function pCalc_dose() {
         case 'sal_ppm':
             // Pool Salt: 1 lb/10k gal ≈ 12 ppm salinity (mass balance, linear)
             // lbs = (target × gal) / (10000 × factor) — result is in lbs directly
-            var salMath = '(' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / (10000 × ' + factor.toFixed(2) + ')';
-            lbsNeeded = (target * gal) / (10000 * factor);
+            var salMath = '(' + targetNum.toFixed(0) + ' × ' + gal.toFixed(0) + ') / (10000 × ' + factor.toFixed(2) + ')';
+            lbsNeeded = (targetNum * gal) / (10000 * factor);
 
             statsInfoParts.push('<br><b>Formula</b><br>');
             statsInfoParts.push('Factor: ' + factor.toFixed(1) + ' ppm salinity per lb/10k gal<br>');
@@ -4445,8 +4455,8 @@ function pCalc_dose() {
         case 'ta_ppm':
             // Baking Soda (sodium bicarbonate): 1.4 lb/10k gal → +10 ppm TA
             // factor = 7.14 ppm per lb/10k gal (derived from standard pool chemistry)
-            var taMath = '(' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / (10000 × ' + factor.toFixed(2) + ')';
-            lbsNeeded = (target * gal) / (10000 * factor);
+            var taMath = '(' + targetNum.toFixed(0) + ' × ' + gal.toFixed(0) + ') / (10000 × ' + factor.toFixed(2) + ')';
+            lbsNeeded = (targetNum * gal) / (10000 * factor);
 
             statsInfoParts.push('<br><b>Formula</b><br>');
             statsInfoParts.push('Factor: ' + factor.toFixed(2) + ' ppm TA per lb/10k gal<br>');
@@ -4474,12 +4484,12 @@ function pCalc_dose() {
                 var bpSource = parseFloat(gbyId('p-i-bp-source').value) || 65;
                 effectiveFactor = bpSource === 65 ? 8.0 : 10.6;
             }
-            var chMath = '(' + target.toFixed(0) + ' × ' + gal.toFixed(0) + ') / (10000 × ' + effectiveFactor.toFixed(1) + ')';
+            var chMath = '(' + targetNum.toFixed(0) + ' × ' + gal.toFixed(0) + ') / (10000 × ' + effectiveFactor.toFixed(1) + ')';
             var isLiquidCl = bpActive && bpData && parseFloat(gbyId('p-i-bp-source').value) !== 65;
             if (isLiquidCl) {
-                lbsNeeded = ozNeeded / 16; // keep lbs for compatibility but use galNeeded
-                var galNeeded = (target * gal) / (10000 * effectiveFactor);
+                var galNeeded = (targetNum * gal) / (10000 * effectiveFactor);
                 ozNeeded = 0;
+                lbsNeeded = 0; // not applicable for liquid chlorine (uses gallons)
 
                 statsInfoParts.push('<br><b>Formula</b><br>');
                 statsInfoParts.push('Factor: ' + effectiveFactor.toFixed(1) + ' ppm FC per gal/10k gal');
@@ -4491,7 +4501,7 @@ function pCalc_dose() {
                 display = '<b style="font-size:1.3em;">' + galNeeded.toFixed(2) + ' gal</b>';
                 _pResult.unitsNeeded = 'gal';
             } else {
-                lbsNeeded = (target * gal) / (10000 * effectiveFactor);
+                lbsNeeded = (targetNum * gal) / (10000 * effectiveFactor);
                 ozNeeded = 0;
 
                 statsInfoParts.push('<br><b>Formula</b><br>');
@@ -4509,7 +4519,7 @@ function pCalc_dose() {
             }
 
             // SLAM/shock warning (cal-hypo is an FC chemical)
-            if (target >= 10 && !isLiquidCl) {
+            if (targetNum >= 10 && !isLiquidCl) {
                 warnings.push('⚠ Shock/SLAM level — maintain FC 10× normal for 24 hrs');
             }
 
@@ -4518,23 +4528,34 @@ function pCalc_dose() {
         case 'ph_control':
             // Muriatic Acid: lowers pH via carbonate equilibrium
             // Requires current & target pH inputs (not the ppm target field)
-            var curPH = gv('p-i-curpH');
-            var tarPH = gv('p-i-tarpH');
-            
+            var curPH = Number(gv('p-i-curpH'));
+            var tarPH = Number(gv('p-i-tarpH'));
+
             if (isNaN(curPH) || isNaN(tarPH)) {
                 gbyId('p-d-res').innerHTML = 'Enter current & target pH'; _pResult = null; return null;
             }
-            
+
+            if (isNaN(curPH) || curPH < 6.0 || curPH > 10.0) {
+                gbyId('p-d-res').innerHTML = 'Current pH must be 6.0–10.0'; _pResult = null; return null;
+            }
+
+            if (isNaN(tarPH) || tarPH < 6.0 || tarPH > 10.0) {
+                gbyId('p-d-res').innerHTML = 'Target pH must be 6.0–10.0'; _pResult = null; return null;
+            }
+
             if (tarPH >= curPH) {
                 gbyId('p-d-res').innerHTML = 'Target pH must be lower than current'; _pResult = null; return null;
             }
-            
+
             var phDelta = curPH - tarPH; // positive number of pH points to lower
-            
+            if (phDelta > 1.0) {
+                gbyId('p-d-res').innerHTML = 'Max pH drop is 1.0 — split into multiple treatments'; _pResult = null; return null;
+            }
+
             // Rule: ~6 fl oz muriatic acid (31.45%) per 10k gal lowers pH by ~0.1
             var ozNeeded = (phDelta / 0.1) * 6 * (gal / 10000);
             lbsNeeded = ozNeeded / 16;
-            
+
             statsInfoParts.push('<br><b>Formula</b><br>');
             statsInfoParts.push('Current pH: ' + curPH.toFixed(1) + ' → Target: ' + tarPH.toFixed(1));
             statsInfoParts.push(' (ΔpH = −' + phDelta.toFixed(1) + ')<br>');
@@ -4556,12 +4577,13 @@ function pCalc_dose() {
 
         case 'ph_up':
             // Soda Ash / Borax: raises pH, NOT ppm-based
-            if (target <= 0) { gbyId('p-d-res').innerHTML = 'Target must be positive (enter how much to raise pH)'; _pResult = null; return null; }
+            if (targetNum <= 0) { gbyId('p-d-res').innerHTML = 'Target must be positive (enter how much to raise pH)'; _pResult = null; return null; }
+            if (targetNum > 1.0) { gbyId('p-d-res').innerHTML = 'Max pH change is 1.0 points — split into multiple treatments'; _pResult = null; return null; }
             if (chemName.indexOf('Borax') !== -1) {
                 // Borax: 76 oz per 10k gal → +0.2 pH
                 // Direct scaling: dose = 76 × (gal/10k) × (ΔpH / 0.2)
-                var ozMath = '76 × ' + (gal/10000).toFixed(2) + ' × (' + target.toFixed(2) + '/0.2)';
-                ozNeeded = 76 * (gal / 10000) * (target / 0.2);
+                var ozMath = '76 × ' + (gal/10000).toFixed(2) + ' × (' + targetNum.toFixed(2) + '/0.2)';
+                ozNeeded = 76 * (gal / 10000) * (targetNum / 0.2);
                 lbsNeeded = ozNeeded / 16;
 
                 statsInfoParts.push('<br><b>Formula</b><br>');
@@ -4574,8 +4596,8 @@ function pCalc_dose() {
                 // Soda Ash: ~0.75 lb per 10k gal → +0.2 pH
                 // factor from HTML data-factor=0.2 (pH points per dose), formula: lbs = ΔpH × 3.75 × gal/10k
                 // (target / 0.2) * 0.75 = target * 3.75 — equivalent to ~3.75 lbs per pH point per 10k gal
-                var saMath = '(' + target.toFixed(2) + ' / ' + factor.toFixed(3) + ') × ' + (gal/10000).toFixed(2) + ' × 0.75';
-                lbsNeeded = (target / factor) * (gal / 10000) * 0.75;
+                var saMath = '(' + targetNum.toFixed(2) + ' / ' + factor.toFixed(3) + ') × ' + (gal/10000).toFixed(2) + ' × 0.75';
+                lbsNeeded = (targetNum / factor) * (gal / 10000) * 0.75;
                 ozNeeded = lbsNeeded * 16;
 
                 statsInfoParts.push('<br><b>Formula</b><br>');
@@ -4587,7 +4609,7 @@ function pCalc_dose() {
             }
 
             // Warnings about pH raisers
-            if (target > 0.5) {
+            if (targetNum > 0.5) {
                 warnings.push('⚠ Large pH increase (>0.5) — add in 2–3 portions, circulate between doses');
             }
             if (chemName.indexOf('Soda') !== -1) {
@@ -4612,7 +4634,7 @@ function pCalc_dose() {
             break;
 
         default:
-            ozNeeded = (target * gal) / (10000 * factor);
+            ozNeeded = (targetNum * gal) / (10000 * factor);
             lbsNeeded = ozNeeded / 16;
             display = '<b style="font-size:1.3em;">' + lbsNeeded.toFixed(2) + ' lbs</b>';
     }
@@ -4634,8 +4656,16 @@ function pCalc_dose() {
         }
     }
 
+    var targetLine = '';
+    if (chemType === 'cya_custom' || chemType === 'sal_ppm' || chemType === 'ta_ppm' || chemType === 'lb_ppm') {
+        targetLine = '<br><span style="font-size:0.95em; color:#74c0fc;">Target change: +' + targetNum.toFixed(1) + ' ppm</span>';
+    } else if (chemType === 'ph_up' || chemType === 'ph_control') {
+        targetLine = '<br><span style="font-size:0.95em; color:#74c0fc;">Target change: +' + targetNum.toFixed(2) + ' pH points</span>';
+    }
+
     gbyId('p-d-res').innerHTML = display +
         '<br><span style="font-size:1.1em; color:#a5d6ff;">' + chemName + '</span>' +
+        targetLine +
         '<br><span style="font-size:0.9em; color:#aaa;">Goal: ' + goalText + '</span>' +
         (bpActive && bpData ? '<br><span style="font-size:0.85em; color:#fab005;">CC=' + bpData.cc.toFixed(1) + ' ppm | Breakpoint target: ' + bpData.breakpointPPM.toFixed(1) + ' ppm</span>' : '');
 
@@ -4654,6 +4684,9 @@ function pCalc_dose() {
         if (bpData.galNeeded > 0) {
             _pResult.galNeeded = bpData.galNeeded;
         }
+        if (bpData.lbsNeeded > 0) {
+            _pResult.lbsNeeded = bpData.lbsNeeded;
+        }
     }
     
     return _pResult;
@@ -4670,14 +4703,18 @@ gbyId('p-i-chem').onchange = function() {
     if (type === 'ph_up') {
         targetInput.value = 0.2; // pH points, not ppm — 10 would be catastrophic
         targetInput.placeholder = 'pH points (e.g. 0.2)';
+        targetInput.disabled = false;
     } else if (type === 'ph_control') {
-        targetInput.disabled = true; // uses pH inputs instead
+        targetInput.placeholder = 'Use current/target pH inputs below instead';
+        targetInput.disabled = true;
     } else if (type === 'cya_custom') {
         targetInput.value = 50; // CYA ppm
         targetInput.placeholder = 'ppm (default 50)';
+        targetInput.disabled = false;
     } else {
         targetInput.value = 10; // ppm for most chemicals
         targetInput.placeholder = 'ppm (e.g. 10)';
+        targetInput.disabled = false;
     }
 
     var cyaRow = gbyId('p-row-cya-conv');
@@ -4729,8 +4766,8 @@ function pCalc_toggleBreakpoint() {
 }
 
 function pCalc_updateCC() {
-    var fc = gv('p-i-bp-fc');
-    var tc = gv('p-i-bp-tc');
+    var fc = Number(gv('p-i-bp-fc'));
+    var tc = Number(gv('p-i-bp-tc'));
     if (!isNaN(fc) && !isNaN(tc)) {
         var cc = Math.max(0, tc - fc);
         gbyId('p-i-bp-cc').value = cc.toFixed(1);
@@ -4738,34 +4775,37 @@ function pCalc_updateCC() {
 }
 
 function pCalc_calcBreakpointPreview() {
-    var fc = gv('p-i-bp-fc');
-    var tc = gv('p-i-bp-tc');
+    var fc = Number(gv('p-i-bp-fc'));
+    var tc = Number(gv('p-i-bp-tc'));
     var mult = parseFloat(gbyId('p-i-bp-mult').value) || 10;
-    var gal = gv('p-i-bp-gal');
+    var gal = Number(gv('p-i-bp-gal'));
     var chlorStrength = parseFloat(gbyId('p-i-bp-source').value) || 65;
-    
+
     if (isNaN(fc) || isNaN(tc)) {
         gbyId('p-d-bp-preview').innerHTML = 'Enter FC & TC readings';
         return null;
     }
-    
+
     // Derive CC from TC - FC (CC is always calculated, never user-entered)
     var cc = Math.max(0, tc - fc);
-    
+
     // Breakpoint target: FC + (multiplier × CC)
     var breakpointPPM = fc + (mult * cc);
     var netToDose = Math.max(0, breakpointPPM - fc);
-    
+
     // Calculate dosage based on chlorine source strength
     var lbsNeeded = 0, galNeeded = 0;
-    if (!isNaN(gal) && netToDose > 0) {
-        // Cal-hypo (65%): ~8 ppm FC per lb/10k gal
-        // Liquid chlorine (10%): ~10.6 ppm FC per gal/10k gal
-        var factor = chlorStrength === 65 ? 8.0 : 10.6;
-        if (chlorStrength === 65) {
+    if (!isNaN(gal) && gal > 0 && netToDose > 0) {
+        // Factor scales proportionally with chlorine concentration
+        // Reference: 65% cal-hypo yields ~8 ppm FC per lb/10k gal
+        var factor = (chlorStrength / 65) * 8.0;
+        if (chlorStrength >= 50) {
+            // Cal-hypo or similar solid: lbs = (ppm × gal) / (10000 × factor)
             lbsNeeded = (netToDose * gal) / (10000 * factor);
         } else {
-            galNeeded = (netToDose * gal) / (10000 * factor);
+            // Liquid chlorine (~10%): gal = (ppm × gal) / (10000 × 1.02)
+            // ~1 gal/10k gal → +1 ppm FC for 10% liquid chlorine
+            galNeeded = (netToDose * gal) / (10000 * 1.02);
         }
     }
     
@@ -4836,27 +4876,48 @@ function pCalc_taCorrection() {
 
     // Status based on measured TA (homeowner-friendly)
     var status, statusColor;
-    if (measTA < 80) { status = 'LOW — add baking soda'; statusColor = '#ff6b6b'; }
+    if (measTA < 80) {
+        status = (!isNaN(pH) && pH > 7.6) ? 'LOW + HIGH pH — two-step correction' : 'LOW — add baking soda';
+        statusColor = '#ff6b6b';
+    }
     else if (measTA <= 120) { status = 'OK'; statusColor = '#40c057'; }
     else if (measTA <= 150) { status = 'HIGH — consider lowering'; statusColor = '#fab005'; }
     else { status = 'VERY HIGH — significant risk'; statusColor = '#ff6b6b'; }
 
-    // --- BASIC display (always shown) ---
-    var mainHTML = '<b style="font-size:1.3em;">' + status + '</b>';
-    mainHTML += '<br><span style="font-size:0.9em; color:#aaa;">TA controls pH buffering — typical range 60–120 ppm</span>';
-    mainHTML += '<br><span style="font-size:1.0em; color:#a5d6ff;">Measured TA: ' + measTA.toFixed(0) + ' ppm</span>';
+    // --- BASIC display (always shown) with color-coded emphasis ---
+    var mainHTML = '';
 
+    // Status badge
+    mainHTML += '<b style="font-size:1.4em; color:' + statusColor + ';">' + status.toUpperCase() + '</b><br>';
+
+    // Measured TA — prominent
+    mainHTML += '<span style="font-size:1.2em; color:#e0e0e0;">Measured TA:</span> <b style="font-size:1.2em; color:' + statusColor + ';">' + measTA.toFixed(0) + ' ppm</b><br>';
+
+    // Ideal range banner
+    mainHTML += '<span style="font-size:0.85em; color:#9e9e9e;">Ideal range: 80–120 ppm (60–120 acceptable)</span><br>';
+
+    // CYA adjustment — subtle
     if (cya > 0) {
-        mainHTML += '<br><span style="font-size:0.9em; color:#aaa;">Estimated carbonate alkalinity correction for LSI/CSI (CYA): −' + cyaAdj + ' ppm</span>';
+        mainHTML += '<span style="font-size:0.9em; color:#74c0fc;">CYA correction:</span> <b style="font-size:0.9em; color:#74c0fc;">−' + cyaAdj + ' ppm</b> → <span style="font-size:0.9em; color:#bdbdbd;">adjusted TA: ~' + adjTA.toFixed(0) + ' ppm</span><br>';
     }
 
+    // Borate note — only if relevant
     if (borates > 0) {
-        var borStatus = borates <= 30 ? 'not significant (≤30 ppm)' : 'significant — show calculation for details';
-        mainHTML += '<br><span style="font-size:0.85em; color:#aaa;">Borates: ' + borates.toFixed(0) + ' ppm (' + borStatus + ')</span>';
+        var borColor = borates <= 30 ? '#9e9e9e' : '#fab005';
+        var borNote = borates <= 30 ? 'negligible at ≤30 ppm' : 'may affect alkalinity readings';
+        mainHTML += '<span style="font-size:0.85em; color:' + borColor + ';">Borates ' + borates.toFixed(0) + ' ppm — ' + borNote + '</span><br>';
     }
 
-    if (cya > 0) {
-        mainHTML += '<br><span style="font-size:1.0em; color:#a5d6ff;">Adjusted TA: ~' + adjTA.toFixed(0) + ' ppm (for scaling estimate only)</span>';
+    // Action line for out-of-range values
+    if (measTA < 80) {
+        mainHTML += '<br><span style="font-size:1em; color:#ff6b6b;">→ Add baking soda to raise TA</span>';
+        if (!isNaN(pH) && pH > 7.6) {
+            mainHTML += ' <b style="color:#ff6b6b;">(requires two-step process — see below)</b>';
+        }
+    } else if (measTA > 120) {
+        mainHTML += '<br><span style="font-size:1em; color:#fab005;">→ Partial drain or muriatic acid to lower TA</span>';
+    } else {
+        mainHTML += '<br><span style="font-size:1em; color:#40c057;">→ TA is in the acceptable range — no action needed</span>';
     }
 
     gbyId('p-d-tacorr').innerHTML = mainHTML;
@@ -4881,9 +4942,9 @@ function pCalc_taCorrection() {
     var TA_TARGET = 80; // target TA ppm for low-TA correction (lower end of ideal range)
     var pH_TARGET = 7.5; // target pH for simultaneous dosing (mid-range ideal)
     var sodaPPM_per_lb = 7.14; // per lb/10k gal
-    var sodaPH_factor = 0.26 / 7.14; // pH rise per lb/10k gal
-    var acidTA_per_pH = 7.0; // TA drop per pH point corrected
-    var acidPH_per_oz = 0.2; // pH drop per fl oz/10k gal
+    var sodaPH_factor = 0.018 / 7.14; // pH rise per lb/10k gal (baking soda, 80ppm TA → +0.2 pH per TFP)
+    var acidTA_per_pH = 16.0; // TA drop per pH point (TFP wiki: 8 ppm TA / 0.5 pH = 16)
+    var acidPH_per_oz = 0.017; // pH drop per fl oz/10k gal (≈6 fl oz per −0.1 pH, standard rule)
     var TA_factor = sodaPPM_per_lb / (sodaPPM_per_lb + acidTA_per_pH * sodaPH_factor);
     var dosingHTML = '';
 
@@ -4892,19 +4953,17 @@ function pCalc_taCorrection() {
     if (measTA < 80) {
         // Check for low TA + high pH scenario (simultaneous dosing needed)
         if (!isNaN(pH) && pH > 7.6) {
-            var poolVol = gv('p-i-gal');
-            if (!isNaN(poolVol)) {
-                // Overshoot TA target using simultaneous dosing formula
-                var pH_delta = pH - pH_TARGET; // positive = how much to lower
-                if (pH_delta > 1.5) pH_delta = 1.5; // cap extreme pH delta for stability
-                var overshootTA = Math.round((measTA * TA_factor + pH_delta * acidTA_per_pH / sodaPPM_per_lb)
-                    / (1 - pH_delta * acidTA_per_pH * sodaPH_factor / sodaPPM_per_lb) + 0.5);
-                overshootTA = Math.max(overshootTA, measTA + 10); // minimum meaningful overshoot
+            var poolVol = Number(gv('p-i-gal'));
+            if (!isNaN(poolVol) && poolVol > 0) {
+                // Overshoot TA target — aim for ~TA_TARGET + 10 so acid brings it to target
+                var overshootTA = TA_TARGET;
                 var sodaPPM = overshootTA - measTA;
 
                 // Soda ash dose for overshoot target
                 var sodaLbs = (sodaPPM * poolVol / 10000) / sodaPPM_per_lb;
-                var pH_spike = 0.26 * (sodaPPM / sodaPPM_per_lb); // approximate pH rise
+
+                // pH spike estimate — TFP wiki: baking soda can spike 0.2–0.3 pH at high doses
+                var pH_spike = Math.min(0.04 * (sodaPPM / sodaPPM_per_lb), 0.25);
 
                 // Muriatic acid dose for pH correction
                 var newPH = Math.min(pH + pH_spike, 9.0); // cap extreme values
@@ -4917,43 +4976,52 @@ function pCalc_taCorrection() {
                 var acidTADrop = Math.round(acidPH_delta * acidTA_per_pH + 0.5);
                 var finalTA = Math.round(overshootTA - acidTADrop);
 
-                statsLines.push('⚠ Low TA + high pH — use simultaneous dosing:');
-                statsLines.push('Step 1: Add ~' + sodaLbs.toFixed(2) + ' lbs baking soda');
-                statsLines.push('  TA → ~' + overshootTA + ' ppm, pH spikes to ~' + newPH.toFixed(1));
-                statsLines.push('Step 2: Add ~' + totalAcidOz.toFixed(1) + ' fl oz muriatic acid');
-                statsLines.push('  pH → ~' + pH_TARGET + ', TA drops to ~' + finalTA + ' ppm (target: ' + TA_TARGET + ')');
+                statsLines.push('⚠ Low TA + high pH — two-step correction required:');
+                statsLines.push('  Step 1 (do now): Add ~' + sodaLbs.toFixed(2) + ' lbs baking soda');
+                statsLines.push('    After step 1: TA → ~' + overshootTA + ' ppm');
+                statsLines.push('    Wait 4–6 hrs, circulate, retest both TA and pH');
+                statsLines.push('  Step 2 (after retesting): Add ~' + totalAcidOz.toFixed(1) + ' fl oz muriatic acid');
+                statsLines.push('    Adjust dose based on retested pH. Target: pH ~7.5, TA ~' + finalTA + ' ppm');
+                statsLines.push('    (Start with half this dose, wait 4–6 hrs, retest pH, add more if needed.)');
                 statsLines.push('');
-                dosingHTML = '<span style="color:#fab005;">Two-Step Correction (Low TA + High pH)</span><br>';
-                dosingHTML += '<span style="color:#aaa;">Why two steps: baking soda raises TA but also pH; muriatic acid lowers pH but drops TA.</span><br>';
-                dosingHTML += '<span style="color:#aaa;">Step 1 overshoots TA to ~' + overshootTA + ' ppm so that after acid correction, final TA ≈ ' + finalTA + ' ppm.</span><br>';
-                dosingHTML += '<span style="color:#aaa;">Step 1: ' + sodaLbs.toFixed(2) + ' lbs baking soda — TA → ~' + overshootTA + ', pH spikes to ~' + newPH.toFixed(1) + '</span><br>';
-                dosingHTML += '<span style="color:#aaa;">Step 2: ' + totalAcidOz.toFixed(1) + ' fl oz muriatic acid — pH → ~' + pH_TARGET + ', TA → ~' + finalTA + '</span><br>';
-                dosingHTML += '<span style="color:#aaa;">Each dose must circulate 4–6 hrs before next step. Retest both TA and pH after completion.</span>';
+                dosingHTML = '<b style="color:#fab005; font-size:1.2em;">⚠ Two-Step Correction Required</b><br>';
+                dosingHTML += '<span style="font-size:0.9em; color:#bdbdbd;">Low TA + high pH — must be corrected in sequence</span><br>';
+                dosingHTML += '<hr style="border:none; border-top:1px solid #424242; margin:8px 0;">';
+                dosingHTML += '<span style="color:#4fc3f7; font-weight:bold;">Step 1 — Now:</span> <b style="color:#e0e0e0;">' + sodaLbs.toFixed(2) + ' lbs baking soda</b><br>';
+                dosingHTML += '<span style="font-size:0.85em; color:#9e9e9e;">  After step 1: TA → ~' + overshootTA + ' ppm | Wait 4–6 hrs, circulate, retest</span><br>';
+                dosingHTML += '<hr style="border:none; border-top:1px solid #424242; margin:8px 0;">';
+                dosingHTML += '<span style="color:#4fc3f7; font-weight:bold;">Step 2 — After retest:</span> <b style="color:#e0e0e0;">' + totalAcidOz.toFixed(1) + ' fl oz muriatic acid</b><br>';
+                dosingHTML += '<span style="font-size:0.85em; color:#9e9e9e;">  Target: pH ~7.5, TA ~' + finalTA + ' ppm (start with half dose)</span><br>';
+                dosingHTML += '<hr style="border:none; border-top:1px solid #424242; margin:8px 0;">';
+                dosingHTML += '<span style="font-size:0.85em; color:#ff6b6b;">⚠ Do NOT add both at once — they cancel each other out.</span><br>';
+                dosingHTML += '<span style="font-size:0.85em; color:#bdbdbd;">Rule: ~6 fl oz 31.45% muriatic acid per 10k gal → −0.1 pH</span>';
             } else {
-                statsLines.push('Need baking soda + muriatic acid — enter pool volume for simultaneous dosing dosage');
+                statsLines.push('Need baking soda + muriatic acid — enter pool volume for two-step correction dosage');
             }
         } else {
-            var poolVol = gv('p-i-gal');
-            if (!isNaN(poolVol)) {
+            var poolVol = Number(gv('p-i-gal'));
+            if (!isNaN(poolVol) && poolVol > 0) {
                 var bakingSoda = ((TA_TARGET - measTA) * poolVol / 10000) / sodaPPM_per_lb;
-                statsLines.push('Add ~' + bakingSoda.toFixed(1) + ' lbs baking soda');
-                statsLines.push('Dissolve in a bucket, pour around perimeter, run pump overnight');
+                statsLines.push('→ Add ~' + bakingSoda.toFixed(1) + ' lbs baking soda to raise TA');
+                statsLines.push('  Dissolve in a bucket, pour around perimeter, run pump overnight');
+                statsLines.push('  (1.4 lb/10k gal → +10 ppm TA)');
             } else {
                 statsLines.push('Need baking soda — enter pool volume for dosage');
             }
         }
     } else if (measTA > 120) {
-        var poolVol = gv('p-i-gal');
-        if (!isNaN(poolVol)) {
-            var TA_DROP_PER_FL_OZ_MA = 42; // empirical: ~1 fl oz MA per 10k gal drops TA by ~1 ppm, so 42 fl oz drops TA by ~42 ppm (high-TA correction factor)
+        var poolVol = Number(gv('p-i-gal'));
+        if (!isNaN(poolVol) && poolVol > 0) {
+            var TA_DROP_PER_FL_OZ_MA = 0.27; // TFP wiki: 30 fl oz drops pH 0.5 → 8 ppm TA = 0.27 ppm/oz
             var muriatic = ((measTA - 120) * poolVol / 10000) / TA_DROP_PER_FL_OZ_MA;
-            statsLines.push('Add ~' + muriatic.toFixed(1) + ' fl oz muriatic acid');
-            statsLines.push('Pour at skimmer with pump running, retest after a few hours');
+            statsLines.push('→ Add ~' + muriatic.toFixed(1) + ' fl oz muriatic acid to lower TA');
+            statsLines.push('  Pour at skimmer with pump running, retest after a few hours');
+            statsLines.push('  (Alternately: partial drain/refill — safest method)');
         } else {
             statsLines.push('Need muriatic acid — enter pool volume for dosage');
         }
     } else {
-        statsLines.push('OK — TA is within typical residential range');
+        statsLines.push('✓ TA is within typical residential range (80–120 ppm)');
     }
 
     if (cya > 50) {
@@ -5002,8 +5070,8 @@ function pCalc_taCorrection() {
 gbyId('p-btn-tacorr').onclick = pCalc_taCorrection;
 
 function pCalc_demand() {
-    var fc = gv('p-i-fc');
-    var tc = gv('p-i-tc');
+    var fc = Number(gv('p-i-fc'));
+    var tc = Number(gv('p-i-tc'));
 
     if (isNaN(fc) || isNaN(tc)) {
         gbyId('p-d-demand').innerHTML = 'Enter FC & TC readings'; return;
@@ -5019,17 +5087,12 @@ function pCalc_demand() {
     else { ccRating = 'Negligible — no issue'; ccColor = '#40c057'; }
 
     // SLAM (Shock Level And Maintain) target based on CYA — standard FC/CYA chart
-    var cya = gv('p-i-cya');
+    var cya = Number(gv('p-i-cya'));
     if (isNaN(cya)) cya = 30; // default assumption
 
-    var slamFC;
-    if (cya <= 20) slamFC = Math.max(10, Math.round(cya * 0.5));
-    else if (cya <= 30) slamFC = Math.max(12, Math.round(cya * 0.4));
-    else if (cya <= 50) slamFC = Math.max(14, Math.round(cya * 0.4));
-    else if (cya <= 80) slamFC = Math.max(16, Math.round(cya * 0.35));
-    else slamFC = Math.max(18, Math.round(cya * 0.3));
+    var slamFC = Math.max(5, Math.round(cya / 5)); // Standard SLAM: FC = CYA/5 (min 5 ppm)
 
-    var gal = gv('p-i-gal');
+    var gal = Number(gv('p-i-gal'));
     // Cal hypo (65% available): lbs = (ppm × gal) / (10000 × 8.0)
     // Liquid chlorine (~10%): gal = (ppm × gal) / (10000 × 10.6)
     var lbsCalHypo = 0;
@@ -5044,17 +5107,17 @@ function pCalc_demand() {
         // No contamination — routine chlorination
         mainHTML = '<b style="font-size:1.3em;">Routine chlorination (no CC present)</b>' +
             '<br><span style="font-size:0.9em; color:#aaa;">Goal: maintain chlorine residual</span>' +
-            '<br><span style="font-size:1.0em; color:#a5d6ff;">CC: ' + combined.toFixed(1) + ' ppm — negligible</span>';
+            '<br><span style="font-size:1.0em; color:#40c057;">CC: ' + combined.toFixed(1) + ' ppm — negligible</span>';
     } else {
         // Contamination detected — SLAM recommendation
         mainHTML = '<b style="font-size:1.3em;">SLAM recommended</b>' +
             '<br><span style="font-size:0.9em; color:#aaa;">Shock Level And Maintain — kill chloramines & sanitize</span>' +
-            '<br><span style="font-size:1.0em; color:#a5d6ff;">CC: ' + combined.toFixed(1) + ' ppm — ' + ccRating.toLowerCase() + '</span>' +
+            '<br><span style="font-size:1.0em; color:' + ccColor + ';">CC: ' + combined.toFixed(1) + ' ppm — ' + ccRating.toLowerCase() + '</span>' +
             '<br><span style="font-size:1.0em; color:#a5d6ff;">CYA assumed: ' + cya.toFixed(0) + ' ppm → SLAM FC target: ~' + slamFC + ' ppm</span>' +
             '<br><span style="font-size:0.85em; color:#aaa;">Based on standard FC/CYA SLAM chart (Trouble Free Pool)</span>';
     }
 
-    if (!isNaN(gal) && fcIncreaseNeeded > 0) {
+    if (!isNaN(gal) && gal > 0 && fcIncreaseNeeded > 0) {
         lbsCalHypo = (fcIncreaseNeeded * gal) / (10000 * 8.0);
         galLiquidCl = (fcIncreaseNeeded * gal) / (10000 * 10.6);
         mainHTML += '<br><span style="font-size:1.0em; color:#a5d6ff;">≈ ' + lbsCalHypo.toFixed(2) + ' lb cal-hypo (65%) to raise FC by ~' + fcIncreaseNeeded.toFixed(0) + ' ppm in ' + gal.toFixed(0) + ' gal</span>';
@@ -5072,22 +5135,17 @@ function pCalc_demand() {
 
     // --- ADVANCED details (hidden, shown on toggle) ---
     var advHTML = '';
-    if (!isNaN(gal)) {
+    if (!isNaN(gal) && gal > 0) {
         advHTML += '<b>SLAM (Shock Level And Maintain) process</b><br>';
         advHTML += '1. Adjust pH to ~7.2 before starting<br>';
         advHTML += '2. Test CYA — SLAM FC target from standard FC/CYA chart<br>';
         advHTML += '3. Raise FC to SLAM level using liquid chlorine or cal-hypo<br>';
         advHTML += '4. Run pump/filter continuously, brush pool daily<br>';
         advHTML += '5. Re-test FC often and replenish chlorine as needed<br>';
-        advHTML += '<br><b>Standard FC/CYA SLAM targets:</b><br>';
+        advHTML += '<br><b>Standard FC/CYA SLAM targets (FC = CYA/5):</b><br>';
         var cyaLevels = [20, 30, 40, 50, 60, 70, 80];
         for (let i = 0; i < cyaLevels.length; i++) {
-            var targetFC;
-            if (cyaLevels[i] <= 20) targetFC = Math.round(cyaLevels[i] * 0.5);
-            else if (cyaLevels[i] <= 30) targetFC = Math.round(cyaLevels[i] * 0.4);
-            else if (cyaLevels[i] <= 50) targetFC = Math.round(cyaLevels[i] * 0.4);
-            else if (cyaLevels[i] <= 80) targetFC = Math.round(cyaLevels[i] * 0.35);
-            else targetFC = Math.round(cyaLevels[i] * 0.3);
+            var targetFC = Math.max(5, Math.round(cyaLevels[i] / 5));
             advHTML += 'CYA ' + cyaLevels[i] + ' ppm → target FC ~' + targetFC + ' ppm<br>';
         }
         advHTML += '<br><b>Continue until:</b><br>';
@@ -5097,7 +5155,7 @@ function pCalc_demand() {
         advHTML += '<br><b>Dosage math:</b><br>';
         advHTML += '1 ppm FC in 10,000 gal ≈ 0.083 lb pure chlorine<br>';
         advHTML += 'Cal Hypo (65% available): 0.083 / 0.65 ≈ 0.128 lb per ppm per 10k gal<br>';
-        advHTML += 'Liquid Chlorine (~10%): 0.083 / 0.10 ≈ 0.83 lb per ppm per 10k gal (~0.1 gal)<br>';
+        advHTML += 'Liquid Chlorine (~10%): 0.83 lb ≈ 0.1 gal per ppm per 10k gal<br>';
         advHTML += '<br>Cal-hypo: (' + fcIncreaseNeeded.toFixed(0) + ' ppm × ' + gal.toFixed(0) + ' gal × 0.128 lb/ppm/10k gal) = ' + lbsCalHypo.toFixed(2) + ' lb<br>';
         advHTML += 'Liquid chlorine: (' + fcIncreaseNeeded.toFixed(0) + ' ppm × ' + gal.toFixed(0) + ' gal × 0.1 gal/ppm/10k gal) = ' + galLiquidCl.toFixed(2) + ' gal';
     }
@@ -5122,25 +5180,21 @@ gbyId('p-btn-copy').onclick = function() {
     if (res.unitsNeeded === 'gal') {
         dosageStr = res.galNeeded.toFixed(2) + ' gal';
     } else if (res.unitsNeeded === 'oz') {
-        dosageStr = res.ozNeeded.toFixed(2) + ' fl oz';
+        dosageStr = res.chemName && res.chemName.indexOf('Liquid') !== -1 ? res.ozNeeded.toFixed(2) + ' fl oz' : res.ozNeeded.toFixed(2) + ' oz';
     } else {
         dosageStr = res.lbsNeeded >= 1 ? res.lbsNeeded.toFixed(2) + ' lbs' : res.ozNeeded.toFixed(2) + ' oz';
     }
     var text = `P-CALC v1.7\nVolume: ${res.gal.toFixed(0)} gallons\nChemical: ${res.chemName}\nTarget Change: ${res.target.toFixed(1)}\n\n--- Dosage ---\n${dosageStr}`;
     
-    // Include breakpoint chlorination data if active
-    var bpActive = gbyId('p-i-breakpoint') && gbyId('p-i-breakpoint').checked;
-    var bpData = pCalc_calcBreakpointPreview();
-    if (bpActive && bpData) {
+    // Include breakpoint chlorination data from cached _pResult if present
+    if (res.bpFc !== undefined) {
         text += '\n\n--- Breakpoint Chlorination ---';
-        text += '\nFC: ' + bpData.fc.toFixed(1) + ' ppm | TC: ' + bpData.tc.toFixed(1) + ' ppm';
-        text += '\nCC: ' + bpData.cc.toFixed(1) + ' ppm (derived)';
-        text += '\nMultiplier: ' + bpData.mult + '× CC';
-        text += '\nTarget FC: ' + bpData.breakpointPPM.toFixed(1) + ' ppm';
-        text += '\nNet to dose: ' + bpData.netToDose.toFixed(1) + ' ppm';
-        if (res.unitsNeeded === 'gal') { text += '\nDosage: ' + res.galNeeded.toFixed(2) + ' gal liquid chlorine (~10%)'; }
-        else if (res.unitsNeeded === 'lbs') { text += '\nDosage: ' + res.lbsNeeded.toFixed(2) + ' lb cal-hypo (65%)'; }
-        else if (res.unitsNeeded === 'oz') { text += '\nDosage: ' + res.ozNeeded.toFixed(2) + ' fl oz'; }
+        text += '\nFC: ' + res.bpFc.toFixed(1) + ' ppm | TC: ' + (res.bpTc || 0).toFixed(1) + ' ppm';
+        text += '\nCC: ' + (res.bpCc || 0).toFixed(1) + ' ppm (derived)';
+        text += '\nTarget FC: ' + res.bpTarget.toFixed(1) + ' ppm';
+        text += '\nNet to dose: ' + res.bpNetDose.toFixed(1) + ' ppm';
+        if (res.galNeeded > 0) { text += '\nDosage: ' + res.galNeeded.toFixed(2) + ' gal liquid chlorine (~10%)'; }
+        else if (res.lbsNeeded > 0) { text += '\nDosage: ' + res.lbsNeeded.toFixed(2) + ' lb cal-hypo (65%)'; }
     }
     
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
@@ -5148,9 +5202,9 @@ gbyId('p-btn-copy').onclick = function() {
 
 // === P-CALC: Water Quality Alerts ===
 gbyId('p-btn-alerts').onclick = function() {
-    var fc = gv('p-i-fc'), ph = gv('p-i-pH'), ta = gv('p-i-measTA');
-    var cya = gv('p-i-cya'), ch = gv('p-i-ch'), salt = gv('p-i-salt');
-    var temp = gv('p-i-temp'), borates = gv('p-i-borates');
+    var fc = Number(gv('p-i-fc')), ph = Number(gv('p-i-pH')), ta = Number(gv('p-i-measTA'));
+    var cya = Number(gv('p-i-cya')), ch = Number(gv('p-i-ch')), salt = Number(gv('p-i-salt'));
+    var temp = Number(gv('p-i-temp')), borates = Number(gv('p-i-borates'));
 
     if (isNaN(fc) || isNaN(ph)) {
         gbyId('p-d-alerts').innerHTML = 'Enter at least FC & pH';
@@ -5164,14 +5218,15 @@ gbyId('p-btn-alerts').onclick = function() {
 
     // FC: <2 ppm warning (context-aware with SLAM)
     if (!isNaN(fc)) {
-        colors.FC = fc >= 3 && fc <= 7 ? '#40c057' : '#ff6b6b';
+        var swimSafeFC = !isNaN(cya) ? Math.max(3, Math.round(cya / 10)) : 7;
+        colors.FC = fc >= 3 && fc <= swimSafeFC ? '#40c057' : '#ff6b6b';
         if (fc < 2) {
             var cyaVal = !isNaN(cya) ? cya : 30;
-            var targetFC = 18; // standard SLAM target
+            var targetFC = Math.max(5, Math.round(cyaVal / 5));
             alerts.push('⚠ FC ' + fc.toFixed(1) + ' ppm — Low (SLAM recommended to reach target ~' + targetFC + ' ppm, CYA: ' + cyaVal.toFixed(0) + ')');
         } else if (fc < 3) alerts.push('⚠ FC ' + fc.toFixed(1) + ' ppm — low, below 3–7 ppm range');
-        else if (fc > 7) alerts.push('⚠ FC ' + fc.toFixed(1) + ' ppm — above 7 ppm, wait to swim');
-        else normal.push('FC: ' + fc.toFixed(1) + ' ppm (3–7 range OK)');
+        else if (fc > swimSafeFC) alerts.push('⚠ FC ' + fc.toFixed(1) + ' ppm — above swim-safe level (' + swimSafeFC + ' ppm = CYA/10), wait to swim');
+        else normal.push('FC: ' + fc.toFixed(1) + ' ppm (3–' + swimSafeFC + ' ppm range OK, CYA: ' + (!isNaN(cya) ? cya.toFixed(0) : '?') + ')');
     }
 
     // pH: <7.0 or >8.0 warning
@@ -5260,12 +5315,12 @@ gbyId('p-btn-alerts').onclick = function() {
             normal.push('LSI: ' + lsi.toFixed(2) + ' (slight tendency, -0.3 to 0.3)<br><span style="font-size:0.85em;color:#aaa;">' + lsiBreakdown + '</span><br>' + lsiSteps);
             colors.LSI = '#fab005';
         }
-    } else if (!isNaN(gv('p-i-temp')) || !isNaN(gv('p-i-ch')) || !isNaN(gv('p-i-measTA'))) {
+    } else if (!isNaN(temp) || !isNaN(ch) || !isNaN(ta)) {
         var missing = [];
-        if (isNaN(gv('p-i-pH')) && !missing.includes('pH')) missing.push('pH');
-        if (isNaN(gv('p-i-temp')) && !missing.includes('Temperature')) missing.push('Temperature');
-        if (isNaN(gv('p-i-ch')) && !missing.includes('Calcium Hardness')) missing.push('Calcium Hardness');
-        if (isNaN(gv('p-i-measTA')) && !missing.includes('Total Alkalinity')) missing.push('Total Alkalinity');
+        if (isNaN(ph) && !missing.includes('pH')) missing.push('pH');
+        if (isNaN(temp) && !missing.includes('Temperature')) missing.push('Temperature');
+        if (isNaN(ch) && !missing.includes('Calcium Hardness')) missing.push('Calcium Hardness');
+        if (isNaN(ta) && !missing.includes('Total Alkalinity')) missing.push('Total Alkalinity');
         if (missing.length > 0) {
             normal.push('LSI: — (enter ' + missing.join(', ') + ' to calculate)');
             colors.LSI = '#868e96';
@@ -5275,7 +5330,7 @@ gbyId('p-btn-alerts').onclick = function() {
     // Display results
     var resHTML = '';
     if (alerts.length > 0) {
-        resHTML += '<b style="color:#ff6b6b;">' + alerts.length + ' ALERT</b>' + (alerts.length > 1 ? 'S' : '') + '<br>';
+        resHTML += '<b style="color:#ff6b6b;">' + alerts.length + ' ALERT' + (alerts.length > 1 ? 'S' : '') + '</b><br>';
         for (let i = 0; i < alerts.length; i++) {
             resHTML += '<span style="color:#ff6b6b;">&nbsp;&nbsp;' + alerts[i] + '</span><br>';
         }
