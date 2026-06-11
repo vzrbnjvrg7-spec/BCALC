@@ -1,4 +1,4 @@
-<!-- STATE 5/2026 - SWAT CALC v1.7 -->
+<!-- STATE 6/2026 - SWAT CALC v1.7 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -174,6 +174,7 @@
             <div class="calc-nav-row">
                 <button class="calc-nav-btn" data-view="pcalc">P</button>
                 <button class="calc-nav-btn active" data-view="bcalc">B</button>
+                <button class="calc-nav-btn" data-view="dcalc">D</button>
                 <button class="calc-nav-btn" data-view="solar">PV</button>
                 <button class="calc-nav-btn" data-view="magic8ball">?</button>
             </div>
@@ -224,6 +225,7 @@
             <div class="calc-nav-row">
                 <button class="calc-nav-btn" data-view="pcalc">P</button>
                 <button class="calc-nav-btn" data-view="bcalc">B</button>
+                <button class="calc-nav-btn" data-view="dcalc">D</button>
                 <button class="calc-nav-btn active" data-view="solar">PV</button>
                 <button class="calc-nav-btn" data-view="magic8ball">?</button>
             </div>
@@ -446,6 +448,7 @@
             <div class="calc-nav-row">
                 <button class="calc-nav-btn" data-view="pcalc">P</button>
                 <button class="calc-nav-btn" data-view="bcalc">B</button>
+                <button class="calc-nav-btn" data-view="dcalc">D</button>
                 <button class="calc-nav-btn" data-view="solar">PV</button>
                 <button class="calc-nav-btn" data-view="magic8ball">?</button>
             </div>
@@ -509,6 +512,7 @@
             <div class="calc-nav-row">
                 <button class="calc-nav-btn" data-view="pcalc">P</button>
                 <button class="calc-nav-btn" data-view="bcalc">B</button>
+                <button class="calc-nav-btn" data-view="dcalc">D</button>
                 <button class="calc-nav-btn" data-view="solar">PV</button>
                 <button class="calc-nav-btn" data-view="magic8ball">?</button>
             </div>
@@ -551,6 +555,7 @@
             <div class="calc-nav-row">
                 <button class="calc-nav-btn" data-view="pcalc">P</button>
                 <button class="calc-nav-btn" data-view="bcalc">B</button>
+                <button class="calc-nav-btn" data-view="dcalc">D</button>
                 <button class="calc-nav-btn" data-view="solar">PV</button>
                 <button class="calc-nav-btn" data-view="magic8ball">?</button>
             </div>
@@ -637,6 +642,7 @@
             <div class="calc-nav-row">
                 <button class="calc-nav-btn" data-view="pcalc">P</button>
                 <button class="calc-nav-btn" data-view="bcalc">B</button>
+                <button class="calc-nav-btn" data-view="dcalc">D</button>
                 <button class="calc-nav-btn" data-view="solar">PV</button>
                 <button class="calc-nav-btn" data-view="magic8ball">?</button>
             </div>
@@ -757,6 +763,287 @@
         </div>
     </div>
 
+    <!-- D-CALC -->
+    <div id="view-dcalc" class="view">
+        <nav class="calc-nav">
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn" data-view="scalc">S</button>
+                <button class="calc-nav-btn" data-view="wcalc">W</button>
+                <button class="calc-nav-btn" data-view="acalc">A</button>
+                <button class="calc-nav-btn" data-view="tcalc">T</button>
+            </div>
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn" data-view="pcalc">P</button>
+                <button class="calc-nav-btn" data-view="bcalc">B</button>
+                <button class="calc-nav-btn active" data-view="dcalc">D</button>
+                <button class="calc-nav-btn" data-view="solar">PV</button>
+                <button class="calc-nav-btn" data-view="magic8ball">?</button>
+            </div>
+        </nav>
+        <h2>D-CALC v1.0 Drilling &amp; Inserts</h2>
+        <nav class="calc-nav" style="margin-bottom:12px;">
+            <div class="calc-nav-row">
+                <button class="calc-nav-btn active" data-subview="tapping">Tapping</button>
+                <button class="calc-nav-btn" data-subview="fastening">Fastening</button>
+                <button class="calc-nav-btn" data-subview="inserts">Inserts</button>
+                <button class="calc-nav-btn" data-subview="converter">Converter</button>
+            </div>
+        </nav>
+
+        <!-- TAPPING SUBVIEW -->
+        <div id="d-subview-tapping" class="d-subview">
+            <h3 style="margin-top:0;">Thread Tap Drill Size</h3>
+            <div class="row">
+                <div class="col"><label>Profile</label><select id="d-i-tap-profile">
+                    <option value="metric_coarse" selected>Metric Coarse (ISO)</option>
+                    <option value="metric_fine">Metric Fine (M10×1, etc.)</option>
+                    <option value="imperial_std">Imperial (UNC/UNF)</option>
+                    <option value="manual">Manual Entry</option>
+                </select></div>
+            </div>
+            <div class="row" id="d-tap-metric-row">
+                <div class="col"><label>Metric Size</label><select id="d-i-tap-metric">
+                    <option value="M1.4×0.3">M1.4 × 0.3</option>
+                    <option value="M1.6×0.35">M1.6 × 0.35</option>
+                    <option value="M2×0.4">M2 × 0.4</option>
+                    <option value="M2.5×0.45">M2.5 × 0.45</option>
+                    <option value="M3×0.5">M3 × 0.5</option>
+                    <option value="M3.5×0.6">M3.5 × 0.6</option>
+                    <option value="M4×0.7">M4 × 0.7</option>
+                    <option value="M5×0.8">M5 × 0.8</option>
+                    <option value="M6×1">M6 × 1</option>
+                    <option value="M7×1">M7 × 1</option>
+                    <option value="M8×1.25">M8 × 1.25</option>
+                    <option value="M9×1.25">M9 × 1.25</option>
+                    <option value="M10×1.5">M10 × 1.5</option>
+                    <option value="M11×1.5">M11 × 1.5</option>
+                    <option value="M12×1.75">M12 × 1.75</option>
+                    <option value="M14×2">M14 × 2</option>
+                    <option value="M16×2">M16 × 2</option>
+                    <option value="M18×2.5">M18 × 2.5</option>
+                    <option value="M20×2.5">M20 × 2.5</option>
+                    <option value="M22×2.5">M22 × 2.5</option>
+                    <option value="M24×3">M24 × 3</option>
+                    <option value="M27×3">M27 × 3</option>
+                    <option value="M30×3.5">M30 × 3.5</option>
+                    <option value="M33×3.5">M33 × 3.5</option>
+                    <option value="M36×4">M36 × 4</option>
+                    <option value="M39×4">M39 × 4</option>
+                    <option value="M42×4.5">M42 × 4.5</option>
+                    <option value="M48×5">M48 × 5</option>
+                </select></div>
+            </div>
+            <div class="row" id="d-tap-fine-row" style="display:none;">
+                <div class="col"><label>Metric Fine Size</label><select id="d-i-tap-metric-fine">
+                    <option value="M1.6×0.35">M1.6 × 0.35</option>
+                    <option value="M2×0.4">M2 × 0.4</option>
+                    <option value="M3×0.35">M3 × 0.35</option>
+                    <option value="M4×0.5">M4 × 0.5</option>
+                    <option value="M5×0.5">M5 × 0.5</option>
+                    <option value="M6×0.75">M6 × 0.75</option>
+                    <option value="M8×1">M8 × 1</option>
+                    <option value="M10×1">M10 × 1</option>
+                    <option value="M10×1.25">M10 × 1.25</option>
+                    <option value="M12×1.25">M12 × 1.25</option>
+                    <option value="M12×1.5">M12 × 1.5</option>
+                    <option value="M14×1.5">M14 × 1.5</option>
+                    <option value="M16×1.5">M16 × 1.5</option>
+                    <option value="M18×1.5">M18 × 1.5</option>
+                    <option value="M20×1.5">M20 × 1.5</option>
+                    <option value="M22×1.5">M22 × 1.5</option>
+                    <option value="M24×2">M24 × 2</option>
+                    <option value="M27×2">M27 × 2</option>
+                    <option value="M30×2">M30 × 2</option>
+                    <option value="M30×3.5">M30 × 3.5</option>
+                    <option value="M36×2">M36 × 2</option>
+                    <option value="M36×4">M36 × 4</option>
+                    <option value="M42×2">M42 × 2</option>
+                    <option value="M42×4.5">M42 × 4.5</option>
+                    <option value="M48×3">M48 × 3</option>
+                    <option value="M48×5">M48 × 5</option>
+                </select></div>
+            </div>
+            <div class="row" id="d-tap-imperial-row" style="display:none;">
+                <div class="col"><label>Imperial Size</label><select id="d-i-tap-imperial">
+                    <option value="#0-80">#0-80 UNF</option>
+                    <option value="#1-64">#1-64 UNC</option>
+                    <option value="#2-56">#2-56 UNC</option>
+                    <option value="#3-48">#3-48 UNC</option>
+                    <option value="#4-40">#4-40 UNC / #4-48 UNF</option>
+                    <option value="#5-40">#5-40 UNC / #5-44 UNF</option>
+                    <option value="#6-32">#6-32 UNC / #6-40 UNF</option>
+                    <option value="#8-32">#8-32 UNC / #8-36 UNF</option>
+                    <option value="#10-24">#10-24 UNC / #10-32 UNF</option>
+                    <option value="#12-24">#12-24 UNC / #12-28 UNF</option>
+                    <option value="1/4-20">1/4"-20 UNC / 1/4"-28 UNF</option>
+                    <option value="5/32-24">5/32"-24 UNF</option>
+                    <option value="3/16-24">3/16"-24 UNF</option>
+                    <option value="7/32-20">7/32"-20 UNF</option>
+                    <option value="1/8-27">1/8"-27 UNF</option>
+                    <option value="5/16-18">5/16"-18 UNC / 5/16"-24 UNF</option>
+                    <option value="3/8-16">3/8"-16 UNC / 3/8"-24 UNF</option>
+                    <option value="7/16-14">7/16"-14 UNC / 7/16"-20 UNF</option>
+                    <option value="1/2-13">1/2"-13 UNC / 1/2"-20 UNF</option>
+                    <option value="9/16-12">9/16"-12 UNC / 9/16"-18 UNF</option>
+                    <option value="5/8-11">5/8"-11 UNC / 5/8"-18 UNF</option>
+                    <option value="11/16-12">11/16"-12 UNC / 11/16"-14 UNF</option>
+                    <option value="3/4-10">3/4"-10 UNC / 3/4"-16 UNF</option>
+                    <option value="7/8-9">7/8"-9 UNC / 7/8"-14 UNF</option>
+                    <option value="1-8">1"-8 UNC / 1"-12 UNF</option>
+                    <option value="1-1/8-7">1-1/8"-7 UNC / 1-1/8"-12 UNF</option>
+                    <option value="1-1/4-7">1-1/4"-7 UNC / 1-1/4"-12 UNF</option>
+                    <option value="1-1/2-6">1-1/2"-6 UNC / 1-1/2"-12 UNF</option>
+                </select></div>
+            </div>
+            <div class="row" id="d-tap-type-row" style="display:none;">
+                <div class="col"><label>Type</label><select id="d-i-tap-type">
+                    <option value="unc" selected>UNC (Coarse)</option>
+                    <option value="unf">UNF (Fine)</option>
+                </select></div>
+            </div>
+            <div class="row" id="d-tap-manual-row" style="display:none;">
+                <div class="col"><label>Diameter (mm)</label><input type="number" id="d-i-tap-dia" placeholder="e.g. 6" value="" step="any"></div>
+                <div class="col"><label>Pitch (mm)</label><input type="number" id="d-i-tap-pitch" placeholder="e.g. 1" value="" step="any"></div>
+            </div>
+            <button class="btn btn-calc" id="d-btn-tap">Calculate Tap Drill</button>
+            <div class="result-box" id="d-d-tap">Select a thread profile</div>
+            <div class="result-box" id="d-d-tap-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
+        </div>
+
+        <!-- FASTENING SUBVIEW -->
+        <div id="d-subview-fastening" class="d-subview" style="display:none;">
+            <h3 style="margin-top:0;">Screw / Fastener Pilot Drill</h3>
+            <div class="row">
+                <div class="col"><label>Mode</label><select id="d-i-fasten-mode">
+                    <option value="wood" selected>Wood (self-tapping screw)</option>
+                    <option value="sheetmetal">Sheet Metal (self-drilling/tapping)</option>
+                    <option value="anchor">Wall Anchor</option>
+                </select></div>
+            </div>
+            <div class="row" id="d-fasten-wood-row">
+                <div class="col"><label>Screw Diameter (mm)</label><input type="number" id="d-i-fasten-dia" placeholder="e.g. 3.5" value="" step="any"></div>
+                <div class="col"><label>Material</label><select id="d-i-fasten-wood-type">
+                    <option value="softwood" selected>Softwood (pine, spruce)</option>
+                    <option value="hardwood">Hardwood (oak, maple) — 82% rule</option>
+                </select></div>
+            </div>
+            <div class="row" id="d-fasten-sheetmetal-row" style="display:none;">
+                <div class="col"><label>Screw Diameter (mm)</label><input type="number" id="d-i-sm-dia" placeholder="e.g. 4.2 (common #8–10)" value="" step="any"></div>
+                <div class="col"><label>Base Material</label><select id="d-i-sm-material">
+                    <option value="mildsteel" selected>Mild Steel (self-drilling screw)</option>
+                    <option value="stainless">Stainless Steel — pre-drill required</option>
+                    <option value="aluminum">Aluminum (self-tapping or self-drilling)</option>
+                    <option value="galvanized">Galvanized Steel (self-drilling)</option>
+                </select></div>
+            </div>
+            <div class="row" id="d-fasten-anchor-row" style="display:none;">
+                <div class="col"><label>Screw Diameter (mm)</label><input type="number" id="d-i-anchor-dia" placeholder="e.g. 6" value="" step="any"></div>
+                <div class="col"><label>Anchor Type</label><select id="d-i-anchor-type">
+                    <option value="">— select anchor —</option>
+                    <optgroup label="Plastic Expansion">
+                        <option value="plastic_exp_3/16">Plastic Exp. 3/16" (4mm)</option>
+                        <option value="plastic_exp_1/4">Plastic Exp. 1/4" (5mm)</option>
+                        <option value="plastic_exp_5/16">Plastic Exp. 5/16" (5.5mm)</option>
+                        <option value="plastic_exp_3/8">Plastic Exp. 3/8" (6.5mm)</option>
+                        <option value="plastic_exp_7/16">Plastic Exp. 7/16" (7.5mm)</option>
+                        <option value="plastic_exp_1/2">Plastic Exp. 1/2" (8mm)</option>
+                    </optgroup>
+                    <optgroup label="Toggle Bolts">
+                        <option value="toggle_bolt_1/4">Toggle Bolt 1/4" (12mm)</option>
+                        <option value="toggle_bolt_5/16">Toggle Bolt 5/16" (14mm)</option>
+                        <option value="toggle_bolt_3/8">Toggle Bolt 3/8" (16mm)</option>
+                        <option value="toggle_bolt_1/2">Toggle Bolt 1/2" (20mm)</option>
+                    </optgroup>
+                    <optgroup label="Drywall Self-Drill">
+                        <option value="drywall_self_drill_1/4">Drywall Self-Drill 1/4" (6mm)</option>
+                        <option value="drywall_self_drill_5/16">Drywall Self-Drill 5/16" (7mm)</option>
+                        <option value="drywall_self_drill_3/8">Drywall Self-Drill 3/8" (8mm)</option>
+                    </optgroup>
+                    <optgroup label="Molly Bolts">
+                        <option value="molly_bolt_1/8">Molly Bolt 1/8" (7mm)</option>
+                        <option value="molly_bolt_1/4">Molly Bolt 1/4" (9.5mm)</option>
+                        <option value="molly_bolt_5/16">Molly Bolt 5/16" (11mm)</option>
+                        <option value="molly_bolt_3/8">Molly Bolt 3/8" (12.5mm)</option>
+                    </optgroup>
+                    <optgroup label="Concrete Wedge">
+                        <option value="concrete_wedge_1/4">Wedge Anchor 1/4" (6.5mm)</option>
+                        <option value="concrete_wedge_5/16">Wedge Anchor 5/16" (7.5mm)</option>
+                        <option value="concrete_wedge_3/8">Wedge Anchor 3/8" (9.5mm)</option>
+                        <option value="concrete_wedge_7/16">Wedge Anchor 7/16" (10.5mm)</option>
+                        <option value="concrete_wedge_1/2">Wedge Anchor 1/2" (12.5mm)</option>
+                    </optgroup>
+                    <optgroup label="Sleeve Anchors">
+                        <option value="sleeve_1/4">Sleeve Anchor 1/4" (6.5mm)</option>
+                        <option value="sleeve_5/16">Sleeve Anchor 5/16" (7.5mm)</option>
+                        <option value="sleeve_3/8">Sleeve Anchor 3/8" (9.5mm)</option>
+                        <option value="sleeve_1/2">Sleeve Anchor 1/2" (12.5mm)</option>
+                    </optgroup>
+                    <optgroup label="Drop-in Anchors">
+                        <option value="dropin_3/8">Drop-in 3/8" (9.5mm)</option>
+                        <option value="dropin_1/2">Drop-in 1/2" (12.5mm)</option>
+                        <option value="dropin_5/8">Drop-in 5/8" (16mm)</option>
+                    </optgroup>
+                </select></div>
+            </div>
+            <button class="btn btn-calc" id="d-btn-fasten">Calculate Drill Size</button>
+            <div class="result-box" id="d-d-fasten">Select mode and enter values</div>
+            <div class="result-box" id="d-d-fasten-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
+        </div>
+
+        <!-- INSERTS SUBVIEW -->
+        <div id="d-subview-inserts" class="d-subview" style="display:none;">
+            <h3 style="margin-top:0;">Insert / Threaded Insert Drill Size</h3>
+            <div class="row">
+                <div class="col"><label>Insert Type</label><select id="d-i-insert-type">
+                    <optgroup label="Helicoil Metric">
+                        <option value="helicoil_m3">Helicoil M3 (2.5mm tap)</option>
+                        <option value="helicoil_m4">Helicoil M4 (6.5mm tap)</option>
+                        <option value="helicoil_m5">Helicoil M5 (8mm tap)</option>
+                        <option value="helicoil_m6" selected>Helicoil M6 (5mm tap)</option>
+                        <option value="helicoil_m8">Helicoil M8 (6.8mm tap)</option>
+                        <option value="helicoil_m10">Helicoil M10 (9mm tap)</option>
+                        <option value="helicoil_m12">Helicoil M12 (11mm tap)</option>
+                    </optgroup>
+                    <optgroup label="Helicoil Imperial">
+                        <option value="helicoil_4-40">Helicoil #4-40 (0.156" tap)</option>
+                        <option value="helicoil_6-32">Helicoil #6-32 (0.198" tap)</option>
+                        <option value="helicoil_8-32">Helicoil #8-32 (0.219" tap)</option>
+                        <option value="helicoil_10-32">Helicoil #10-32 (0.258" tap)</option>
+                        <option value="helicoil_10-24">Helicoil #10-24 (0.276" tap)</option>
+                        <option value="helicoil_1/4-20">Helicoil 1/4"-20 (0.313" tap)</option>
+                        <option value="helicoil_5/16-18">Helicoil 5/16"-18 (0.377" tap)</option>
+                        <option value="helicoil_3/8-16">Helicoil 3/8"-16 (0.422" tap)</option>
+                        <option value="helicoil_7/16-14">Helicoil 7/16"-14 (0.500" tap)</option>
+                        <option value="helicoil_1/2-13">Helicoil 1/2"-13 (0.489" tap)</option>
+                    </optgroup>
+                </select></div>
+            </div>
+            <button class="btn btn-calc" id="d-btn-insert">Calculate Insert Drill</button>
+            <div class="result-box" id="d-d-insert">Select insert type</div>
+            <div class="result-box" id="d-d-insert-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
+        </div>
+
+        <!-- CONVERTER SUBVIEW -->
+        <div id="d-subview-converter" class="d-subview" style="display:none;">
+            <h3 style="margin-top:0;">Drill Bit Unit Converter</h3>
+            <div class="row">
+                <div class="col"><label>Value</label><input type="number" id="d-i-conv-val" placeholder="e.g. 6" value="" step="any"></div>
+                <div class="col"><label>From</label><select id="d-i-conv-from">
+                    <option value="mm" selected>Millimeters (mm)</option>
+                    <option value="in">Inches (")</option>
+                </select></div>
+                <div class="col"><label>To</label><select id="d-i-conv-to">
+                    <option value="in" selected>Inches (")</option>
+                    <option value="mm">Millimeters (mm)</option>
+                </select></div>
+            </div>
+            <button class="btn btn-calc" id="d-btn-conv">Convert</button>
+            <div class="result-box" id="d-d-conv">Enter a value</div>
+            <div class="result-box" id="d-d-conv-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
+        </div>
+
+    </div>
+
 <!-- P-CALC -->
     <div id="view-pcalc" class="view">
         <nav class="calc-nav">
@@ -769,6 +1056,7 @@
             <div class="calc-nav-row">
                 <button class="calc-nav-btn active" data-view="pcalc">P</button>
                 <button class="calc-nav-btn" data-view="bcalc">B</button>
+                <button class="calc-nav-btn" data-view="dcalc">D</button>
                 <button class="calc-nav-btn" data-view="solar">PV</button>
                 <button class="calc-nav-btn" data-view="magic8ball">?</button>
             </div>
@@ -887,6 +1175,7 @@
             <div class="calc-nav-row">
                 <button class="calc-nav-btn" data-view="pcalc">P</button>
                 <button class="calc-nav-btn" data-view="bcalc">B</button>
+                <button class="calc-nav-btn" data-view="dcalc">D</button>
                 <button class="calc-nav-btn" data-view="solar">PV</button>
                 <button class="calc-nav-btn" data-view="magic8ball">?</button>
             </div>
@@ -1153,6 +1442,7 @@ gbyId('nav-toggle').onclick = function() {
 
 // Direct navigation via nav buttons at top of each view
 document.querySelectorAll('.calc-nav-btn').forEach(function(btn) {
+    if (btn.getAttribute('data-subview')) return; // skip subview toggle buttons
     btn.onclick = function() {
         var targetView = this.getAttribute('data-view');
         switchView(targetView);
@@ -4845,7 +5135,7 @@ var _CYA_FACTOR_PHS = [6.5, 7.0, 7.2, 7.4, 7.6, 7.8, 8.0, 8.5];
 var _CYA_FACTORS = [0.11, 0.22, 0.26, 0.30, 0.33, 0.35, 0.36, 0.38];
 
 var _BORATE_FACTOR_PHS = [6.5, 7.0, 7.2, 7.4, 7.6, 7.8, 8.0, 8.5];
-var _BORATE_FACTORS = [0.05, 0.08, 0.10, 0.13, 0.17, 0.24, 0.34, 0.83];
+var _BORATE_FACTORS = [0.05, 0.08, 0.10, 0.13, 0.17, 0.24, 0.34, 0.42];
 
 function pCalc_taCorrection() {
     var measTA = Number(gv('p-i-measTA'));
@@ -4874,14 +5164,17 @@ function pCalc_taCorrection() {
     // CYA-adjusted TA (the "more detail" estimate)
     var adjTA = measTA - cyaAdj;
 
-    // Status based on measured TA (homeowner-friendly)
+    // Status based on adjusted TA when CYA is present (CYA reduces effective alkalinity)
+    // Harmonized thresholds: <60 low, 60-80 caution, 80-120 ideal, 120-150 high, >150 very high
     var status, statusColor;
-    if (measTA < 80) {
+    var effectiveTA = (cya > 30) ? adjTA : measTA;
+    if (effectiveTA < 60) {
         status = (!isNaN(pH) && pH > 7.6) ? 'LOW + HIGH pH — two-step correction' : 'LOW — add baking soda';
         statusColor = '#ff6b6b';
     }
-    else if (measTA <= 120) { status = 'OK'; statusColor = '#40c057'; }
-    else if (measTA <= 150) { status = 'HIGH — consider lowering'; statusColor = '#fab005'; }
+    else if (effectiveTA < 80) { status = 'BELOW IDEAL — consider slight increase'; statusColor = '#fab005'; }
+    else if (effectiveTA <= 120) { status = 'OK'; statusColor = '#40c057'; }
+    else if (effectiveTA <= 150) { status = 'HIGH — consider lowering'; statusColor = '#fab005'; }
     else { status = 'VERY HIGH — significant risk'; statusColor = '#ff6b6b'; }
 
     // --- BASIC display (always shown) with color-coded emphasis ---
@@ -4894,11 +5187,20 @@ function pCalc_taCorrection() {
     mainHTML += '<span style="font-size:1.2em; color:#e0e0e0;">Measured TA:</span> <b style="font-size:1.2em; color:' + statusColor + ';">' + measTA.toFixed(0) + ' ppm</b><br>';
 
     // Ideal range banner
-    mainHTML += '<span style="font-size:0.85em; color:#9e9e9e;">Ideal range: 80–120 ppm (60–120 acceptable)</span><br>';
+    if (cya > 30 && effectiveTA !== measTA) {
+        mainHTML += '<span style="font-size:0.85em; color:#74c0fc;">Status based on CYA-adjusted TA (CYA=' + cya.toFixed(0) + ' ppm):</span><br>';
+        mainHTML += '<span style="font-size:0.85em; color:#9e9e9e;">Ideal range: 80–120 ppm adjusted (60+ acceptable)</span><br>';
+    } else {
+        mainHTML += '<span style="font-size:0.85em; color:#9e9e9e;">Ideal range: 80–120 ppm (60+ acceptable)</span><br>';
+    }
 
-    // CYA adjustment — subtle
+    // CYA adjustment — prominent when it changes status
     if (cya > 0) {
-        mainHTML += '<span style="font-size:0.9em; color:#74c0fc;">CYA correction:</span> <b style="font-size:0.9em; color:#74c0fc;">−' + cyaAdj + ' ppm</b> → <span style="font-size:0.9em; color:#bdbdbd;">adjusted TA: ~' + adjTA.toFixed(0) + ' ppm</span><br>';
+        var cyaNote = '';
+        if (cya > 30 && effectiveTA !== measTA) {
+            cyaNote = ' (CYA-adjusted status)';
+        }
+        mainHTML += '<span style="font-size:0.9em; color:#74c0fc;">CYA correction:</span> <b style="font-size:0.9em; color:#74c0fc;">−' + cyaAdj + ' ppm</b> → <span style="font-size:0.9em; color:#bdbdbd;">adjusted TA: ~' + adjTA.toFixed(0) + ' ppm</span>' + cyaNote + '<br>';
     }
 
     // Borate note — only if relevant
@@ -4908,13 +5210,17 @@ function pCalc_taCorrection() {
         mainHTML += '<span style="font-size:0.85em; color:' + borColor + ';">Borates ' + borates.toFixed(0) + ' ppm — ' + borNote + '</span><br>';
     }
 
-    // Action line for out-of-range values
-    if (measTA < 80) {
+    // Action line for out-of-range values (use effectiveTA)
+    if (effectiveTA < 60) {
         mainHTML += '<br><span style="font-size:1em; color:#ff6b6b;">→ Add baking soda to raise TA</span>';
         if (!isNaN(pH) && pH > 7.6) {
             mainHTML += ' <b style="color:#ff6b6b;">(requires two-step process — see below)</b>';
         }
-    } else if (measTA > 120) {
+    } else if (effectiveTA < 80) {
+        mainHTML += '<br><span style="font-size:1em; color:#fab005;">→ TA below ideal — consider adding ~' + ((80 - effectiveTA) * Number(gv('p-i-gal')) / 10000 / 7.14).toFixed(1) + ' lbs baking soda</span>';
+    } else if (effectiveTA > 150) {
+        mainHTML += '<br><span style="font-size:1em; color:#ff6b6b;">→ Partial drain or muriatic acid to lower TA</span>';
+    } else if (effectiveTA > 120) {
         mainHTML += '<br><span style="font-size:1em; color:#fab005;">→ Partial drain or muriatic acid to lower TA</span>';
     } else {
         mainHTML += '<br><span style="font-size:1em; color:#40c057;">→ TA is in the acceptable range — no action needed</span>';
@@ -4950,29 +5256,24 @@ function pCalc_taCorrection() {
 
     // --- STATS (basic recommendations + action items) ---
     var statsLines = [];
-    if (measTA < 80) {
+    if (effectiveTA < 60) {
         // Check for low TA + high pH scenario (simultaneous dosing needed)
         if (!isNaN(pH) && pH > 7.6) {
             var poolVol = Number(gv('p-i-gal'));
             if (!isNaN(poolVol) && poolVol > 0) {
-                // Overshoot TA target — aim for ~TA_TARGET + 10 so acid brings it to target
                 var overshootTA = TA_TARGET;
-                var sodaPPM = overshootTA - measTA;
+                var sodaPPM = overshootTA - effectiveTA;
 
-                // Soda ash dose for overshoot target
                 var sodaLbs = (sodaPPM * poolVol / 10000) / sodaPPM_per_lb;
 
-                // pH spike estimate — TFP wiki: baking soda can spike 0.2–0.3 pH at high doses
                 var pH_spike = Math.min(0.04 * (sodaPPM / sodaPPM_per_lb), 0.25);
 
-                // Muriatic acid dose for pH correction
-                var newPH = Math.min(pH + pH_spike, 9.0); // cap extreme values
+                var newPH = Math.min(pH + pH_spike, 9.0);
                 var acidPH_delta = newPH - pH_TARGET;
-                if (acidPH_delta <= 0) acidPH_delta = 0.1; // minimum correction
+                if (acidPH_delta <= 0) acidPH_delta = 0.1;
                 var acidOzPer10k = (acidPH_delta / acidPH_per_oz);
                 var totalAcidOz = acidOzPer10k * (poolVol / 10000);
 
-                // TA drop from muriatic acid
                 var acidTADrop = Math.round(acidPH_delta * acidTA_per_pH + 0.5);
                 var finalTA = Math.round(overshootTA - acidTADrop);
 
@@ -5001,24 +5302,48 @@ function pCalc_taCorrection() {
         } else {
             var poolVol = Number(gv('p-i-gal'));
             if (!isNaN(poolVol) && poolVol > 0) {
-                var bakingSoda = ((TA_TARGET - measTA) * poolVol / 10000) / sodaPPM_per_lb;
+                var bakingSoda = ((TA_TARGET - effectiveTA) * poolVol / 10000) / sodaPPM_per_lb;
                 statsLines.push('→ Add ~' + bakingSoda.toFixed(1) + ' lbs baking soda to raise TA');
                 statsLines.push('  Dissolve in a bucket, pour around perimeter, run pump overnight');
                 statsLines.push('  (1.4 lb/10k gal → +10 ppm TA)');
+                if (cya > 30 && measTA !== adjTA) {
+                    statsLines.push('  (Based on adjusted TA of ' + adjTA.toFixed(0) + ' ppm — measured is ' + measTA + ' ppm)');
+                }
             } else {
                 statsLines.push('Need baking soda — enter pool volume for dosage');
             }
         }
-    } else if (measTA > 120) {
+    } else if (effectiveTA < 80) {
         var poolVol = Number(gv('p-i-gal'));
         if (!isNaN(poolVol) && poolVol > 0) {
-            var TA_DROP_PER_FL_OZ_MA = 0.27; // TFP wiki: 30 fl oz drops pH 0.5 → 8 ppm TA = 0.27 ppm/oz
-            var muriatic = ((measTA - 120) * poolVol / 10000) / TA_DROP_PER_FL_OZ_MA;
+            var bakingSoda = ((80 - effectiveTA) * poolVol / 10000) / sodaPPM_per_lb;
+            statsLines.push('→ Consider adding ~' + bakingSoda.toFixed(1) + ' lbs baking soda to reach ideal range');
+            if (cya > 30 && measTA !== adjTA) {
+                statsLines.push('  (Adjusted TA: ' + adjTA.toFixed(0) + ' ppm vs measured ' + measTA + ' ppm)');
+            }
+        } else {
+            statsLines.push('Consider baking soda — enter pool volume for dosage');
+        }
+    } else if (effectiveTA > 150) {
+        var poolVol = Number(gv('p-i-gal'));
+        if (!isNaN(poolVol) && poolVol > 0) {
+            var TA_DROP_PER_FL_OZ_MA = 0.27;
+            var muriatic = ((effectiveTA - 120) * poolVol / 10000) / TA_DROP_PER_FL_OZ_MA;
             statsLines.push('→ Add ~' + muriatic.toFixed(1) + ' fl oz muriatic acid to lower TA');
             statsLines.push('  Pour at skimmer with pump running, retest after a few hours');
             statsLines.push('  (Alternately: partial drain/refill — safest method)');
         } else {
             statsLines.push('Need muriatic acid — enter pool volume for dosage');
+        }
+    } else if (effectiveTA > 120) {
+        var poolVol = Number(gv('p-i-gal'));
+        if (!isNaN(poolVol) && poolVol > 0) {
+            var TA_DROP_PER_FL_OZ_MA = 0.27;
+            var muriatic = ((effectiveTA - 120) * poolVol / 10000) / TA_DROP_PER_FL_OZ_MA;
+            statsLines.push('→ Consider adding ~' + muriatic.toFixed(1) + ' fl oz muriatic acid to lower TA');
+            statsLines.push('  (Alternately: partial drain/refill — safest method)');
+        } else {
+            statsLines.push('Consider muriatic acid — enter pool volume for dosage');
         }
     } else {
         statsLines.push('✓ TA is within typical residential range (80–120 ppm)');
@@ -5090,7 +5415,7 @@ function pCalc_demand() {
     var cya = Number(gv('p-i-cya'));
     if (isNaN(cya)) cya = 30; // default assumption
 
-    var slamFC = Math.max(5, Math.round(cya / 5)); // Standard SLAM: FC = CYA/5 (min 5 ppm)
+    var slamFC = Math.max(4, Math.round(cya / 2.5)); // SLAM: FC = CYA/2.5 (min 4 ppm)
 
     var gal = Number(gv('p-i-gal'));
     // Cal hypo (65% available): lbs = (ppm × gal) / (10000 × 8.0)
@@ -5142,10 +5467,10 @@ function pCalc_demand() {
         advHTML += '3. Raise FC to SLAM level using liquid chlorine or cal-hypo<br>';
         advHTML += '4. Run pump/filter continuously, brush pool daily<br>';
         advHTML += '5. Re-test FC often and replenish chlorine as needed<br>';
-        advHTML += '<br><b>Standard FC/CYA SLAM targets (FC = CYA/5):</b><br>';
+        advHTML += '<br><b>Standard FC/CYA SLAM targets (FC = CYA/2.5):</b><br>';
         var cyaLevels = [20, 30, 40, 50, 60, 70, 80];
         for (let i = 0; i < cyaLevels.length; i++) {
-            var targetFC = Math.max(5, Math.round(cyaLevels[i] / 5));
+            var targetFC = Math.max(4, Math.round(cyaLevels[i] / 2.5));
             advHTML += 'CYA ' + cyaLevels[i] + ' ppm → target FC ~' + targetFC + ' ppm<br>';
         }
         advHTML += '<br><b>Continue until:</b><br>';
@@ -5212,6 +5537,16 @@ gbyId('p-btn-alerts').onclick = function() {
         return;
     }
 
+    // Compute CYA-adjusted TA for alerts (same logic as pCalc_taCorrection)
+    var adjTA = ta, cyaAdj = 0;
+    if (!isNaN(cya) && cya > 30) {
+        var pHforCYA = !isNaN(ph) ? ph : 7.4;
+        pHforCYA = Math.max(0, Math.min(pHforCYA, 14));
+        var cyaF = interpLookup(_CYA_FACTOR_PHS, _CYA_FACTORS, pHforCYA);
+        cyaAdj = Math.round(cya * cyaF);
+        adjTA = ta - cyaAdj;
+    }
+
     var alerts = [];
     var normal = [];
     var colors = {};
@@ -5222,7 +5557,7 @@ gbyId('p-btn-alerts').onclick = function() {
         colors.FC = fc >= 3 && fc <= swimSafeFC ? '#40c057' : '#ff6b6b';
         if (fc < 2) {
             var cyaVal = !isNaN(cya) ? cya : 30;
-            var targetFC = Math.max(5, Math.round(cyaVal / 5));
+            var targetFC = Math.max(4, Math.round(cyaVal / 2.5));
             alerts.push('⚠ FC ' + fc.toFixed(1) + ' ppm — Low (SLAM recommended to reach target ~' + targetFC + ' ppm, CYA: ' + cyaVal.toFixed(0) + ')');
         } else if (fc < 3) alerts.push('⚠ FC ' + fc.toFixed(1) + ' ppm — low, below 3–7 ppm range');
         else if (fc > swimSafeFC) alerts.push('⚠ FC ' + fc.toFixed(1) + ' ppm — above swim-safe level (' + swimSafeFC + ' ppm = CYA/10), wait to swim');
@@ -5239,14 +5574,15 @@ gbyId('p-btn-alerts').onclick = function() {
         else normal.push('pH: ' + ph.toFixed(1) + ' (7.2–7.8 range OK)');
     }
 
-    // TA: <50 or >180 warning
+    // TA: harmonized thresholds using adjusted TA when CYA > 30
     if (!isNaN(ta)) {
-        colors.TA = ta >= 70 && ta <= 120 ? '#40c057' : (ta >= 50 && ta <= 180 ? '#fab005' : '#ff6b6b');
-        if (ta < 50) alerts.push('⚠ TA ' + ta.toFixed(0) + ' ppm — below 70, unstable pH');
-        else if (ta < 70) alerts.push('⚠ TA ' + ta.toFixed(0) + ' ppm — below 70–120 range');
-        else if (ta > 180) alerts.push('⚠ TA ' + ta.toFixed(0) + ' ppm — above 120, high scaling risk');
-        else if (ta > 120) alerts.push('⚠ TA ' + ta.toFixed(0) + ' ppm — above 120, consider lowering');
-        else normal.push('TA: ' + ta.toFixed(0) + ' ppm (70–120 range OK)');
+        var effectiveTA = (cya > 30) ? adjTA : ta;
+        colors.TA = effectiveTA >= 80 && effectiveTA <= 120 ? '#40c057' : (effectiveTA >= 60 && effectiveTA <= 150 ? '#fab005' : '#ff6b6b');
+        if (effectiveTA < 60) alerts.push('⚠ TA ' + ta.toFixed(0) + ' ppm — below 60, unstable pH (adjusted: ' + adjTA.toFixed(0) + ' ppm with CYA)');
+        else if (effectiveTA < 80) alerts.push('⚠ TA ' + ta.toFixed(0) + ' ppm — below ideal 80–120 (adjusted: ' + adjTA.toFixed(0) + ' ppm with CYA)');
+        else if (effectiveTA > 150) alerts.push('⚠ TA ' + ta.toFixed(0) + ' ppm — above 150, high scaling risk (adjusted: ' + adjTA.toFixed(0) + ' ppm with CYA)');
+        else if (effectiveTA > 120) alerts.push('⚠ TA ' + ta.toFixed(0) + ' ppm — above 120, consider lowering (adjusted: ' + adjTA.toFixed(0) + ' ppm with CYA)');
+        else normal.push('TA: ' + ta.toFixed(0) + ' ppm (80–120 ideal, adjusted: ' + adjTA.toFixed(0) + ' ppm with CYA)');
     }
 
     // CYA: >100 ppm warning
@@ -5275,29 +5611,28 @@ gbyId('p-btn-alerts').onclick = function() {
         else normal.push('Salt: ' + salt.toFixed(0) + ' ppm (±500 from 3200 target OK)');
     }
 
-    // LSI (Langelier Saturation Index) check — standard pool chemistry formula
+    // LSI (Langelier Saturation Index) check — uses adjusted TA when CYA > 30
     if (!isNaN(temp) && !isNaN(ph) && !isNaN(ta) && !isNaN(ch)) {
+        var lsiTA = (cya > 30) ? adjTA : ta;
         // LSI = pH - 9.3 + (T-68)*0.0245 + log10(CH/50) + log10(TA/7.5)
-        // Uses base-10 logarithms (Math.log10), NOT natural log (Math.log)
         var tempFactor = (temp - 68) * 0.0245;
         var pCa = Math.log10(ch > 0 ? ch / 50 : 0.02);
-        var pAlk = Math.log10(ta > 0 ? ta / 7.5 : 0.133);
+        var pAlk = Math.log10(lsiTA > 0 ? lsiTA / 7.5 : 0.133);
         var lsi = ph - 9.3 + tempFactor + pCa + pAlk;
 
-        // Break down for display — code dump style
         var lsiBreakdown = ph.toFixed(1) + ' (pH)'
             + ' - 9.3'
             + ' + (' + temp.toFixed(0) + '-68)*.0245=' + tempFactor.toFixed(2)
             + ' + log10(' + ch.toFixed(0) + '/50)=' + pCa.toFixed(2)
-            + ' + log10(' + ta.toFixed(0) + '/7.5)=' + pAlk.toFixed(2);
+            + ' + log10(' + lsiTA.toFixed(0) + '/7.5)=' + pAlk.toFixed(2);
 
-        // Also build a human-readable step-by-step
         var lsiSteps = '<span style="font-size:0.85em;color:#aaa;">'
             + 'Step-by-step:<br>'
             + '<b>pH factor:</b> ' + ph.toFixed(1) + '<br>'
             + '<b>Temp factor:</b> (T-68)×0.0245 = (' + temp.toFixed(0) + '-68)×0.0245 = ' + tempFactor.toFixed(3) + '<br>'
             + '<b>Calcium factor:</b> log₁₀(' + ch.toFixed(0) + '/50) = ' + pCa.toFixed(3) + '<br>'
-            + '<b>TA factor:</b> log₁₀(' + ta.toFixed(0) + '/7.5) = ' + pAlk.toFixed(3) + '<br>'
+            + '<b>TA factor:</b> log₁₀(' + lsiTA.toFixed(0) + '/7.5) = ' + pAlk.toFixed(3) + '<br>'
+            + (cya > 30 ? '<b>TA adjusted for CYA:</b> ' + ta.toFixed(0) + ' − ' + cyaAdj + ' = ' + lsiTA.toFixed(0) + ' ppm<br>' : '')
             + '<b>Total LSI:</b> ' + ph.toFixed(1) + ' - 9.3 + ' + tempFactor.toFixed(2)
             + ' + ' + pCa.toFixed(2) + ' + ' + pAlk.toFixed(2) + ' = <b style="color:' + colors.LSI + ';">' + lsi.toFixed(2) + '</b>'
             + '</span>';
@@ -5441,6 +5776,517 @@ gbyId('p-btn-alerts').onclick = function() {
 
     coinEl.addEventListener('click', tossCoin);
 })();
+
+// === D-CALC VIEW (IIFE) ===
+(function() {
+    'use strict';
+
+    var el = document.getElementById.bind(document);
+    var gbyId = function(id) { return document.getElementById(id); };
+
+    // Guard: if any required element is missing, fail silently
+    var dcalcView = el('view-dcalc');
+    if (!dcalcView) return;
+
+    // === DATA TABLES ===
+    var _metricBitSet = [2.0, 2.5, 3.0, 3.2, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 8.0, 10.0, 12.0];
+    var _fractionalBitSet = [0.0625, 0.0938, 0.125, 0.1563, 0.1875, 0.2188, 0.25, 0.3125, 0.375, 0.5, 0.625, 0.75, 1.0];
+
+    var _imperialThreadDB = {
+        '#0':       { unc_drill: 0.073, unf_drill: 0.077 },
+        '#1':       { unc_drill: 0.086, unf_drill: 0.090 },
+        '#2':       { unc_drill: 0.086, unf_drill: 0.090 },
+        '#3':       { unc_drill: 0.104, unf_drill: 0.110 },
+        '#4':       { unc_drill: 0.136, unf_drill: 0.142 },
+        '#5':       { unc_drill: 0.148, unf_drill: 0.156 },
+        '#6':       { unc_drill: 0.154, unf_drill: 0.162 },
+        '#7':       { unc_drill: 0.168, unf_drill: 0.177 },
+        '#8':       { unc_drill: 0.177, unf_drill: 0.185 },
+        '#9':       { unc_drill: 0.192, unf_drill: 0.200 },
+        '#10':      { unc_drill: 0.203, unf_drill: 0.213 },
+        '#11':      { unc_drill: 0.228, unf_drill: 0.238 },
+        '1/8"':     { unc_drill: 0.098, unf_drill: 0.104 },
+        '5/32"':    { unc_drill: 0.196, unf_drill: 0.205 },
+        '3/16"':    { unc_drill: 0.246, unf_drill: 0.258 },
+        '7/32"':    { unc_drill: 0.262, unf_drill: 0.275 },
+        '1/4"':     { unc_drill: 0.281, unf_drill: 0.295 },
+        '5/16"':    { unc_drill: 0.344, unf_drill: 0.359 },
+        '3/8"':     { unc_drill: 0.406, unf_drill: 0.422 },
+        '7/16"':    { unc_drill: 0.469, unf_drill: 0.484 },
+        '1/2"':     { unc_drill: 0.531, unf_drill: 0.547 },
+        '9/16"':    { unc_drill: 0.594, unf_drill: 0.610 },
+        '5/8"':     { unc_drill: 0.656, unf_drill: 0.672 },
+        '11/16"':   { unc_drill: 0.719, unf_drill: 0.734 },
+        '3/4"':     { unc_drill: 0.781, unf_drill: 0.797 },
+        '7/8"':     { unc_drill: 0.906, unf_drill: 0.922 },
+        '1"':       { unc_drill: 1.000, unf_drill: 1.016 }
+    };
+
+    var _anchorLookup = {
+        'plastic_exp_3/16': 4.0,
+        'plastic_exp_1/4': 5.0,
+        'plastic_exp_5/16': 5.5,
+        'plastic_exp_3/8': 6.5,
+        'plastic_exp_7/16': 7.5,
+        'plastic_exp_1/2': 8.0,
+        'toggle_bolt_1/4': 12.0,
+        'toggle_bolt_5/16': 14.0,
+        'toggle_bolt_3/8': 16.0,
+        'toggle_bolt_1/2': 20.0,
+        'drywall_self_drill_1/4': 6.0,
+        'drywall_self_drill_5/16': 7.0,
+        'drywall_self_drill_3/8': 8.0,
+        'molly_bolt_1/8': 7.0,
+        'molly_bolt_1/4': 9.5,
+        'molly_bolt_5/16': 11.0,
+        'molly_bolt_3/8': 12.5,
+        'concrete_wedge_1/4': 6.5,
+        'concrete_wedge_5/16': 7.5,
+        'concrete_wedge_3/8': 9.5,
+        'concrete_wedge_7/16': 10.5,
+        'concrete_wedge_1/2': 12.5,
+        'sleeve_1/4': 6.5,
+        'sleeve_5/16': 7.5,
+        'sleeve_3/8': 9.5,
+        'sleeve_1/2': 12.5,
+        'dropin_3/8': 9.5,
+        'dropin_1/2': 12.5,
+        'dropin_5/8': 16.0
+    };
+
+    var _insertLookup = {
+        'helicoil_m3': 2.5,
+        'helicoil_m4': 6.5,
+        'helicoil_m5': 8.0,
+        'helicoil_m6': 5.0,
+        'helicoil_m8': 6.8,
+        'helicoil_m10': 9.0,
+        'helicoil_m12': 11.0,
+        'helicoil_4-40': 0.156,
+        'helicoil_6-32': 0.198,
+        'helicoil_8-32': 0.219,
+        'helicoil_10-32': 0.258,
+        'helicoil_10-24': 0.276,
+        'helicoil_1/4-20': 0.313,
+        'helicoil_5/16-18': 0.377,
+        'helicoil_3/16-16': 0.422,
+        'helicoil_3/8-16': 0.422,
+        'helicoil_7/16-14': 0.500,
+        'helicoil_1/2-13': 0.489
+    };
+
+    // Metric thread data: [diameter, pitch] for coarse
+    var _metricCoarse = {
+        'M1.4×0.3': [1.4, 0.3], 'M1.6×0.35': [1.6, 0.35], 'M2×0.4': [2.0, 0.4],
+        'M2.5×0.45': [2.5, 0.45], 'M3×0.5': [3.0, 0.5], 'M3.5×0.6': [3.5, 0.6],
+        'M4×0.7': [4.0, 0.7], 'M5×0.8': [5.0, 0.8], 'M6×1': [6.0, 1.0],
+        'M7×1': [7.0, 1.0], 'M8×1.25': [8.0, 1.25], 'M9×1.25': [9.0, 1.25],
+        'M10×1.5': [10.0, 1.5], 'M11×1.5': [11.0, 1.5], 'M12×1.75': [12.0, 1.75],
+        'M14×2': [14.0, 2.0], 'M16×2': [16.0, 2.0], 'M18×2.5': [18.0, 2.5],
+        'M20×2.5': [20.0, 2.5], 'M22×2.5': [22.0, 2.5], 'M24×3': [24.0, 3.0],
+        'M27×3': [27.0, 3.0], 'M30×3.5': [30.0, 3.5], 'M33×3.5': [33.0, 3.5],
+        'M36×4': [36.0, 4.0], 'M39×4': [39.0, 4.0], 'M42×4.5': [42.0, 4.5],
+        'M48×5': [48.0, 5.0]
+    };
+
+    // Metric fine thread data: [diameter, pitch]
+    var _metricFine = {
+        'M1.6×0.35': [1.6, 0.35], 'M2×0.4': [2.0, 0.4],
+        'M3×0.35': [3.0, 0.35], 'M4×0.5': [4.0, 0.5], 'M5×0.5': [5.0, 0.5],
+        'M6×0.75': [6.0, 0.75], 'M8×1': [8.0, 1.0], 'M10×1': [10.0, 1.0],
+        'M10×1.25': [10.0, 1.25], 'M12×1.25': [12.0, 1.25], 'M12×1.5': [12.0, 1.5],
+        'M14×1.5': [14.0, 1.5], 'M16×1.5': [16.0, 1.5], 'M18×1.5': [18.0, 1.5],
+        'M20×1.5': [20.0, 1.5], 'M22×1.5': [22.0, 1.5],
+        'M24×2': [24.0, 2.0], 'M27×2': [27.0, 2.0], 'M30×2': [30.0, 2.0],
+        'M30×3.5': [30.0, 3.5], 'M36×2': [36.0, 2.0], 'M36×4': [36.0, 4.0],
+        'M42×2': [42.0, 2.0], 'M42×4.5': [42.0, 4.5],
+        'M48×3': [48.0, 3.0], 'M48×5': [48.0, 5.0]
+    };
+
+    // Imperial thread labels mapping (from select values to lookup keys)
+    var _imperialLabelMap = {
+        '#0-80': '#0', '#1-64': '#1', '#2-56': '#2', '#3-48': '#3',
+        '#4-40': '#4', '#5-40': '#5', '#6-32': '#6', '#8-32': '#8',
+        '#10-24': '#10', '#12-24': '#11',
+        '1/8-27': '1/8"', '5/32-24': '5/32"',
+        '3/16-24': '3/16"', '7/32-20': '7/32"',
+        '1/4-20': '1/4"', '5/16-18': '5/16"',
+        '3/8-16': '3/8"', '7/16-14': '7/16"', '1/2-13': '1/2"',
+        '9/16-12': '9/16"', '5/8-11': '5/8"',
+        '11/16-12': '11/16"', '3/4-10': '3/4"',
+        '7/8-9': '7/8"', '1-8': '1"'
+    };
+
+    // === UTILITIES ===
+    function getBitSuggestions(target, bitSet) {
+        if (!bitSet || bitSet.length === 0 || isNaN(target)) return null;
+        var closest = bitSet[0];
+        var minDiff = Math.abs(bitSet[0] - target);
+        for (var i = 1; i < bitSet.length; i++) {
+            var diff = Math.abs(bitSet[i] - target);
+            if (diff < minDiff) { minDiff = diff; closest = bitSet[i]; }
+        }
+        var nextUp = null;
+        for (var j = 0; j < bitSet.length; j++) {
+            if (bitSet[j] >= target) { nextUp = bitSet[j]; break; }
+        }
+        return {
+            closest: closest,
+            nextUp: nextUp,
+            isExactMatch: minDiff < 0.0001,
+            needsCaution: !minDiff || minDiff >= 0.0001
+        };
+    }
+
+    function mmToIn(mm) { return isNaN(mm) ? NaN : mm / 25.4; }
+    function inToMm(inch) { return isNaN(inch) ? NaN : inch * 25.4; }
+
+    function formatFraction(decimal) {
+        if (isNaN(decimal)) return '';
+        var tolerance = 1 / 64;
+        var n = Math.round(decimal * 64);
+        var whole = Math.floor(n / 64);
+        var rem = n % 64;
+        if (rem === 0) return whole > 0 ? whole.toString() : '0';
+        var g = function(a, b) { return b === 0 ? a : g(b, a % b); };
+        var divisor = g(rem, 64);
+        var num = rem / divisor;
+        var den = 64 / divisor;
+        var fracStr = num + '/' + den;
+        return whole > 0 ? whole + " " + fracStr : fracStr;
+    }
+
+    // === SUBVIEW SWITCHING ===
+    var _subviews = ['tapping', 'fastening', 'inserts', 'converter'];
+    var _subviewBtns = dcalcView.querySelectorAll('[data-subview]');
+
+    function showSubview(name) {
+        for (var i = 0; i < _subviews.length; i++) {
+            var subEl = gbyId('d-subview-' + _subviews[i]);
+            if (subEl) subEl.style.display = (_subviews[i] === name) ? 'block' : 'none';
+        }
+        for (var j = 0; j < _subviewBtns.length; j++) {
+            var btn = _subviewBtns[j];
+            if (btn.getAttribute('data-subview') === name) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        }
+    }
+
+    for (var si = 0; si < _subviewBtns.length; si++) {
+        (function(btn) {
+            btn.addEventListener('click', function() {
+                var name = this.getAttribute('data-subview');
+                if (name) showSubview(name);
+            });
+        })(_subviewBtns[si]);
+    }
+
+    // === TAPPING MODULE ===
+    var _tapProfile = gbyId('d-i-tap-profile');
+    var _tapMetricRow = gbyId('d-tap-metric-row');
+    var _tapFineRow = gbyId('d-tap-fine-row');
+    var _tapImperialRow = gbyId('d-tap-imperial-row');
+    var _tapTypeRow = gbyId('d-tap-type-row');
+    var _tapManualRow = gbyId('d-tap-manual-row');
+
+    function updateTapUI() {
+        if (!_tapProfile) return;
+        var val = _tapProfile.value;
+        _tapMetricRow.style.display = (val === 'metric_coarse') ? 'block' : 'none';
+        _tapFineRow.style.display = (val === 'metric_fine') ? 'block' : 'none';
+        _tapImperialRow.style.display = (val === 'imperial_std') ? 'block' : 'none';
+        _tapTypeRow.style.display = (val === 'imperial_std') ? 'block' : 'none';
+        _tapManualRow.style.display = (val === 'manual') ? 'block' : 'none';
+    }
+
+    if (_tapProfile) _tapProfile.addEventListener('change', updateTapUI);
+    updateTapUI();
+
+    var _tapBtn = gbyId('d-btn-tap');
+    if (_tapBtn) {
+        _tapBtn.addEventListener('click', function() {
+            var profile = gbyId('d-i-tap-profile').value;
+            var target = null;
+            var label = '';
+            var bitSet = _metricBitSet;
+
+            if (profile === 'metric_coarse') {
+                var sel = gbyId('d-i-tap-metric');
+                if (!sel || !sel.value) { gbyId('d-d-tap').innerHTML = 'Select a metric size'; return; }
+                var parts = sel.value.split('×');
+                var dia = parseFloat(parts[0].replace('M', ''));
+                var pitch = parseFloat(parts[1]);
+                target = dia - pitch;
+                label = sel.value + ' tap drill';
+            } else if (profile === 'metric_fine') {
+                var selF = gbyId('d-i-tap-metric-fine');
+                if (!selF || !selF.value) { gbyId('d-d-tap').innerHTML = 'Select a metric fine size'; return; }
+                var partsF = selF.value.split('×');
+                var diaF = parseFloat(partsF[0].replace('M', ''));
+                var pitchF = parseFloat(partsF[1]);
+                target = diaF - pitchF;
+                label = selF.value + ' tap drill';
+            } else if (profile === 'imperial_std') {
+                var selI = gbyId('d-i-tap-imperial');
+                var type = gbyId('d-i-tap-type').value;
+                if (!selI || !selI.value) { gbyId('d-d-tap').innerHTML = 'Select an imperial size'; return; }
+                var key = _imperialLabelMap[selI.value];
+                if (!key || !_imperialThreadDB[key]) { gbyId('d-d-tap').innerHTML = 'Unknown imperial size'; return; }
+                var entry = _imperialThreadDB[key];
+                var drillIn = (type === 'unc') ? entry.unc_drill : entry.unf_drill;
+                target = inToMm(drillIn);
+                label = selI.value + ' (' + type.toUpperCase() + ') tap drill';
+            } else if (profile === 'manual') {
+                var diaM = parseFloat(gbyId('d-i-tap-dia').value);
+                var pitchM = parseFloat(gbyId('d-i-tap-pitch').value);
+                if (isNaN(diaM) || isNaN(pitchM)) { gbyId('d-d-tap').innerHTML = 'Enter diameter and pitch'; return; }
+                target = diaM - pitchM;
+                label = diaM + 'mm × ' + pitchM + 'mm tap drill';
+            }
+
+            if (target === null || isNaN(target)) { gbyId('d-d-tap').innerHTML = 'Invalid calculation'; return; }
+
+            var result = getBitSuggestions(target, bitSet);
+            if (!result) { gbyId('d-d-tap').innerHTML = 'No bit set available'; return; }
+
+            var html = '<b>Target drill size:</b> ' + target.toFixed(3) + ' mm<br>';
+            html += '<b>Closest bit:</b> ' + result.closest + ' mm';
+            if (!result.isExactMatch) {
+                html += ' (diff: ' + Math.abs(result.closest - target).toFixed(3) + ' mm)';
+            } else {
+                html += ' (exact match!)';
+            }
+            if (result.nextUp !== null) {
+                html += '<br><b>Next size up:</b> ' + result.nextUp + ' mm (for harder materials)';
+            }
+
+            gbyId('d-d-tap').innerHTML = html;
+            var statsHtml = '<b>Profile:</b> ' + label + '<br>';
+            if (profile === 'metric_coarse' || profile === 'metric_fine') {
+                statsHtml += '<b>Formula:</b> target = diameter - pitch<br>';
+            } else if (profile === 'imperial_std') {
+                statsHtml += '<b>Method:</b> lookup from Imperial Thread DB<br>';
+            } else {
+                statsHtml += '<b>Formula:</b> target = diameter - pitch<br>';
+            }
+            statsHtml += '<b>Bit set:</b> Metric standard sizes';
+            gbyId('d-d-tap-stats').innerHTML = statsHtml;
+        });
+    }
+
+    // === FASTENING MODULE ===
+    var _fastenMode = gbyId('d-i-fasten-mode');
+    var _fastenWoodRow = gbyId('d-fasten-wood-row');
+    var _fastenAnchorRow = gbyId('d-fasten-anchor-row');
+
+    function updateFastenUI() {
+        if (!_fastenMode) return;
+        var val = _fastenMode.value;
+        _fastenWoodRow.style.display = (val === 'wood') ? 'block' : 'none';
+        _fastenAnchorRow.style.display = (val === 'anchor') ? 'block' : 'none';
+        var smRow = gbyId('d-fasten-sheetmetal-row');
+        if (smRow) smRow.style.display = (val === 'sheetmetal') ? 'block' : 'none';
+    }
+
+    if (_fastenMode) _fastenMode.addEventListener('change', updateFastenUI);
+    updateFastenUI();
+
+    var _fastenBtn = gbyId('d-btn-fasten');
+    if (_fastenBtn) {
+        _fastenBtn.addEventListener('click', function() {
+            var mode = gbyId('d-i-fasten-mode').value;
+            var target = null;
+            var label = '';
+            var bitSet = _metricBitSet;
+            var warning = '';
+
+            if (mode === 'wood') {
+                var diaW = parseFloat(gbyId('d-i-fasten-dia').value);
+                var woodType = gbyId('d-i-fasten-wood-type').value;
+                if (isNaN(diaW) || diaW <= 0) { gbyId('d-d-fasten').innerHTML = 'Enter a valid screw diameter'; return; }
+                var factor = (woodType === 'hardwood') ? 0.82 : 0.75;
+                target = diaW * factor;
+                label = (woodType === 'softwood' ? 'Softwood' : 'Hardwood') + ' — 75%/82% rule';
+                if (woodType === 'hardwood') {
+                    warning = '<br><b style="color:#fab005;">⚠ Split warning:</b> hardwood requires larger pilot hole. Consider pre-drilling slower and using less torque.';
+                }
+            } else if (mode === 'sheetmetal') {
+                var diaSM = parseFloat(gbyId('d-i-sm-dia').value);
+                var smMaterial = gbyId('d-i-sm-material').value;
+                if (isNaN(diaSM) || diaSM <= 0) { gbyId('d-d-fasten').innerHTML = 'Enter a valid screw diameter'; return; }
+
+                var smFactor, smCautions = [];
+                if (smMaterial === 'mildsteel') {
+                    // Self-drilling screw: use full diameter (TEF screw drills its own hole)
+                    target = diaSM;
+                    smFactor = 1.0;
+                    smCautions.push('Self-drilling screw — no pre-drill needed for material ≤ 6mm');
+                    smCautions.push('Check screw point type (TEF) matches material thickness');
+                } else if (smMaterial === 'stainless') {
+                    // Stainless is hard — pre-drill with 1mm smaller, use self-tapping screw
+                    target = diaSM - 0.8;
+                    smFactor = 0.85;
+                    smCautions.push('⚠ Stainless steel is hard — pre-drill required');
+                    smCautions.push('Use self-tapping screw (not self-drilling) with pilot hole');
+                    smCautions.push('Apply cutting fluid to reduce heat and tool wear');
+                } else if (smMaterial === 'aluminum') {
+                    // Aluminum is soft — self-tapping or self-drilling works; use 90% for tapping
+                    target = diaSM * 0.90;
+                    smFactor = 0.90;
+                    smCautions.push('Aluminum is soft — self-tapping screw recommended');
+                    smCautions.push('For self-drilling, ensure material thickness ≤ 3mm');
+                    smCautions.push('⚠ Watch for galling — use lubrication if needed');
+                } else if (smMaterial === 'galvanized') {
+                    // Galvanized steel — self-drilling screw, but watch for coating damage
+                    target = diaSM;
+                    smFactor = 1.0;
+                    smCautions.push('Self-drilling screw recommended');
+                    smCautions.push('⚠ Screw will remove galvanized coating at hole — consider touch-up paint');
+                    smCautions.push('Use screw with appropriate point type for material thickness');
+                }
+
+                label = 'Sheet Metal — ' + (smMaterial === 'mildsteel' ? 'Mild Steel' : smMaterial === 'stainless' ? 'Stainless Steel' : smMaterial === 'aluminum' ? 'Aluminum' : 'Galvanized Steel');
+                if (smCautions.length > 0) {
+                    warning = '<br><b style="color:#fab005;">⚠ Material cautions:</b><br>' + smCautions.join('<br>');
+                }
+            } else if (mode === 'anchor') {
+                var diaA = parseFloat(gbyId('d-i-anchor-dia').value);
+                var anchorType = gbyId('d-i-anchor-type').value;
+                if (isNaN(diaA) || diaA <= 0) { gbyId('d-d-fasten').innerHTML = 'Enter a valid screw diameter'; return; }
+                if (!anchorType) { gbyId('d-d-fasten').innerHTML = 'Select an anchor type'; return; }
+
+                if (_anchorLookup[anchorType] !== undefined) {
+                    target = _anchorLookup[anchorType];
+                } else {
+                    gbyId('d-d-fasten').innerHTML = 'Unknown anchor type'; return;
+                }
+
+                var anchorSelect = gbyId('d-i-anchor-type');
+                label = anchorSelect.options[anchorSelect.selectedIndex].text + ' — recommended drill';
+            }
+
+            if (target === null || isNaN(target)) { gbyId('d-d-fasten').innerHTML = 'Invalid calculation'; return; }
+
+            var result = getBitSuggestions(target, bitSet);
+            if (!result) { gbyId('d-d-fasten').innerHTML = 'No bit set available'; return; }
+
+            var html = '<b>Target drill size:</b> ' + target.toFixed(3) + ' mm<br>';
+            html += '<b>Closest bit:</b> ' + result.closest + ' mm';
+            if (!result.isExactMatch) {
+                html += ' (diff: ' + Math.abs(result.closest - target).toFixed(3) + ' mm)';
+            } else {
+                html += ' (exact match!)';
+            }
+            if (result.nextUp !== null) {
+                html += '<br><b>Next size up:</b> ' + result.nextUp + ' mm';
+            }
+            html += warning;
+
+            gbyId('d-d-fasten').innerHTML = html;
+            var statsHtml = '<b>Mode:</b> ' + mode + '<br>';
+            if (mode === 'wood') {
+                statsHtml += '<b>Formula:</b> target = diameter × 0.' + ((woodType === 'hardwood') ? '82' : '75') + '<br>';
+            } else if (mode === 'sheetmetal') {
+                statsHtml += '<b>Formula:</b> target = diameter × ' + smFactor.toFixed(2) + ' (' + label.split('— ')[1] + ')<br>';
+            } else {
+                statsHtml += '<b>Method:</b> lookup from Anchor Lookup DB<br>';
+            }
+            statsHtml += '<b>Bit set:</b> Metric standard sizes';
+            gbyId('d-d-fasten-stats').innerHTML = statsHtml;
+        });
+    }
+
+    // === INSERTS MODULE ===
+    var _insertBtn = gbyId('d-btn-insert');
+    if (_insertBtn) {
+        _insertBtn.addEventListener('click', function() {
+            var insertType = gbyId('d-i-insert-type').value;
+            if (!insertType) { gbyId('d-d-insert').innerHTML = 'Select an insert type'; return; }
+
+            var target = _insertLookup[insertType];
+            if (target === undefined) { gbyId('d-d-insert').innerHTML = 'Unknown insert type'; return; }
+
+            var label = gbyId('d-i-insert-type').options[gbyId('d-i-insert-type').selectedIndex].text;
+            var bitSet = _metricBitSet;
+
+            // For imperial inserts, use fractional set
+            if (insertType.indexOf('helicoil_') === 0 && insertType.split('_').length > 2) {
+                // Check if it's an imperial helicoil (contains digits and hyphens in the suffix)
+                var parts = insertType.split('_');
+                var suffix = parts[2];
+                if (suffix.indexOf('-') !== -1) {
+                    bitSet = _fractionalBitSet;
+                }
+            }
+
+            var result = getBitSuggestions(target, bitSet);
+            if (!result) { gbyId('d-d-insert').innerHTML = 'No bit set available'; return; }
+
+            var unitLabel = (bitSet === _fractionalBitSet) ? 'in' : 'mm';
+            var bitSetLabel = (bitSet === _fractionalBitSet) ? 'Fractional' : 'Metric standard';
+
+            var html = '<b>Target drill size:</b> ' + target + ' "' + (bitSet === _fractionalBitSet ? '' : 'mm') + '<br>';
+            if (bitSet === _fractionalBitSet) {
+                html += '<b>Closest fractional:</b> ' + formatFraction(result.closest) + '" (' + result.closest.toFixed(4) + '" )';
+            } else {
+                html += '<b>Closest bit:</b> ' + result.closest + ' mm';
+            }
+            if (!result.isExactMatch) {
+                html += ' (diff: ' + Math.abs((bitSet === _fractionalBitSet ? result.closest : result.closest) - target).toFixed(4) + ' )';
+            } else {
+                html += ' (exact match!)';
+            }
+            if (result.nextUp !== null) {
+                var nextLabel = (bitSet === _fractionalBitSet) ? formatFraction(result.nextUp) + '"' : result.nextUp + ' mm';
+                html += '<br><b>Next size up:</b> ' + nextLabel;
+            }
+
+            gbyId('d-d-insert').innerHTML = html;
+            var statsHtml = '<b>Insert:</b> ' + label + '<br>';
+            statsHtml += '<b>Method:</b> lookup from Insert Lookup DB<br>';
+            statsHtml += '<b>Bit set:</b> ' + bitSetLabel;
+            gbyId('d-d-insert-stats').innerHTML = statsHtml;
+        });
+    }
+
+    // === CONVERTER MODULE ===
+    var _convBtn = gbyId('d-btn-conv');
+    if (_convBtn) {
+        _convBtn.addEventListener('click', function() {
+            var val = parseFloat(gbyId('d-i-conv-val').value);
+            var from = gbyId('d-i-conv-from').value;
+            var to = gbyId('d-i-conv-to').value;
+
+            if (isNaN(val)) { gbyId('d-d-conv').innerHTML = 'Enter a value'; return; }
+            if (from === to) { gbyId('d-d-conv').innerHTML = 'Same units — no conversion needed'; return; }
+
+            var result;
+            if (from === 'mm' && to === 'in') {
+                result = mmToIn(val);
+            } else if (from === 'in' && to === 'mm') {
+                result = inToMm(val);
+            } else {
+                gbyId('d-d-conv').innerHTML = 'Invalid conversion'; return;
+            }
+
+            var html = '<b>' + val + ' ' + from + ' = ' + result.toFixed(4) + ' "' + (to === 'mm' ? '' : '') + '</b><br>';
+            if (to === 'in') {
+                html += '<b>As fraction:</b> ' + formatFraction(result) + '"';
+            } else {
+                html += '<b>As mm:</b> ' + result.toFixed(3) + ' mm';
+            }
+
+            gbyId('d-d-conv').innerHTML = html;
+            var statsHtml = '<b>Formula:</b> ' + (from === 'mm' ? val + ' / 25.4' : val + ' × 25.4') + '<br>';
+            statsHtml += '<b>Direction:</b> ' + from + ' → ' + to;
+            gbyId('d-d-conv-stats').innerHTML = statsHtml;
+        });
+    }
+
+})(); // end D-CALC IIFE
 
 // === INIT: Trigger tire calc on load (no input value writes) ===
 window.addEventListener('load', function() {
