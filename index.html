@@ -1,4 +1,4 @@
-<!-- STATE 6/2026 - SWAT CALC v1.7 -->
+<!-- STATE 5/2026 - SWAT CALC v1.7 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -893,12 +893,21 @@
                     <option value="1-1/8-7">1-1/8"-7 UNC / 1-1/8"-12 UNF</option>
                     <option value="1-1/4-7">1-1/4"-7 UNC / 1-1/4"-12 UNF</option>
                     <option value="1-1/2-6">1-1/2"-6 UNC / 1-1/2"-12 UNF</option>
+                    <optgroup label="NPT Pipe Threads">
+                        <option value="1/8-NPT">1/8" NPT</option>
+                        <option value="1/4-NPT">1/4" NPT</option>
+                        <option value="3/8-NPT">3/8" NPT</option>
+                        <option value="1/2-NPT">1/2" NPT</option>
+                        <option value="3/4-NPT">3/4" NPT</option>
+                        <option value="1-NPT">1" NPT</option>
+                    </optgroup>
                 </select></div>
             </div>
             <div class="row" id="d-tap-type-row" style="display:none;">
                 <div class="col"><label>Type</label><select id="d-i-tap-type">
                     <option value="unc" selected>UNC (Coarse)</option>
                     <option value="unf">UNF (Fine)</option>
+                    <option value="npt">NPT (Pipe)</option>
                 </select></div>
             </div>
             <div class="row" id="d-tap-manual-row" style="display:none;">
@@ -5790,36 +5799,46 @@ gbyId('p-btn-alerts').onclick = function() {
 
     // === DATA TABLES ===
     var _metricBitSet = [2.0, 2.5, 3.0, 3.2, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 8.0, 10.0, 12.0];
-    var _fractionalBitSet = [0.0625, 0.0938, 0.125, 0.1563, 0.1875, 0.2188, 0.25, 0.3125, 0.375, 0.5, 0.625, 0.75, 1.0];
+    var _fractionalBitSet = [];
+    for (var _fi = 1; _fi <= 64; _fi++) {
+        _fractionalBitSet.push(_fi / 64);
+    }
 
     var _imperialThreadDB = {
-        '#0':       { unc_drill: 0.073, unf_drill: 0.077 },
-        '#1':       { unc_drill: 0.086, unf_drill: 0.090 },
-        '#2':       { unc_drill: 0.086, unf_drill: 0.090 },
-        '#3':       { unc_drill: 0.104, unf_drill: 0.110 },
-        '#4':       { unc_drill: 0.136, unf_drill: 0.142 },
-        '#5':       { unc_drill: 0.148, unf_drill: 0.156 },
-        '#6':       { unc_drill: 0.154, unf_drill: 0.162 },
-        '#7':       { unc_drill: 0.168, unf_drill: 0.177 },
-        '#8':       { unc_drill: 0.177, unf_drill: 0.185 },
-        '#9':       { unc_drill: 0.192, unf_drill: 0.200 },
-        '#10':      { unc_drill: 0.203, unf_drill: 0.213 },
-        '#11':      { unc_drill: 0.228, unf_drill: 0.238 },
-        '1/8"':     { unc_drill: 0.098, unf_drill: 0.104 },
-        '5/32"':    { unc_drill: 0.196, unf_drill: 0.205 },
-        '3/16"':    { unc_drill: 0.246, unf_drill: 0.258 },
-        '7/32"':    { unc_drill: 0.262, unf_drill: 0.275 },
-        '1/4"':     { unc_drill: 0.281, unf_drill: 0.295 },
-        '5/16"':    { unc_drill: 0.344, unf_drill: 0.359 },
-        '3/8"':     { unc_drill: 0.406, unf_drill: 0.422 },
-        '7/16"':    { unc_drill: 0.469, unf_drill: 0.484 },
-        '1/2"':     { unc_drill: 0.531, unf_drill: 0.547 },
-        '9/16"':    { unc_drill: 0.594, unf_drill: 0.610 },
-        '5/8"':     { unc_drill: 0.656, unf_drill: 0.672 },
-        '11/16"':   { unc_drill: 0.719, unf_drill: 0.734 },
-        '3/4"':     { unc_drill: 0.781, unf_drill: 0.797 },
-        '7/8"':     { unc_drill: 0.906, unf_drill: 0.922 },
-        '1"':       { unc_drill: 1.000, unf_drill: 1.016 }
+        '#0':       { unc_drill: 1.32, unf_drill: 1.30 },
+        '#1':       { unc_drill: 1.60, unf_drill: 1.63 },
+        '#2':       { unc_drill: 1.93, unf_drill: 1.96 },
+        '#3':       { unc_drill: 2.30, unf_drill: 2.34 },
+        '#4':       { unc_drill: 3.04, unf_drill: 3.11 },
+        '#5':       { unc_drill: 3.35, unf_drill: 3.42 },
+        '#6':       { unc_drill: 3.40, unf_drill: 3.51 },
+        '#8':       { unc_drill: 3.65, unf_drill: 3.81 },
+        '#10':      { unc_drill: 4.05, unf_drill: 4.27 },
+        '#12':      { unc_drill: 4.50, unf_drill: 4.72 },
+        '1/8"':     { unc_drill: 3.56, unf_drill: 4.09 },
+        '5/32"':    { unc_drill: 4.78, unf_drill: 5.03 },
+        '3/16"':    { unc_drill: 5.28, unf_drill: 5.64 },
+        '7/32"':    { unc_drill: 5.94, unf_drill: 6.30 },
+        '1/4"':     { unc_drill: 5.38, unf_drill: 6.10 },
+        '5/16"':    { unc_drill: 6.94, unf_drill: 7.62 },
+        '3/8"':     { unc_drill: 8.15, unf_drill: 9.14 },
+        '7/16"':    { unc_drill: 9.35, unf_drill: 10.26 },
+        '1/2"':     { unc_drill: 11.43, unf_drill: 11.87 },
+        '9/16"':    { unc_drill: 12.57, unf_drill: 13.49 },
+        '5/8"':     { unc_drill: 13.72, unf_drill: 14.68 },
+        '11/16"':   { unc_drill: 14.86, unf_drill: 15.37 },
+        '3/4"':     { unc_drill: 15.98, unf_drill: 16.94 },
+        '7/8"':     { unc_drill: 18.26, unf_drill: 19.15 },
+        '1"':       { unc_drill: 20.46, unf_drill: 21.35 },
+        '1-1/8"':   { unc_drill: 23.62, unf_drill: 24.51 },
+        '1-1/4"':   { unc_drill: 25.80, unf_drill: 26.93 },
+        '1-1/2"':   { unc_drill: 29.07, unf_drill: 30.48 },
+        '1/8-NPT':  { npt_drill: 6.25 },
+        '1/4-NPT':  { npt_drill: 8.89 },
+        '3/8-NPT':  { npt_drill: 11.51 },
+        '1/2-NPT':  { npt_drill: 15.87 },
+        '3/4-NPT':  { npt_drill: 20.62 },
+        '1-NPT':    { npt_drill: 27.38 }
     };
 
     var _anchorLookup = {
@@ -5914,7 +5933,10 @@ gbyId('p-btn-alerts').onclick = function() {
         '3/8-16': '3/8"', '7/16-14': '7/16"', '1/2-13': '1/2"',
         '9/16-12': '9/16"', '5/8-11': '5/8"',
         '11/16-12': '11/16"', '3/4-10': '3/4"',
-        '7/8-9': '7/8"', '1-8': '1"'
+        '7/8-9': '7/8"', '1-8': '1"',
+        '1/8-NPT': '1/8-NPT', '1/4-NPT': '1/4-NPT',
+        '3/8-NPT': '3/8-NPT', '1/2-NPT': '1/2-NPT',
+        '3/4-NPT': '3/4-NPT', '1-NPT': '1-NPT'
     };
 
     // === UTILITIES ===
@@ -6031,14 +6053,19 @@ gbyId('p-btn-alerts').onclick = function() {
                 label = selF.value + ' tap drill';
             } else if (profile === 'imperial_std') {
                 var selI = gbyId('d-i-tap-imperial');
-                var type = gbyId('d-i-tap-type').value;
                 if (!selI || !selI.value) { gbyId('d-d-tap').innerHTML = 'Select an imperial size'; return; }
+                var isNPTSize = selI.value.indexOf('NPT') !== -1;
+                var type = isNPTSize ? 'npt' : gbyId('d-i-tap-type').value;
                 var key = _imperialLabelMap[selI.value];
                 if (!key || !_imperialThreadDB[key]) { gbyId('d-d-tap').innerHTML = 'Unknown imperial size'; return; }
                 var entry = _imperialThreadDB[key];
-                var drillIn = (type === 'unc') ? entry.unc_drill : entry.unf_drill;
-                target = inToMm(drillIn);
-                label = selI.value + ' (' + type.toUpperCase() + ') tap drill';
+                if (type === 'npt') {
+                    target = entry.npt_drill;
+                    label = selI.value + ' NPT tap drill';
+                } else {
+                    target = (type === 'unc') ? entry.unc_drill : entry.unf_drill;
+                    label = selI.value + ' (' + type.toUpperCase() + ') tap drill';
+                }
             } else if (profile === 'manual') {
                 var diaM = parseFloat(gbyId('d-i-tap-dia').value);
                 var pitchM = parseFloat(gbyId('d-i-tap-pitch').value);
@@ -6049,18 +6076,52 @@ gbyId('p-btn-alerts').onclick = function() {
 
             if (target === null || isNaN(target)) { gbyId('d-d-tap').innerHTML = 'Invalid calculation'; return; }
 
-            var result = getBitSuggestions(target, bitSet);
-            if (!result) { gbyId('d-d-tap').innerHTML = 'No bit set available'; return; }
+            var html = '';
+            var isImperial = (profile === 'imperial_std');
 
-            var html = '<b>Target drill size:</b> ' + target.toFixed(3) + ' mm<br>';
-            html += '<b>Closest bit:</b> ' + result.closest + ' mm';
-            if (!result.isExactMatch) {
-                html += ' (diff: ' + Math.abs(result.closest - target).toFixed(3) + ' mm)';
+            if (isImperial) {
+                var targetInches = mmToIn(target);
+                var fracResult = getBitSuggestions(targetInches, _fractionalBitSet);
+                if (!fracResult) { gbyId('d-d-tap').innerHTML = 'No bit set available'; return; }
+
+                html += '<b>Target drill size:</b> ' + target.toFixed(2) + ' mm (' + targetInches.toFixed(4) + '" )<br>';
+                html += '<b>Closest fractional:</b> ' + formatFraction(fracResult.closest) + '" (' + (fracResult.closest * 25.4).toFixed(2) + ' mm)';
+                if (!fracResult.isExactMatch) {
+                    html += ' (diff: ' + Math.abs(fracResult.closest - targetInches).toFixed(4) + '" )';
+                } else {
+                    html += ' (exact match!)';
+                }
+                if (fracResult.nextUp !== null) {
+                    html += '<br><b>Next fractional up:</b> ' + formatFraction(fracResult.nextUp) + '" (' + (fracResult.nextUp * 25.4).toFixed(2) + ' mm)';
+                }
+
+                var metricResult = getBitSuggestions(target, _metricBitSet);
+                if (metricResult) {
+                    html += '<br><b>Closest metric bit:</b> ' + metricResult.closest.toFixed(1) + ' mm';
+                    if (metricResult.nextUp !== null) {
+                        html += '<br><b>Next metric up:</b> ' + metricResult.nextUp.toFixed(1) + ' mm';
+                    }
+                }
             } else {
-                html += ' (exact match!)';
-            }
-            if (result.nextUp !== null) {
-                html += '<br><b>Next size up:</b> ' + result.nextUp + ' mm (for harder materials)';
+                var result = getBitSuggestions(target, bitSet);
+                if (!result) { gbyId('d-d-tap').innerHTML = 'No bit set available'; return; }
+
+                html += '<b>Target drill size:</b> ' + target.toFixed(2) + ' mm<br>';
+                html += '<b>Closest bit:</b> ' + result.closest.toFixed(1) + ' mm';
+                if (!result.isExactMatch) {
+                    html += ' (diff: ' + Math.abs(result.closest - target).toFixed(2) + ' mm)';
+                } else {
+                    html += ' (exact match!)';
+                }
+                if (result.nextUp !== null) {
+                    html += '<br><b>Next size up:</b> ' + result.nextUp.toFixed(1) + ' mm (for harder materials)';
+                }
+
+                var targetInches = mmToIn(target);
+                var fracResult = getBitSuggestions(targetInches, _fractionalBitSet);
+                if (fracResult) {
+                    html += '<br><b>Closest fractional:</b> ' + formatFraction(fracResult.closest) + '" (' + (fracResult.closest * 25.4).toFixed(2) + ' mm)';
+                }
             }
 
             gbyId('d-d-tap').innerHTML = html;
@@ -6068,11 +6129,19 @@ gbyId('p-btn-alerts').onclick = function() {
             if (profile === 'metric_coarse' || profile === 'metric_fine') {
                 statsHtml += '<b>Formula:</b> target = diameter - pitch<br>';
             } else if (profile === 'imperial_std') {
-                statsHtml += '<b>Method:</b> lookup from Imperial Thread DB<br>';
+                var selI = gbyId('d-i-tap-imperial');
+                if (selI && selI.value && selI.value.indexOf('NPT') !== -1) {
+                    statsHtml += '<b>Method:</b> NPT 60° taper pipe thread lookup<br>';
+                } else {
+                    statsHtml += '<b>Method:</b> lookup from Imperial Thread DB (75% thread engagement)<br>';
+                }
             } else {
                 statsHtml += '<b>Formula:</b> target = diameter - pitch<br>';
             }
             statsHtml += '<b>Bit set:</b> Metric standard sizes';
+            if (profile === 'imperial_std') {
+                statsHtml += '<br><b>Fractional set:</b> 1/64" increments';
+            }
             gbyId('d-d-tap-stats').innerHTML = statsHtml;
         });
     }
