@@ -6272,7 +6272,7 @@ gbyId('p-btn-alerts').onclick = function() {
                 gbyId('d-d-conv').innerHTML = 'Invalid conversion'; return;
             }
 
-            var html = '<b>' + val + ' ' + from + ' = ' + result.toFixed(4) + ' "' + (to === 'mm' ? '' : '') + '</b><br>';
+            var html = '<b>' + val + ' ' + from + ' = ' + result.toFixed(4) + (to === 'mm' ? ' mm' : '"') + '</b><br>';
             if (to === 'in') {
                 html += '<b>As fraction:</b> ' + formatFraction(result) + '"';
             } else {
