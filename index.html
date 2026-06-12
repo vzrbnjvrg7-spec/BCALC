@@ -1003,33 +1003,44 @@
         <div id="d-subview-inserts" class="d-subview" style="display:none;">
             <h3 style="margin-top:0;">Insert / Threaded Insert Drill Size</h3>
             <div class="row">
-                <div class="col"><label>Insert Type</label><select id="d-i-insert-type">
-                    <optgroup label="Helicoil Metric">
-                        <option value="helicoil_m3">Helicoil M3 (2.5mm tap)</option>
-                        <option value="helicoil_m4">Helicoil M4 (6.5mm tap)</option>
-                        <option value="helicoil_m5">Helicoil M5 (8mm tap)</option>
-                        <option value="helicoil_m6" selected>Helicoil M6 (5mm tap)</option>
-                        <option value="helicoil_m8">Helicoil M8 (6.8mm tap)</option>
-                        <option value="helicoil_m10">Helicoil M10 (9mm tap)</option>
-                        <option value="helicoil_m12">Helicoil M12 (11mm tap)</option>
+                <div class="col"><label>Insert Type</label>                <select id="d-i-insert-type">
+                    <optgroup label="Helicoil Metric (Insert Drill)">
+                        <option value="helicoil_m3">M3×0.5 — 3.1mm insert drill</option>
+                        <option value="helicoil_m4">M4×0.7 — 4.2mm insert drill</option>
+                        <option value="helicoil_m5">M5×0.8 — 5.2mm insert drill</option>
+                        <option value="helicoil_m6">M6×1.0 — 6.3mm insert drill</option>
+                        <option value="helicoil_m8">M8×1.25 — 8.3mm insert drill</option>
+                        <option value="helicoil_m10">M10×1.5 — 10.3mm insert drill</option>
+                        <option value="helicoil_m12">M12×1.75 — 12.4mm insert drill</option>
                     </optgroup>
-                    <optgroup label="Helicoil Imperial">
-                        <option value="helicoil_4-40">Helicoil #4-40 (0.156" tap)</option>
-                        <option value="helicoil_6-32">Helicoil #6-32 (0.198" tap)</option>
-                        <option value="helicoil_8-32">Helicoil #8-32 (0.219" tap)</option>
-                        <option value="helicoil_10-32">Helicoil #10-32 (0.258" tap)</option>
-                        <option value="helicoil_10-24">Helicoil #10-24 (0.276" tap)</option>
-                        <option value="helicoil_1/4-20">Helicoil 1/4"-20 (0.313" tap)</option>
-                        <option value="helicoil_5/16-18">Helicoil 5/16"-18 (0.377" tap)</option>
-                        <option value="helicoil_3/8-16">Helicoil 3/8"-16 (0.422" tap)</option>
-                        <option value="helicoil_7/16-14">Helicoil 7/16"-14 (0.500" tap)</option>
-                        <option value="helicoil_1/2-13">Helicoil 1/2"-13 (0.489" tap)</option>
+                    <optgroup label="Helicoil Imperial (Insert Drill)">
+                        <option value="helicoil_4-40">#4-40 UNF — 2.87mm (#33) insert drill</option>
+                        <option value="helicoil_6-32">#6-32 UNC — 3.81mm (#25) insert drill</option>
+                        <option value="helicoil_8-32">#8-32 UNC — 4.42mm (#17) insert drill</option>
+                        <option value="helicoil_10-32">#10-32 UNF — 5.11mm (#7) insert drill</option>
+                        <option value="helicoil_10-24">#10-24 UNC — 5.16mm (13/64") insert drill</option>
+                        <option value="helicoil_1/4-20">1/4"-20 UNC — 6.75mm (17/64") insert drill</option>
+                        <option value="helicoil_5/16-18">5/16"-18 UNC — 8.43mm (Q) insert drill</option>
+                        <option value="helicoil_3/8-16">3/8"-16 UNC — 10.09mm (X) insert drill</option>
+                        <option value="helicoil_7/16-14">7/16"-14 UNC — 11.51mm (29/64") insert drill</option>
+                        <option value="helicoil_1/2-13">1/2"-13 UNC — 13.10mm (33/64") insert drill</option>
                     </optgroup>
                 </select></div>
             </div>
             <button class="btn btn-calc" id="d-btn-insert">Calculate Insert Drill</button>
             <div class="result-box" id="d-d-insert">Select insert type</div>
             <div class="result-box" id="d-d-insert-stats" style="font-size: 0.85em; min-height: 40px; background: transparent; color: #aaa;"></div>
+            <details style="margin-top:12px;">
+                <summary style="cursor:pointer;color:#aaa;font-size:0.9em;">Insert Length Reference</summary>
+                <table style="width:100%;margin-top:8px;border-collapse:collapse;font-size:0.85em;color:#ccc;">
+                    <tr style="border-bottom:1px solid #333;"><td style="padding:4px 0;font-weight:bold;">1D</td><td>General-purpose steel</td></tr>
+                    <tr style="border-bottom:1px solid #333;"><td style="padding:4px 0;font-weight:bold;">1.5D</td><td>Most common — aluminum and castings (default for Al)</td></tr>
+                    <tr style="border-bottom:1px solid #333;"><td style="padding:4px 0;font-weight:bold;">2D</td><td>Softer materials, higher loads</td></tr>
+                    <tr style="border-bottom:1px solid #333;"><td style="padding:4px 0;font-weight:bold;">2.5D</td><td>High pull-out strength</td></tr>
+                    <tr><td style="padding:4px 0;font-weight:bold;">3D</td><td>Maximum engagement</td></tr>
+                </table>
+                <p style="font-size:0.8em;color:#888;margin-top:6px;">For aluminum parts, many machinists default to 1.5D inserts. For high-load applications or softer alloys, 2D is often preferred.</p>
+            </details>
         </div>
 
         <!-- CONVERTER SUBVIEW -->
@@ -5789,7 +5800,7 @@ var _el = gbyId('p-btn-alerts'); if (_el) _el.addEventListener('click', function
     if (!dcalcView) return;
 
     // === DATA TABLES ===
-    var _metricBitSet = [2.0, 2.5, 3.0, 3.2, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 8.0, 10.0, 12.0];
+    var _metricBitSet = [2.0, 2.5, 3.0, 3.2, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 18.5, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0];
     var _fractionalBitSet = [];
     for (var _fi = 1; _fi <= 64; _fi++) {
         _fractionalBitSet.push(_fi / 64);
@@ -5824,12 +5835,15 @@ var _el = gbyId('p-btn-alerts'); if (_el) _el.addEventListener('click', function
         '1-1/8"':   { unc_drill: 23.62, unf_drill: 24.51 },
         '1-1/4"':   { unc_drill: 25.80, unf_drill: 26.93 },
         '1-1/2"':   { unc_drill: 29.07, unf_drill: 30.48 },
-        '1/8-NPT':  { npt_drill: 6.25 },
-        '1/4-NPT':  { npt_drill: 8.89 },
-        '3/8-NPT':  { npt_drill: 11.51 },
-        '1/2-NPT':  { npt_drill: 15.87 },
-        '3/4-NPT':  { npt_drill: 20.62 },
-        '1-NPT':    { npt_drill: 27.38 }
+        '1/8-NPT':  { npt_drill: 8.43 },
+        '1/4-NPT':  { npt_drill: 11.11 },
+        '3/8-NPT':  { npt_drill: 14.69 },
+        '1/2-NPT':  { npt_drill: 18.26 },
+        '3/4-NPT':  { npt_drill: 23.42 },
+        '1-NPT':    { npt_drill: 29.37 },
+        '1-1/4-NPT':{ npt_drill: 38.10 },
+        '1-1/2-NPT':{ npt_drill: 44.05 },
+        '2-NPT':    { npt_drill: 61.12 }
     };
 
     var _anchorLookup = {
@@ -5865,24 +5879,32 @@ var _el = gbyId('p-btn-alerts'); if (_el) _el.addEventListener('click', function
     };
 
     var _insertLookup = {
-        'helicoil_m3': 2.5,
-        'helicoil_m4': 6.5,
-        'helicoil_m5': 8.0,
-        'helicoil_m6': 5.0,
-        'helicoil_m8': 6.8,
-        'helicoil_m10': 9.0,
-        'helicoil_m12': 11.0,
-        'helicoil_4-40': 0.156,
-        'helicoil_6-32': 0.198,
-        'helicoil_8-32': 0.219,
-        'helicoil_10-32': 0.258,
-        'helicoil_10-24': 0.276,
-        'helicoil_1/4-20': 0.313,
-        'helicoil_5/16-18': 0.377,
-        'helicoil_3/16-16': 0.422,
-        'helicoil_3/8-16': 0.422,
-        'helicoil_7/16-14': 0.500,
-        'helicoil_1/2-13': 0.489
+        'helicoil_m3': 3.1,
+        'helicoil_m4': 4.2,
+        'helicoil_m5': 5.2,
+        'helicoil_m6': 6.3,
+        'helicoil_m8': 8.3,
+        'helicoil_m10': 10.3,
+        'helicoil_m12': 12.4,
+        'helicoil_4-40': 2.87,
+        'helicoil_6-32': 3.81,
+        'helicoil_8-32': 4.42,
+        'helicoil_10-32': 5.11,
+        'helicoil_10-24': 5.16,
+        'helicoil_1/4-20': 6.75,
+        'helicoil_5/16-18': 8.43,
+        'helicoil_3/8-16': 10.09,
+        'helicoil_7/16-14': 11.51,
+        'helicoil_1/2-13': 13.10
+    };
+
+    // Insert length reference: designation → description
+    var _insertLengthRef = {
+        '1D': 'General-purpose steel',
+        '1.5D': 'Most common — aluminum and castings (default for Al)',
+        '2D': 'Softer materials, higher loads',
+        '2.5D': 'High pull-out strength',
+        '3D': 'Maximum engagement'
     };
 
     // Metric thread data: [diameter, pitch] for coarse
@@ -5917,7 +5939,7 @@ var _el = gbyId('p-btn-alerts'); if (_el) _el.addEventListener('click', function
     var _imperialLabelMap = {
         '#0-80': '#0', '#1-64': '#1', '#2-56': '#2', '#3-48': '#3',
         '#4-40': '#4', '#5-40': '#5', '#6-32': '#6', '#8-32': '#8',
-        '#10-24': '#10', '#12-24': '#11',
+        '#10-24': '#10', '#12-24': '#12',
         '1/8-27': '1/8"', '5/32-24': '5/32"',
         '3/16-24': '3/16"', '7/32-20': '7/32"',
         '1/4-20': '1/4"', '5/16-18': '5/16"',
@@ -6215,7 +6237,7 @@ var _el = gbyId('p-btn-alerts'); if (_el) _el.addEventListener('click', function
             } else if (mode === 'anchor') {
                 var diaA = parseFloat(gbyId('d-i-anchor-dia').value);
                 var anchorType = gbyId('d-i-anchor-type').value;
-                if (isNaN(diaA) || diaA <= 0) { gbyId('d-d-fasten').innerHTML = 'Enter a valid screw diameter'; return; }
+                if (isNaN(diaA) || diaA <= 0) { gbyId('d-d-fasten').innerHTML = 'Enter a valid anchor diameter'; return; }
                 if (!anchorType) { gbyId('d-d-fasten').innerHTML = 'Select an anchor type'; return; }
 
                 if (_anchorLookup[anchorType] !== undefined) {
@@ -6274,10 +6296,9 @@ var _el = gbyId('p-btn-alerts'); if (_el) _el.addEventListener('click', function
             var bitSet = _metricBitSet;
 
             // For imperial inserts, use fractional set
-            if (insertType.indexOf('helicoil_') === 0 && insertType.split('_').length > 2) {
-                // Check if it's an imperial helicoil (contains digits and hyphens in the suffix)
+            if (insertType.indexOf('helicoil_') === 0) {
                 var parts = insertType.split('_');
-                var suffix = parts[2];
+                var suffix = parts.length > 2 ? parts[2] : (parts.length > 1 ? parts[1] : '');
                 if (suffix.indexOf('-') !== -1) {
                     bitSet = _fractionalBitSet;
                 }
@@ -6290,14 +6311,16 @@ var _el = gbyId('p-btn-alerts'); if (_el) _el.addEventListener('click', function
             var bitSetLabel = (bitSet === _fractionalBitSet) ? 'Fractional' : 'Metric standard';
 
             var parts = [];
-            parts.push('<b>Target drill size:</b> ' + target + ' "' + (bitSet === _fractionalBitSet ? '' : 'mm') + '<br>');
+            var targetStr = (bitSet === _fractionalBitSet) ? target + '"' : target + ' mm';
+            parts.push('<b>Target drill size:</b> ' + targetStr + '<br>');
             if (bitSet === _fractionalBitSet) {
                 parts.push('<b>Closest fractional:</b> ' + formatFraction(result.closest) + '" (' + result.closest.toFixed(4) + '" )');
             } else {
                 parts.push('<b>Closest bit:</b> ' + result.closest + ' mm');
             }
             if (!result.isExactMatch) {
-                parts.push(' (diff: ' + Math.abs((bitSet === _fractionalBitSet ? result.closest : result.closest) - target).toFixed(4) + ' )');
+                var diffUnit = (bitSet === _fractionalBitSet) ? '"' : ' mm';
+                parts.push(' (diff: ' + Math.abs(result.closest - target).toFixed(4) + diffUnit + ')');
             } else {
                 parts.push(' (exact match!)');
             }
@@ -6307,9 +6330,12 @@ var _el = gbyId('p-btn-alerts'); if (_el) _el.addEventListener('click', function
             }
 
             gbyId('d-d-insert').innerHTML = parts.join('');
-            var statsHtml = '<b>Insert:</b> ' + label + '<br>';
-            statsHtml += '<b>Method:</b> lookup from Insert Lookup DB<br>';
+            var statsHtml = '<b>Insert:</b> ' + label.replace(/^Helicoil\s*/i, '') + '<br>';
+            statsHtml += '<b>Method:</b> Helicoil insert drill lookup (larger than standard tap drill)<br>';
             statsHtml += '<b>Bit set:</b> ' + bitSetLabel;
+            if (bitSet === _fractionalBitSet) {
+                statsHtml += '<br><i style="color:#888;">For larger sizes, verify against insert manufacturer\'s chart</i>';
+            }
             gbyId('d-d-insert-stats').innerHTML = statsHtml;
         });
     }
