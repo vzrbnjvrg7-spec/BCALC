@@ -1,4 +1,4 @@
-<!-- STATE 5/2026 - SWAT CALC v1.7 -->
+<!-- STATE 6/2026 - SWAT CALC v1.7 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1224,13 +1224,20 @@ function showToast(msg) {
     t._timer = setTimeout(function() { t.style.display = 'none'; }, 2000);
 }
 function gv(id) {
-    var el = document.getElementById(id);
+    var el = dcache(id);
     if (!el) return NaN;
     var v = parseFloat(el.value);
     return isNaN(v) ? NaN : v;
 }
-function gs(id) { var el = document.getElementById(id); return (el && el.value !== '') ? el.value : ''; }
-function gbyId(id) { return document.getElementById(id); }
+function gs(id) { var el = dcache(id); return (el && el.value !== '') ? el.value : ''; }
+function gbyId(id) { return dcache(id); }
+
+// DOM cache for frequently accessed elements
+var _dom = {};
+function dcache(id) { if (!_dom[id]) _dom[id] = document.getElementById(id); return _dom[id]; }
+
+// Debounce utility
+function debounce(fn, ms) { var t; return function() { var ctx = this, args = arguments; clearTimeout(t); t = setTimeout(function() { fn.apply(ctx, args); }, ms); }; }
 
 // Safe expression evaluator (uses Function constructor for boolean expressions)
 function fnEval(code) {
@@ -1440,11 +1447,11 @@ function switchView(viewId) {
 
 // Legacy nav-toggle cycle button (commented out — replaced by per-view calc-nav rows)
 /*
-gbyId('nav-toggle').onclick = function() {
+var _el = gbyId('nav-toggle'); if (_el) _el.addEventListener('click', function() {
     var sequence = ['bcalc', 'acalc', 'tcalc', 'scalc', 'wcalc', 'pcalc'];
     var idx = sequence.indexOf(currentView);
     switchView(sequence[(idx + 1) % sequence.length]);
-};
+});
 
 // Legacy nav-toggle label update inside switchView (commented out)
 */
@@ -1452,10 +1459,10 @@ gbyId('nav-toggle').onclick = function() {
 // Direct navigation via nav buttons at top of each view
 document.querySelectorAll('.calc-nav-btn').forEach(function(btn) {
     if (btn.getAttribute('data-subview')) return; // skip subview toggle buttons
-    btn.onclick = function() {
+    btn.addEventListener('click', function() {
         var targetView = this.getAttribute('data-view');
         switchView(targetView);
-    };
+    });
 });
 
 // === NAV LABELS (B → A → T → S → W → P) ===
@@ -1544,9 +1551,9 @@ function bCalc_calc(){
     return _bResult;
 }
 
-gbyId('b-btn-calc').onclick = bCalc_calc;
+var _el = gbyId('b-btn-calc'); if (_el) _el.addEventListener('click', bCalc_calc);
 
-gbyId('b-btn-copy').onclick = function() {
+var _el = gbyId('b-btn-copy'); if (_el) _el.addEventListener('click', function() {
     var res = _bResult; if (!res) { bCalc_calc(); res = _bResult; }
     if (!res) return;
 
@@ -1554,9 +1561,9 @@ gbyId('b-btn-copy').onclick = function() {
     var bcModel = res.bcModel || 'g7';
     var text = 'B-CALC v1.7\nWeight: ' + res.wt.toFixed(2) + 'gr\nVel: ' + res.actualVel.toFixed(0) + 'fps (Actual)\nBC: ' + bc + ' (' + (bcModel==='g7'?'G7':'G1') + ')\n\n--- Energy ---\nActual: ' + res.actualFpe.toFixed(2) + ' ft-lbs\nSL Equiv: ' + res.slEquivFpe.toFixed(2) + ' ft-lbs\nSL Equiv Vel: ' + res.slEquivVel.toFixed(0) + ' fps';
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
-};
+});
 
-gbyId('b-btn-go').onclick = function() {
+var _el = gbyId('b-btn-go'); if (_el) _el.addEventListener('click', function() {
     var data = _bResult; if (!data) { bCalc_calc(); data = _bResult; }
     if (!data) return;
     var maxYards = parseInt(gs('b-i-range')); if (isNaN(maxYards)) maxYards = 500;
@@ -1571,11 +1578,11 @@ gbyId('b-btn-go').onclick = function() {
     var maxDistFt = maxYards * 3;
 
     // Integrate horizontal velocity + cumulative time (1-ft steps)
+    var dia_in = parseFloat(gs('b-i-dia')); if (isNaN(dia_in) || dia_in <= 0) dia_in = 0.224;
     var vxPts = [{ d: 0, vx: data.actualVel, t: 0 }];
     var curVx = data.actualVel;
     var cumT = 0;
     for (var i = 1; i <= maxDistFt; i++) {
-        var dia_in = parseFloat(gs('b-i-dia')); if (isNaN(dia_in) || dia_in <= 0) dia_in = 0.224;
         var decelAtI = _decel(curVx, data.wt, dia_in, bcVal, bcModel, data.atmoRatio);
         var vxAfter = curVx - decelAtI / curVx;
         var vxAvg = (curVx + Math.max(vxAfter, 0.001)) / 2;
@@ -1640,11 +1647,12 @@ gbyId('b-btn-go').onclick = function() {
             return Math.round(t * 1000) + ' ms';
         };
 
-        var html2 = '<table class="traj-table"><thead><tr>';
-        html2 += '<th style="width:14%">Dist</th><th style="width:13%">FPE</th>';
-        html2 += '<th style="width:26%">Drop (to LOS)</th>';
-        html2 += '<th style="width:18%">Velocity</th><th style="width:14%">TOF</th>';
-        html2 += '</tr></thead><tbody>';
+        var trajParts = [];
+        trajParts.push('<table class="traj-table"><thead><tr>');
+        trajParts.push('<th style="width:14%">Dist</th><th style="width:13%">FPE</th>');
+        trajParts.push('<th style="width:26%">Drop (to LOS)</th>');
+        trajParts.push('<th style="width:18%">Velocity</th><th style="width:14%">TOF</th>');
+        trajParts.push('</tr></thead><tbody>');
 
         var summaryRows = {};
         for (var y3 = 0; y3 <= maxYards; y3 += step) {
@@ -1661,10 +1669,10 @@ gbyId('b-btn-go').onclick = function() {
             if (y3 === Math.round(zeroYardsActual)) { dropStr += ' ★ZERO'; }
             else if (secondCrossYards > 0 && Math.abs(y3 - secondCrossYards) < step / 2 && y3 !== Math.round(zeroYardsActual)) { dropStr += ' ▼Far Zero'; }
 
-            html2 += '<tr><td>' + y3 + 'y</td><td>' + fpeAtY.toFixed(1) + '</td>';
-            html2 += '<td>' + dropStr + '</td>';
-            html2 += '<td>' + velAtDist.toFixed(0) + ' fps</td>';
-            html2 += '<td>' + tofFmt(t3) + '</td></tr>';
+            trajParts.push('<tr><td>' + y3 + 'y</td><td>' + fpeAtY.toFixed(1) + '</td>');
+            trajParts.push('<td>' + dropStr + '</td>');
+            trajParts.push('<td>' + velAtDist.toFixed(0) + ' fps</td>');
+            trajParts.push('<td>' + tofFmt(t3) + '</td></tr>');
 
             if (y3 === 100 || y3 === 200 || y3 === 300) {
                 summaryRows[y3] = { fpe: fpeAtY, vel: velAtDist, tof: t3 };
@@ -1676,9 +1684,9 @@ gbyId('b-btn-go').onclick = function() {
             var nzT = _cumT(nzD);
             var nzVel = Math.max(vxPts[Math.min(Math.round(nzD), vxPts.length - 1)].vx, 0);
             var nzFpe = (data.wt * nzVel * nzVel) / 450400;
-            html2 += '<tr style="background:#1a3a1a;"><td>~' + firstCrossYards.toFixed(0) + 'y ▲</td>';
-            html2 += '<td>' + nzFpe.toFixed(1) + '</td><td>±0" Near Zero</td>';
-            html2 += '<td>' + nzVel.toFixed(0) + ' fps</td><td>' + tofFmt(nzT) + '</td></tr>';
+            trajParts.push('<tr style="background:#1a3a1a;"><td>~' + firstCrossYards.toFixed(0) + 'y ▲</td>');
+            trajParts.push('<td>' + nzFpe.toFixed(1) + '</td><td>±0" Near Zero</td>');
+            trajParts.push('<td>' + nzVel.toFixed(0) + ' fps</td><td>' + tofFmt(nzT) + '</td></tr>');
         }
 
         if (secondCrossYards > 0) {
@@ -1686,37 +1694,37 @@ gbyId('b-btn-go').onclick = function() {
             var szT = _cumT(szD);
             var szVel = Math.max(vxPts[Math.min(Math.round(szD), vxPts.length - 1)].vx, 0);
             var szFpe = (data.wt * szVel * szVel) / 450400;
-            html2 += '<tr style="background:#1a3a1a;"><td>~' + secondCrossYards.toFixed(0) + 'y ▼</td>';
-            html2 += '<td>' + szFpe.toFixed(1) + '</td><td>±0" Far Zero</td>';
-            html2 += '<td>' + szVel.toFixed(0) + ' fps</td><td>' + tofFmt(szT) + '</td></tr>';
+            trajParts.push('<tr style="background:#1a3a1a;"><td>~' + secondCrossYards.toFixed(0) + 'y ▼</td>');
+            trajParts.push('<td>' + szFpe.toFixed(1) + '</td><td>±0" Far Zero</td>');
+            trajParts.push('<td>' + szVel.toFixed(0) + ' fps</td><td>' + tofFmt(szT) + '</td></tr>');
         }
 
-        html2 += '</tbody></table>';
+        trajParts.push('</tbody></table>');
 
         if (Object.keys(summaryRows).length > 0) {
-            html2 += '<table class="traj-table" style="margin-top:8px;"><thead><tr>';
-            html2 += '<th>Summary</th><th>FPE</th><th>Velocity</th><th>TOF</th>';
-            html2 += '</tr></thead><tbody>';
+            trajParts.push('<table class="traj-table" style="margin-top:8px;"><thead><tr>');
+            trajParts.push('<th>Summary</th><th>FPE</th><th>Velocity</th><th>TOF</th>');
+            trajParts.push('</tr></thead><tbody>');
             for (var sy of [100, 200, 300]) {
                 if (summaryRows[sy]) {
                     var sr = summaryRows[sy];
-                    html2 += '<tr><td>' + sy + ' yds</td>';
-                    html2 += '<td>' + sr.fpe.toFixed(1) + '</td>';
-                    html2 += '<td>' + sr.vel.toFixed(0) + ' fps</td>';
-                    html2 += '<td>' + tofFmt(sr.tof) + '</td></tr>';
+                    trajParts.push('<tr><td>' + sy + ' yds</td>');
+                    trajParts.push('<td>' + sr.fpe.toFixed(1) + '</td>');
+                    trajParts.push('<td>' + sr.vel.toFixed(0) + ' fps</td>');
+                    trajParts.push('<td>' + tofFmt(sr.tof) + '</td></tr>');
                 }
             }
-            html2 += '</tbody></table>';
+            trajParts.push('</tbody></table>');
         }
 
-        html2 += '<div style="margin-top:6px;font-size:0.85em;color:#aaa;">';
-        html2 += 'Sight height: ' + sightHtIn.toFixed(2) + '" | Zero range: ' + zeroYardsActual.toFixed(0) + ' yds';
-        if (firstCrossYards > 0) { html2 += ' | Near zero: ~' + firstCrossYards.toFixed(0) + ' yds'; }
+        trajParts.push('<div style="margin-top:6px;font-size:0.85em;color:#aaa;">');
+        trajParts.push('Sight height: ' + sightHtIn.toFixed(2) + '" | Zero range: ' + zeroYardsActual.toFixed(0) + ' yds');
+        if (firstCrossYards > 0) { trajParts.push(' | Near zero: ~' + firstCrossYards.toFixed(0) + ' yds'); }
         if (secondCrossYards > 0 && Math.abs(secondCrossYards - zeroYardsActual) > step / 2) {
-            html2 += ' | Far zero: ~' + secondCrossYards.toFixed(0) + ' yds';
+            trajParts.push(' | Far zero: ~' + secondCrossYards.toFixed(0) + ' yds');
         }
-        html2 += '</div>';
-        container.innerHTML = html2;
+        trajParts.push('</div>');
+        container.innerHTML = trajParts.join('');
     } else {
         // Pure gravity drop (no zero — bullet fired horizontally, drops by gravity only)
         var tofFmtG = function(t) {
@@ -1724,11 +1732,12 @@ gbyId('b-btn-go').onclick = function() {
             return Math.round(t * 1000) + ' ms';
         };
 
-        var html3 = '<table class="traj-table"><thead><tr>';
-        html3 += '<th style="width:18%">Dist</th><th style="width:16%">FPE</th>';
-        html3 += '<th style="width:22%">Drop (Gravity)</th>';
-        html3 += '<th style="width:18%">Velocity</th><th style="width:16%">TOF</th>';
-        html3 += '</tr></thead><tbody>';
+        var gravParts = [];
+        gravParts.push('<table class="traj-table"><thead><tr>');
+        gravParts.push('<th style="width:18%">Dist</th><th style="width:16%">FPE</th>');
+        gravParts.push('<th style="width:22%">Drop (Gravity)</th>');
+        gravParts.push('<th style="width:18%">Velocity</th><th style="width:16%">TOF</th>');
+        gravParts.push('</tr></thead><tbody>');
 
         for (var y4 = 0; y4 <= maxYards; y4 += step) {
             var d4 = y4 * 3;
@@ -1737,17 +1746,17 @@ gbyId('b-btn-go').onclick = function() {
             var t4 = _cumT(d4);
             var dropInches = 0.5 * g * t4 * t4;
             var fpeAtY = (data.wt * velAtDist * velAtDist) / 450400;
-            html3 += '<tr><td>' + y4 + 'y</td>';
-            html3 += '<td>' + fpeAtY.toFixed(1) + '</td>';
-            html3 += '<td>' + dropInches.toFixed(dropInches < 1 ? 2 : 1) + '"</td>';
-            html3 += '<td>' + velAtDist.toFixed(0) + ' fps</td>';
-            html3 += '<td>' + tofFmtG(t4) + '</td></tr>';
+            gravParts.push('<tr><td>' + y4 + 'y</td>');
+            gravParts.push('<td>' + fpeAtY.toFixed(1) + '</td>');
+            gravParts.push('<td>' + dropInches.toFixed(dropInches < 1 ? 2 : 1) + '"</td>');
+            gravParts.push('<td>' + velAtDist.toFixed(0) + ' fps</td>');
+            gravParts.push('<td>' + tofFmtG(t4) + '</td></tr>');
         }
 
-        html3 += '</tbody></table>';
-        container.innerHTML = html3;
+        gravParts.push('</tbody></table>');
+        container.innerHTML = gravParts.join('');
     }
-};
+});
 
 })(); // end B-CALC IIFE
 
@@ -1829,7 +1838,8 @@ function solarCalc() {
     if (activeRegion === 'custom') {
         psh = parseFloat(gs('s-i-psp-custom')) || 5.0;
         tempPenaltyPct = parseFloat(gs('s-i-tempPenalty')) || 10;
-        soilingPct = gs('s-i-soiling-custom') ? parseFloat(gs('s-i-soiling-custom').value) : 3;
+        var customSoilEl = dcache('s-i-soiling-custom');
+        soilingPct = customSoilEl && customSoilEl.value !== '' ? parseFloat(customSoilEl.value) : 3;
     } else {
         psh = parseFloat(gs('s-i-psp')) || preset.psh;
         tempPenaltyPct = preset.tempPenalty + (season.tempAddC > 0 ? season.tempAddC * 0.5 : Math.abs(season.tempAddC) * 0.3);
@@ -1948,6 +1958,7 @@ function solarCalc() {
 
     var seasons = ['summer', 'winter'];
     var resultsMap = {};
+    var customSoilEl2 = activeRegion === 'custom' ? dcache('s-i-soiling-custom') : null;
     for (var s = 0; s < seasons.length; s++) {
         var se = seasonFactors[seasons[s]];
         var sp = activeRegion === 'custom' ? regionPresets.custom : regionPresets[activeRegion];
@@ -1960,7 +1971,7 @@ function solarCalc() {
 
         var spshAdj = spsh * tiltPshFactor;
         var sTempPen = sp.tempPenalty + (se.tempAddC > 0 ? se.tempAddC * 0.5 : Math.abs(se.tempAddC) * 0.3);
-        var sSoiling = soilingOverride ? parseFloat(soilingOverride) : (activeRegion === 'custom' && gs('s-i-soiling-custom') ? parseFloat(gs('s-i-soiling-custom').value) : sp.soilingPct);
+        var sSoiling = soilingOverride ? parseFloat(soilingOverride) : (activeRegion === 'custom' && customSoilEl2 && customSoilEl2.value !== '' ? parseFloat(customSoilEl2.value) : sp.soilingPct);
 
         var sRaw = arrayW * spshAdj / 1000;
         var sPanelTemp = ambientTemp + sTempPen / 100 * (ambientTemp - 25) + mountPenalties[mount] / 10 - tiltCooling;
@@ -2002,11 +2013,12 @@ var regionDetails = {
 
 // Region dropdown handler
 var regionSelect = gbyId('s-i-region');
-var customPanel = gbyId('solar-custom-panel');
-var regionDetailsEl = gbyId('solar-region-details');
-var regionInfoEl = gbyId('solar-region-info');
+if (regionSelect) {
+    var customPanel = gbyId('solar-custom-panel');
+    var regionDetailsEl = gbyId('solar-region-details');
+    var regionInfoEl = gbyId('solar-region-info');
 
-regionSelect.onchange = function() {
+    regionSelect.addEventListener('change', function() {
     activeRegion = this.value;
 
     // Show/hide custom panel and populate main PSH input
@@ -2027,12 +2039,13 @@ regionSelect.onchange = function() {
             '<div style="padding:6px 0;margin-top:4px;font-style:italic;color:#888;">' + (regionDetails[activeRegion] || '') + '</div>';
         regionDetailsEl.open = true;
     }
-};
+});
 
 // Trigger initial state
-regionSelect.onchange();
+ if (regionSelect) regionSelect.dispatchEvent(new Event('change'));
+ }
 
-gbyId('solar-btn-calc').onclick = solarCalc;
+ var _el = gbyId('solar-btn-calc'); if (_el) _el.addEventListener('click', solarCalc);
 
 // Auto-recalculate when soiling, daily draw, or PSH changes (with null safety)
 (function() {
@@ -2040,12 +2053,12 @@ gbyId('solar-btn-calc').onclick = solarCalc;
     var customSoilEl = gbyId('s-i-soiling-custom');
     var dailyDrawEl = gbyId('s-i-dailyDraw');
     var pshEl = gbyId('s-i-psp');
-    if (soilingEl) soilingEl.onchange = function() { try { solarCalc(); } catch(e) {} };
-    if (customSoilEl) customSoilEl.onchange = function() { try { solarCalc(); } catch(e) {} };
-    if (dailyDrawEl) { dailyDrawEl.oninput = function() { try { solarCalc(); } catch(e) {} };
-                      dailyDrawEl.onchange = function() { try { solarCalc(); } catch(e) {} }; }
-    if (pshEl) { pshEl.oninput = function() { try { solarCalc(); } catch(e) {} };
-                pshEl.onchange = function() { try { solarCalc(); } catch(e) {} }; }
+    if (soilingEl) soilingEl.addEventListener('change', function() { try { solarCalc(); } catch(e) {} });
+    if (customSoilEl) customSoilEl.addEventListener('change', function() { try { solarCalc(); } catch(e) {} });
+    if (dailyDrawEl) { dailyDrawEl.addEventListener('input', function() { try { solarCalc(); } catch(e) {} });
+                      dailyDrawEl.addEventListener('change', function() { try { solarCalc(); } catch(e) {} }); }
+    if (pshEl) { pshEl.addEventListener('input', function() { try { solarCalc(); } catch(e) {} });
+                pshEl.addEventListener('change', function() { try { solarCalc(); } catch(e) {} }); }
 })();
 
 // Season toggle & temp unit toggle logic — isolated to solar section only
@@ -2107,7 +2120,7 @@ gbyId('solar-btn-calc').onclick = solarCalc;
 
 })();
 
-gbyId('solar-btn-copy').onclick = function() {
+var _el = gbyId('solar-btn-copy'); if (_el) _el.addEventListener('click', function() {
     var res = solarCalc();
     if (!res) return;
 
@@ -2174,7 +2187,7 @@ gbyId('solar-btn-copy').onclick = function() {
     navigator.clipboard.writeText(text).then(function() {
         showToast('PV report copied!');
     });
-};
+});
 
 })(); // end PV-CALC IIFE
 
@@ -2587,17 +2600,19 @@ function evaluateSingleExpression(exprStr) {
         if (isTrue) minterms |= (1 << i);
     }
 
-    var html = '<table class="truth-table"><thead><tr>';
-    vars.forEach(function(v) { html += '<th>' + v + '</th>'; });
-    html += '<th>Result</th></tr></thead><tbody>';
+    var _t = [];
+    _t.push('<table class="truth-table"><thead><tr>');
+    vars.forEach(function(v) { _t.push('<th>' + v + '</th>'); });
+    _t.push('<th>Result</th></tr></thead><tbody>');
 
     tableData.forEach(function(row) {
-        html += '<tr class="' + (row.result ? 'highlight' : '') + '">';
-        vars.forEach(function(v) { html += '<td>' + (row.values[v] ? 'T' : 'F') + '</td>'; });
-        html += '<td>' + (row.result ? 'T' : 'F') + '</td></tr>';
+        _t.push('<tr class="' + (row.result ? 'highlight' : '') + '">');
+        vars.forEach(function(v) { _t.push('<td>' + (row.values[v] ? 'T' : 'F') + '</td>'); });
+        _t.push('<td>' + (row.result ? 'T' : 'F') + '</td></tr>');
     });
 
-    html += '</tbody></table>';
+    _t.push('</tbody></table>');
+    var html = _t.join('');
 
     return { html: html, vars: vars, minterms: minterms, tableData: tableData, tree: tree };
 }
@@ -2665,10 +2680,11 @@ function evaluateMultiOutput(parts) {
     if (globalVars.length > 8) return { error: "Maximum 8 variables across all expressions", vars: [] };
 
     var numRows = Math.pow(2, globalVars.length);
-    var html = '<table class="truth-table"><thead><tr>';
-    globalVars.forEach(function(v) { html += '<th>' + v + '</th>'; });
-    outputLabels.forEach(function(label) { html += '<th>' + label + '</th>'; });
-    html += '</tr></thead><tbody>';
+    var _t2 = [];
+    _t2.push('<table class="truth-table"><thead><tr>');
+    globalVars.forEach(function(v) { _t2.push('<th>' + v + '</th>'); });
+    outputLabels.forEach(function(label) { _t2.push('<th>' + label + '</th>'); });
+    _t2.push('</tr></thead><tbody>');
 
     for (var i = 0; i < numRows; i++) {
         var values = {};
@@ -2676,21 +2692,22 @@ function evaluateMultiOutput(parts) {
             values[globalVars[gIdx]] = !!(i & (1 << (globalVars.length - 1 - gIdx)));
         }
 
-        html += '<tr>';
-        globalVars.forEach(function(v) { html += '<td>' + (values[v] ? 'T' : 'F') + '</td>'; });
+        _t2.push('<tr>');
+        globalVars.forEach(function(v) { _t2.push('<td>' + (values[v] ? 'T' : 'F') + '</td>'); });
 
         for (var eIdx = 0; eIdx < parsedTrees.length; eIdx++) {
-            if (!parsedTrees[eIdx]) { html += '<td style="color:#ff6b6b">Error</td>'; continue; }
+            if (!parsedTrees[eIdx]) { _t2.push('<td style="color:#ff6b6b">Error</td>'); continue; }
 
             var result = evalCompiled(parsedTrees[eIdx].compiled, values);
-            if (result === -1) { html += '<td style="color:#ff6b6b">Error</td>'; }
-            else { html += '<td>' + (result === 1 ? 'T' : 'F') + '</td>'; }
+            if (result === -1) { _t2.push('<td style="color:#ff6b6b">Error</td>'); }
+            else { _t2.push('<td>' + (result === 1 ? 'T' : 'F') + '</td>'); }
         }
 
-        html += '</tr>';
+        _t2.push('</tr>');
     }
 
-    html += '</tbody></table>';
+    _t2.push('</tbody></table>');
+    var html = _t2.join('');
     return { html: html, vars: globalVars };
 }
 
@@ -2838,11 +2855,12 @@ function analyzeCircuit(exprStr, vars) {
 
     var gateList = usedGates.length > 0 ? usedGates.join(', ') : 'None (implicit AND via adjacency)';
 
-    var html = '<div class="comp-row"><span class="comp-label">Inputs</span><span class="comp-value">' + vars.join(', ') + '</span></div>';
-    html += '<div class="comp-row"><span class="comp-label">Input Count</span><span class="comp-value">' + vars.length + '</span></div>';
-    html += '<div class="comp-row"><span class="comp-label">Gates Used</span><span class="comp-value">' + gateList + '</span></div>';
-    html += '<div class="comp-row"><span class="comp-label">Total Gates</span><span class="comp-value">' + gateInfo.ops + '</span></div>';
-    html += '<div class="comp-row"><span class="comp-label">Est. Depth</span><span class="comp-value">' + gateInfo.depth + ' layer' + (gateInfo.depth !== 1 ? 's' : '') + '</span></div>';
+    var parts = [];
+    parts.push('<div class="comp-row"><span class="comp-label">Inputs</span><span class="comp-value">' + vars.join(', ') + '</span></div>');
+    parts.push('<div class="comp-row"><span class="comp-label">Input Count</span><span class="comp-value">' + vars.length + '</span></div>');
+    parts.push('<div class="comp-row"><span class="comp-label">Gates Used</span><span class="comp-value">' + gateList + '</span></div>');
+    parts.push('<div class="comp-row"><span class="comp-label">Total Gates</span><span class="comp-value">' + gateInfo.ops + '</span></div>');
+    parts.push('<div class="comp-row"><span class="comp-label">Est. Depth</span><span class="comp-value">' + gateInfo.depth + ' layer' + (gateInfo.depth !== 1 ? 's' : '') + '</span></div>');
 
     var gateTypes = '';
     if (c.AND > 0) gateTypes += c.AND + ' AND';
@@ -2853,7 +2871,7 @@ function analyzeCircuit(exprStr, vars) {
     if (origNOR > 0) gateTypes += ' ' + origNOR + ' NOR';
     if (origXNOR > 0) gateTypes += ' ' + origXNOR + ' XNOR';
     if (c.IMPLIES > 0) gateTypes += ' ' + c.IMPLIES + ' ->';
-    html += '<div class="comp-row"><span class="comp-label">Gate Types</span><span class="comp-value">' + (gateTypes || '-') + '</span></div>';
+    parts.push('<div class="comp-row"><span class="comp-label">Gate Types</span><span class="comp-value">' + (gateTypes || '-') + '</span></div>');
 
     var upperExpr = exprStr.toUpperCase();
     var topo = 'Output';
@@ -2865,9 +2883,9 @@ function analyzeCircuit(exprStr, vars) {
         topo = hasNested ? '(Nested -> Output)' : '(Flat AND/OR chain';
     }
 
-    html += '<div class="comp-row"><span class="comp-label">Topology</span><span class="comp-value">' + topo + '</span></div>';
+    parts.push('<div class="comp-row"><span class="comp-label">Topology</span><span class="comp-value">' + topo + '</span></div>');
 
-    return html;
+    return parts.join('');
 }
 
 function displayPrimeImplicants(exprStr, vars) {
@@ -2892,12 +2910,12 @@ function displayPrimeImplicants(exprStr, vars) {
         return;
     }
 
-    var html = '';
+    var parts = [];
     for (var i = 0; i < qmResult.primes.length; i++) {
         var pi = qmResult.primes[i];
         var expr = QM._maskToExpr(pi.mask, pi.dontCare, vars);
         var isEssential = pi.essential ? ' <span style="color:#ff6b6b;">★ Essential</span>' : '';
-        html += '<div class="prime-imp">' + expr + isEssential + '</div>';
+        parts.push('<div class="prime-imp">' + expr + isEssential + '</div>');
     }
 
     var selectedExprs = [];
@@ -2917,7 +2935,7 @@ function displayPrimeImplicants(exprStr, vars) {
         '<b>DNF Gates:</b> ' + gateCounts.dnf.and + ' AND, ' + gateCounts.dnf.or + ' OR, ' + gateCounts.dnf.not + ' NOT | ' +
         '<b>CNF Gates:</b> ' + gateCounts.cnf.and + ' AND, ' + gateCounts.cnf.or + ' OR, ' + gateCounts.cnf.not + ' NOT';
 
-    gbyId('a-prime-implicants').innerHTML = html;
+    gbyId('a-prime-implicants').innerHTML = parts.join('');
     return;
 }
 
@@ -2931,7 +2949,7 @@ function addToHistory(expr) {
     var item = document.createElement('div');
     item.className = 'hist-item';
     item.textContent = expr;
-    item.onclick = function() { gbyId('a-i-expr').value = expr; };
+    item.addEventListener('click', function() { gbyId('a-i-expr').value = expr; });
 
     if (historyEl.firstChild) historyEl.insertBefore(item, historyEl.firstChild);
     else historyEl.appendChild(item);
@@ -2985,7 +3003,6 @@ function renderKMap(minterms, numVars) {
     var headerSize = 35;
     var labelPad = 12;
 
-    // Proper Gray code generation
     function grayCode(n) { return (n >>> 1) ^ n; }
 
     var colBits = numVars - Math.floor(numVars / 2);
@@ -2993,86 +3010,65 @@ function renderKMap(minterms, numVars) {
     var colCount = 1 << colBits;
     var rowCount = 1 << rowBits;
 
-    // Variable names for axes
     var allVars = [];
     for (var v = 0; v < numVars; v++) allVars.push(String.fromCharCode(65 + v));
-    var colVars = allVars.slice(rowBits); // upper variables for columns
-    var rowVars = allVars.slice(0, rowBits); // lower variables for rows
+    var colVars = allVars.slice(rowBits);
+    var rowVars = allVars.slice(0, rowBits);
 
     var totalW = colCount * cellSize + headerSize + labelPad;
     var totalH = rowCount * cellSize + headerSize + labelPad;
 
-    var html = '<div style="text-align:center;overflow-x:auto;">';
+    var parts = [];
+    parts.push('<div style="text-align:center;overflow-x:auto;">');
     var kmapVBox = '0 0 ' + totalW + ' ' + totalH;
-    html += '<svg viewBox="' + kmapVBox + '" width="100%" height="auto" style="background:#1a1a2e;border-radius:8px;max-width:' + totalW + 'px;">';
+    parts.push('<svg viewBox="' + kmapVBox + '" width="100%" height="auto" style="background:#1a1a2e;border-radius:8px;max-width:' + totalW + 'px;">');
+    parts.push('<rect x="0" y="0" width="' + totalW + '" height="' + totalH + '" fill="#1a1a2e" rx="8"/>');
 
-    // Draw grid background
-    html += '<rect x="0" y="0" width="' + totalW + '" height="' + totalH + '" fill="#1a1a2e" rx="8"/>';
-
-    // Column headers (top)
     for (var c = 0; c < colCount; c++) {
         var gc = grayCode(c);
         var x = headerSize + c * cellSize;
-
-        // Column label - variable name
         var colVarIdx = rowBits + (colBits > 1 ? Math.floor(c / (1 << (colBits - 1))) : 0);
         var colVar = allVars[colVarIdx] || '';
-
-        // Gray code binary value
         var grayStr = gc.toString(2).padStart(colBits, '0');
-
-        // Header cell
-        html += '<rect x="' + (x + 1) + '" y="0" width="' + (cellSize - 2) + '" height="' + headerSize + '" fill="#16213e" stroke="#0f3460" stroke-width="1"/>';
-        html += '<text x="' + (x + cellSize / 2) + '" y="16" text-anchor="middle" fill="#a5d6ff" font-size="13" font-weight="bold">' + colVar + '</text>';
-        html += '<text x="' + (x + cellSize / 2) + '" y="30" text-anchor="middle" fill="#8899aa" font-size="11">' + grayStr + '</text>';
+        parts.push('<rect x="' + (x + 1) + '" y="0" width="' + (cellSize - 2) + '" height="' + headerSize + '" fill="#16213e" stroke="#0f3460" stroke-width="1"/>');
+        parts.push('<text x="' + (x + cellSize / 2) + '" y="16" text-anchor="middle" fill="#a5d6ff" font-size="13" font-weight="bold">' + colVar + '</text>');
+        parts.push('<text x="' + (x + cellSize / 2) + '" y="30" text-anchor="middle" fill="#8899aa" font-size="11">' + grayStr + '</text>');
     }
 
-    // Row headers (left)
     for (var r = 0; r < rowCount; r++) {
         var gr = grayCode(r);
         var y = headerSize + r * cellSize;
-
-        // Row variable names (all row variables)
         var rowVarNames = [];
         for (var rv = 0; rv < rowBits; rv++) {
             rowVarNames.push(allVars[rv]);
         }
-
-        // Gray code binary value for this row
         var grayStrR = gr.toString(2).padStart(rowBits, '0');
-
-        // Header cell
-        html += '<rect x="0" y="' + (y + 1) + '" width="' + headerSize + '" height="' + (cellSize - 2) + '" fill="#16213e" stroke="#0f3460" stroke-width="1"/>';
-        html += '<text x="' + (headerSize / 2) + '" y="' + (y + cellSize / 2 - 6) + '" text-anchor="middle" dominant-baseline="middle" fill="#a5d6ff" font-size="12" font-weight="bold">' + rowVarNames.join('') + '</text>';
-        html += '<text x="' + (headerSize / 2) + '" y="' + (y + cellSize / 2 + 10) + '" text-anchor="middle" dominant-baseline="middle" fill="#8899aa" font-size="11">' + grayStrR + '</text>';
+        parts.push('<rect x="0" y="' + (y + 1) + '" width="' + headerSize + '" height="' + (cellSize - 2) + '" fill="#16213e" stroke="#0f3460" stroke-width="1"/>');
+        parts.push('<text x="' + (headerSize / 2) + '" y="' + (y + cellSize / 2 - 6) + '" text-anchor="middle" dominant-baseline="middle" fill="#a5d6ff" font-size="12" font-weight="bold">' + rowVarNames.join('') + '</text>');
+        parts.push('<text x="' + (headerSize / 2) + '" y="' + (y + cellSize / 2 + 10) + '" text-anchor="middle" dominant-baseline="middle" fill="#8899aa" font-size="11">' + grayStrR + '</text>');
     }
 
-    // Cells
     for (var r = 0; r < rowCount; r++) {
         var gr2 = grayCode(r);
         for (var c = 0; c < colCount; c++) {
             var gc2 = grayCode(c);
-
-            // Combine row and column bits to get minterm index
             var combined = (gr2 << colBits) | gc2;
             var isMinterm = (minterms & (1 << combined)) !== 0;
-
             var x = headerSize + c * cellSize;
             var y = headerSize + r * cellSize;
 
-            // Cell background
             if (isMinterm) {
-                html += '<rect x="' + (x + 1) + '" y="' + (y + 1) + '" width="' + (cellSize - 2) + '" height="' + (cellSize - 2) + '" fill="#0d47a1" stroke="#1565c0" stroke-width="1.5" rx="4"/>';
-                html += '<text x="' + (x + cellSize / 2) + '" y="' + (y + cellSize / 2 + 5) + '" text-anchor="middle" dominant-baseline="middle" fill="#64b5f6" font-size="20" font-weight="bold">1</text>';
+                parts.push('<rect x="' + (x + 1) + '" y="' + (y + 1) + '" width="' + (cellSize - 2) + '" height="' + (cellSize - 2) + '" fill="#0d47a1" stroke="#1565c0" stroke-width="1.5" rx="4"/>');
+                parts.push('<text x="' + (x + cellSize / 2) + '" y="' + (y + cellSize / 2 + 5) + '" text-anchor="middle" dominant-baseline="middle" fill="#64b5f6" font-size="20" font-weight="bold">1</text>');
             } else {
-                html += '<rect x="' + (x + 1) + '" y="' + (y + 1) + '" width="' + (cellSize - 2) + '" height="' + (cellSize - 2) + '" fill="#0d1b2a" stroke="#1b2838" stroke-width="1" rx="4"/>';
-                html += '<text x="' + (x + cellSize / 2) + '" y="' + (y + cellSize / 2 + 5) + '" text-anchor="middle" dominant-baseline="middle" fill="#445566" font-size="20">0</text>';
+                parts.push('<rect x="' + (x + 1) + '" y="' + (y + 1) + '" width="' + (cellSize - 2) + '" height="' + (cellSize - 2) + '" fill="#0d1b2a" stroke="#1b2838" stroke-width="1" rx="4"/>');
+                parts.push('<text x="' + (x + cellSize / 2) + '" y="' + (y + cellSize / 2 + 5) + '" text-anchor="middle" dominant-baseline="middle" fill="#445566" font-size="20">0</text>');
             }
         }
     }
 
-    html += '</svg></div>';
-    return html;
+    parts.push('</svg></div>');
+    return parts.join('');
 }
 
 function renderCircuitDiagram(exprStr, tree) {
@@ -3306,9 +3302,10 @@ function renderCircuitDiagram(exprStr, tree) {
         'XNOR': '#e91e63', 'IMPLIES': '#00bcd4'
     };
 
-    var html = '<div style="text-align:center;overflow-x:auto;">';
+    var parts = [];
+    parts.push('<div style="text-align:center;overflow-x:auto;">');
     var circuitVBox = '0 0 ' + svgW + ' ' + svgH;
-    html += '<svg viewBox="' + circuitVBox + '" width="100%" height="auto" style="background:#1a1a2e;border-radius:8px;max-width:' + svgW + 'px;">';
+    parts.push('<svg viewBox="' + circuitVBox + '" width="100%" height="auto" style="background:#1a1a2e;border-radius:8px;max-width:' + svgW + 'px;">');
 
     // Draw wires first (behind gates)
     for (var i = 0; i < nodes.length; i++) {
@@ -3316,30 +3313,27 @@ function renderCircuitDiagram(exprStr, tree) {
         var n = nodeMap[id];
         if (!layout[id]) continue;
 
-        // Wire from child to NOT gate (NAND/NOR/XNOR or standalone NOT)
         if (n.childId !== undefined && layout[n.childId]) {
             var src = getPort(n.childId, 'out');
             var dst = getPort(id, 'in');
             if (src && dst) {
-                html += '<line x1="' + src.x.toFixed(1) + '" y1="' + src.y.toFixed(1) + '" x2="' + dst.x.toFixed(1) + '" y2="' + dst.y.toFixed(1) + '" stroke="#4a90d9" stroke-width="2.5" fill="none"/>';
+                parts.push('<line x1="' + src.x.toFixed(1) + '" y1="' + src.y.toFixed(1) + '" x2="' + dst.x.toFixed(1) + '" y2="' + dst.y.toFixed(1) + '" stroke="#4a90d9" stroke-width="2.5" fill="none"/>');
             }
         }
 
-        // Wire from left input to gate (top port)
         if (n.leftId !== undefined && layout[n.leftId]) {
             var src = getPort(n.leftId, 'out');
             var dst = getPort(id, 'in-left');
             if (src && dst) {
-                html += '<line x1="' + src.x.toFixed(1) + '" y1="' + src.y.toFixed(1) + '" x2="' + dst.x.toFixed(1) + '" y2="' + dst.y.toFixed(1) + '" stroke="#4a90d9" stroke-width="2.5" fill="none"/>';
+                parts.push('<line x1="' + src.x.toFixed(1) + '" y1="' + src.y.toFixed(1) + '" x2="' + dst.x.toFixed(1) + '" y2="' + dst.y.toFixed(1) + '" stroke="#4a90d9" stroke-width="2.5" fill="none"/>');
             }
         }
 
-        // Wire from right input to gate (bottom port)
         if (n.rightId !== undefined && layout[n.rightId]) {
             var src = getPort(n.rightId, 'out');
             var dst = getPort(id, 'in-right');
             if (src && dst) {
-                html += '<line x1="' + src.x.toFixed(1) + '" y1="' + src.y.toFixed(1) + '" x2="' + dst.x.toFixed(1) + '" y2="' + dst.y.toFixed(1) + '" stroke="#4a90d9" stroke-width="2.5" fill="none"/>';
+                parts.push('<line x1="' + src.x.toFixed(1) + '" y1="' + src.y.toFixed(1) + '" x2="' + dst.x.toFixed(1) + '" y2="' + dst.y.toFixed(1) + '" stroke="#4a90d9" stroke-width="2.5" fill="none"/>');
             }
         }
     }
@@ -3352,38 +3346,34 @@ function renderCircuitDiagram(exprStr, tree) {
         var pos = layout[id2];
 
         if (n2.type === 'input') {
-            // Input variable box
-            html += '<rect x="' + pos.x + '" y="' + pos.y + '" width="' + inputW + '" height="' + inputH + '" rx="6" fill="#16213e" stroke="#4a90d9" stroke-width="2"/>';
-            html += '<text x="' + (pos.x + inputW / 2) + '" y="' + (pos.y + inputH / 2 + 5) + '" text-anchor="middle" fill="#a5d6ff" font-size="14" font-weight="bold">' + n2.label + '</text>';
+            parts.push('<rect x="' + pos.x + '" y="' + pos.y + '" width="' + inputW + '" height="' + inputH + '" rx="6" fill="#16213e" stroke="#4a90d9" stroke-width="2"/>');
+            parts.push('<text x="' + (pos.x + inputW / 2) + '" y="' + (pos.y + inputH / 2 + 5) + '" text-anchor="middle" fill="#a5d6ff" font-size="14" font-weight="bold">' + n2.label + '</text>');
         } else {
             var color = gateColors[n2.label] || '#3498db';
 
             if (n2.label === 'NOT') {
-                // NOT gate: triangle with circle at output
                 var cx = pos.x + gateW / 2;
-                html += '<polygon points="' + (pos.x) + ',' + (pos.y + gateH / 2) + ' ' + (pos.x + gateW * 0.65) + ',' + pos.y + ' ' + (pos.x + gateW * 0.65) + ',' + (pos.y + gateH) + '" fill="' + color + '" stroke="' + color + '" stroke-width="1.5" opacity="0.9"/>';
-                html += '<circle cx="' + (pos.x + gateW * 0.82) + '" cy="' + (pos.y + gateH / 2) + '" r="4" fill="' + color + '"/>';
-                html += '<text x="' + cx + '" y="' + (pos.y - 6) + '" text-anchor="middle" fill="' + color + '" font-size="10" font-weight="bold">NOT</text>';
+                parts.push('<polygon points="' + (pos.x) + ',' + (pos.y + gateH / 2) + ' ' + (pos.x + gateW * 0.65) + ',' + pos.y + ' ' + (pos.x + gateW * 0.65) + ',' + (pos.y + gateH) + '" fill="' + color + '" stroke="' + color + '" stroke-width="1.5" opacity="0.9"/>');
+                parts.push('<circle cx="' + (pos.x + gateW * 0.82) + '" cy="' + (pos.y + gateH / 2) + '" r="4" fill="' + color + '"/>');
+                parts.push('<text x="' + cx + '" y="' + (pos.y - 6) + '" text-anchor="middle" fill="' + color + '" font-size="10" font-weight="bold">NOT</text>');
             } else {
-                // Other gates: rounded rectangle with label
-                html += '<rect x="' + pos.x + '" y="' + pos.y + '" width="' + gateW + '" height="' + gateH + '" rx="8" fill="' + color + '" stroke="' + color + '" stroke-width="1.5" opacity="0.85"/>';
-                html += '<text x="' + (pos.x + gateW / 2) + '" y="' + (pos.y + gateH / 2 + 4) + '" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">' + n2.label + '</text>';
+                parts.push('<rect x="' + pos.x + '" y="' + pos.y + '" width="' + gateW + '" height="' + gateH + '" rx="8" fill="' + color + '" stroke="' + color + '" stroke-width="1.5" opacity="0.85"/>');
+                parts.push('<text x="' + (pos.x + gateW / 2) + '" y="' + (pos.y + gateH / 2 + 4) + '" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">' + n2.label + '</text>');
             }
         }
     }
 
-    // Bug 3 fix: output label uses actual gate output port (NOT vs rectangle)
     if (layout[rootId]) {
         var outPt = getPort(rootId, 'out');
         if (outPt) {
-            html += '<line x1="' + outPt.x.toFixed(1) + '" y1="' + outPt.y.toFixed(1) + '" x2="' + (outPt.x + 20).toFixed(1) + '" y2="' + outPt.y.toFixed(1) + '" stroke="#4a90d9" stroke-width="2.5"/>';
-            html += '<circle cx="' + (outPt.x + 24) + '" cy="' + outPt.y + '" r="5" fill="#e74c3c"/>';
-            html += '<text x="' + (outPt.x + 34) + '" y="' + (outPt.y + 4) + '" fill="#e74c3c" font-size="11" font-weight="bold">OUT</text>';
+            parts.push('<line x1="' + outPt.x.toFixed(1) + '" y1="' + outPt.y.toFixed(1) + '" x2="' + (outPt.x + 20).toFixed(1) + '" y2="' + outPt.y.toFixed(1) + '" stroke="#4a90d9" stroke-width="2.5"/>');
+            parts.push('<circle cx="' + (outPt.x + 24) + '" cy="' + outPt.y + '" r="5" fill="#e74c3c"/>');
+            parts.push('<text x="' + (outPt.x + 34) + '" y="' + (outPt.y + 4) + '" fill="#e74c3c" font-size="11" font-weight="bold">OUT</text>');
         }
     }
 
-    html += '</svg></div>';
-    return html;
+    parts.push('</svg></div>');
+    return parts.join('');
 }
 
 var aCalcTimeout = null;
@@ -3450,9 +3440,9 @@ function triggerEval() {
     }, 150);
 }
 
-gbyId('a-btn-eval').onclick = triggerEval;
+var _el = gbyId('a-btn-eval'); if (_el) _el.addEventListener('click', triggerEval);
 
-gbyId('a-btn-copy').onclick = function() {
+var _el = gbyId('a-btn-copy'); if (_el) _el.addEventListener('click', function() {
     var expr = gs('a-i-expr'); if (!expr) return;
 
     // Gather all available data
@@ -3494,7 +3484,7 @@ gbyId('a-btn-copy').onclick = function() {
 
     var text = lines.join('\n');
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
-};
+});
 
 })(); // end A-CALC IIFE
 
@@ -3628,10 +3618,10 @@ function runTireCalc() {
     }
 }
 
-gbyId('t-btn-calc').onclick = runTireCalc;
-gbyId('t-btn-compare').onclick = function() { gbyId('t-btn-calc').click(); };
+var _el = gbyId('t-btn-calc'); if (_el) _el.addEventListener('click', runTireCalc);
+var _el = gbyId('t-btn-compare'); if (_el) _el.addEventListener('click', function() { gbyId('t-btn-calc').click(); });
 
-gbyId('t-btn-copy').onclick = function() {
+var _el = gbyId('t-btn-copy'); if (_el) _el.addEventListener('click', function() {
     var t1 = _tResult[0] || tCalc_get(''); if (!t1) return;
 
     var t2 = _tResult[1] || tCalc_get('2');
@@ -3643,7 +3633,7 @@ gbyId('t-btn-copy').onclick = function() {
         text += '\n\n--- Delta ---\nDia: ' + (delta.dia > 0 ? '+' : '') + delta.dia.toFixed(2) + '" (' + (delta.perc > 0 ? '+' : '') + delta.perc.toFixed(1) + '%)\nRev/Mi: ' + (delta.rev > 0 ? '+' : '') + delta.rev.toFixed(2);
     }
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
-};
+});
 
 })(); // end T-CALC IIFE
 
@@ -4239,14 +4229,14 @@ function sCalc_calc() {
     return _sResult;
 }
 
-gbyId('s-btn-calc').onclick = sCalc_calc;
+var _el = gbyId('s-btn-calc'); if (_el) _el.addEventListener('click', sCalc_calc);
 
-gbyId('s-i-material').onchange = function() {
+var _el = gbyId('s-i-material'); if (_el) _el.addEventListener('change', function() {
     var isPLA = this.value === 'pla';
     gbyId('s-pla-opts').style.display = isPLA ? '' : 'none';
     gbyId('s-wall-opts').style.display = isPLA ? '' : 'none';
-};
-gbyId('s-i-material').onchange();
+});
+var _matEl = gbyId('s-i-material'); if (_matEl) _matEl.dispatchEvent(new Event('change'));
 
 // Section modulus auto-calculation from geometry presets
 function sCalc_updateSmod() {
@@ -4288,12 +4278,12 @@ function sCalc_updateSmod() {
         smodInput.value = S.toFixed(4);
     }
 }
-gbyId('s-i-shape').onchange = sCalc_updateSmod;
+var _el = gbyId('s-i-shape'); if (_el) _el.addEventListener('change', sCalc_updateSmod);
 ['s-i-rectB','s-i-rectH','s-i-tubeOD','s-i-tubeID','s-i-roundD'].forEach(function(id) {
-    gbyId(id).oninput = sCalc_updateSmod;
+    var el = gbyId(id); if (el) el.addEventListener('input', sCalc_updateSmod);
 });
 
-gbyId('s-btn-copy').onclick = function() {
+var _el = gbyId('s-btn-copy'); if (_el) _el.addEventListener('click', function() {
     var result = _sResult; if (!result) { sCalc_calc(); result = _sResult; }
     if (!result) return;
 
@@ -4322,7 +4312,7 @@ gbyId('s-btn-copy').onclick = function() {
 
     var text = 'S-CALC v1.7\n--- Servo Stall ---\nTorque: ' + result.torque.toFixed(0) + ' in-lbf\nArm Length: ' + result.arm.toFixed(2) + '"\nLinkage Ratio: ' + result.ma.toFixed(2) + '\n\n--- Output Force ---\nBase force (direct): ' + (result.torque / result.arm).toFixed(1) + ' lbf\nEffective force (×' + result.ma.toFixed(2) + '): ' + result.forceLb.toFixed(2) + ' lbf\nContinuous (est. 25% stall): ~' + ((result.torque * 0.25 / result.arm) * result.ma).toFixed(0) + ' lbf' + stressLine;
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
-};
+});
 
 })(); // end S-CALC IIFE
 
@@ -4360,12 +4350,12 @@ var WELD_THICK_RANGES = {
 };
 
 // Wire up process selector → auto-set efficiency
-gbyId('w-i-process').onchange = function() {
+var _el = gbyId('w-i-process'); if (_el) _el.addEventListener('change', function() {
     var effInput = gbyId('w-i-eff');
     if (!effInput.disabled) {
         effInput.value = WELD_EFF_DEFAULTS[this.value] || '';
     }
-};
+});
 // Set initial default on load
 (function() {
     var effInput = gbyId('w-i-eff');
@@ -4495,7 +4485,7 @@ function wCalc_heat() {
     return _wResult;
 }
 
-gbyId('w-btn-calc').onclick = wCalc_heat;
+var _el = gbyId('w-btn-calc'); if (_el) _el.addEventListener('click', wCalc_heat);
 
 function wCalc_wire() {
     var wireDia = gv('w-i-wiredia');
@@ -4525,9 +4515,9 @@ function wCalc_wire() {
         '<br><span style="font-size:0.85em; color:#aaa;">Starting point only — tune by arc sound and bead appearance</span>';
 }
 
-gbyId('w-btn-wfs').onclick = wCalc_wire;
+var _el = gbyId('w-btn-wfs'); if (_el) _el.addEventListener('click', wCalc_wire);
 
-gbyId('w-btn-copy').onclick = function() {
+var _el = gbyId('w-btn-copy'); if (_el) _el.addEventListener('click', function() {
     var res = _wResult; if (!res) { wCalc_heat(); res = _wResult; }
     if (!res) return;
 
@@ -4543,7 +4533,7 @@ gbyId('w-btn-copy').onclick = function() {
         '\n\nMaterial: ' + matKey + (isNaN(thick) ? '' : ' | Thick: ' + thick.toFixed(3) + '"') +
         '\n\n' + statsHTML.replace(/<[^>]+>/g, '');
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
-};
+});
 })(); // end W-CALC IIFE
 
 
@@ -4991,10 +4981,10 @@ function pCalc_dose() {
     return _pResult;
 }
 
-gbyId('p-btn-dose').onclick = pCalc_dose;
+var _el = gbyId('p-btn-dose'); if (_el) _el.addEventListener('click', pCalc_dose);
 
 // Show/hide CYA conversion row based on chemical selection
-gbyId('p-i-chem').onchange = function() {
+var _el = gbyId('p-i-chem'); if (_el) _el.addEventListener('change', function() {
     var type = this.options[this.selectedIndex].getAttribute('data-type');
     var targetInput = gbyId('p-i-target');
 
@@ -5039,25 +5029,25 @@ gbyId('p-i-chem').onchange = function() {
     // Recalculate dosage display when chemical changes (if volume is already entered)
     var gal = gv('p-i-gal');
     if (!isNaN(gal)) { pCalc_dose(); }
-};
+});
 
 // Initialize defaults on load (same as first chem select)
-gbyId('p-i-chem').dispatchEvent(new Event('change'));
+var _el = gbyId('p-i-chem'); if (_el) _el.dispatchEvent(new Event('change'));
 
 // Wire up breakpoint toggle and multiplier
-gbyId('p-i-breakpoint').onchange = function() { pCalc_toggleBreakpoint(); };
-gbyId('p-i-bp-mult').onchange = function() { pCalc_calcBreakpointPreview(); };
-gbyId('p-i-bp-fc').oninput = function() { pCalc_updateCC(); pCalc_calcBreakpointPreview(); };
-gbyId('p-i-bp-tc').oninput = function() { pCalc_updateCC(); pCalc_calcBreakpointPreview(); };
-gbyId('p-i-bp-gal').oninput = function() { pCalc_calcBreakpointPreview(); };
-gbyId('p-i-bp-source').onchange = function() { pCalc_calcBreakpointPreview(); };
+var _el = gbyId('p-i-breakpoint'); if (_el) _el.addEventListener('change', function() { pCalc_toggleBreakpoint(); });
+var _el = gbyId('p-i-bp-mult'); if (_el) _el.addEventListener('change', function() { pCalc_calcBreakpointPreview(); });
+var _el = gbyId('p-i-bp-fc'); if (_el) _el.addEventListener('input', debounce(function() { pCalc_updateCC(); pCalc_calcBreakpointPreview(); }, 200));
+var _el = gbyId('p-i-bp-tc'); if (_el) _el.addEventListener('input', debounce(function() { pCalc_updateCC(); pCalc_calcBreakpointPreview(); }, 200));
+var _el = gbyId('p-i-bp-gal'); if (_el) _el.addEventListener('input', debounce(function() { pCalc_calcBreakpointPreview(); }, 200));
+var _el = gbyId('p-i-bp-source'); if (_el) _el.addEventListener('change', function() { pCalc_calcBreakpointPreview(); });
+
 
 // Wire up pH inputs for muriatic acid recalculation
 var curPH = gbyId('p-i-curpH');
 var tarPH = gbyId('p-i-tarpH');
-if (curPH) curPH.oninput = function() { pCalc_dose(); };
-if (tarPH) tarPH.oninput = function() { pCalc_dose(); };
-
+if (curPH) curPH.addEventListener('input', debounce(function() { pCalc_dose(); }, 200));
+if (tarPH) tarPH.addEventListener('input', debounce(function() { pCalc_dose(); }, 200));
 function pCalc_toggleBreakpoint() {
     var checked = gbyId('p-i-breakpoint').checked;
     gbyId('p-breakpoint-inputs').style.display = checked ? 'block' : 'none';
@@ -5108,21 +5098,22 @@ function pCalc_calcBreakpointPreview() {
         }
     }
     
-    var html = 'CC: <b>' + cc.toFixed(1) + ' ppm</b> (TC − FC)<br>';
-    html += 'Target FC: <b>' + breakpointPPM.toFixed(1) + ' ppm</b> (' + fc.toFixed(1) + ' + ' + mult + '×' + cc.toFixed(1) + ')<br>';
-    html += '<span style="font-size:0.85em; color:#aaa;">Add ' + netToDose.toFixed(1) + ' ppm FC to reach breakpoint</span>';
+    var parts = [];
+    parts.push('CC: <b>' + cc.toFixed(1) + ' ppm</b> (TC − FC)<br>');
+    parts.push('Target FC: <b>' + breakpointPPM.toFixed(1) + ' ppm</b> (' + fc.toFixed(1) + ' + ' + mult + '×' + cc.toFixed(1) + ')<br>');
+    parts.push('<span style="font-size:0.85em; color:#aaa;">Add ' + netToDose.toFixed(1) + ' ppm FC to reach breakpoint</span>');
     
     if (lbsNeeded > 0) {
-        html += '<br><span style="font-size:1em; color:#74c0fc;">≈ ' + lbsNeeded.toFixed(2) + ' lb calcium hypochlorite (65%)</span>';
+        parts.push('<br><span style="font-size:1em; color:#74c0fc;">≈ ' + lbsNeeded.toFixed(2) + ' lb calcium hypochlorite (65%)</span>');
     } else if (galNeeded > 0) {
-        html += '<br><span style="font-size:1em; color:#74c0fc;">≈ ' + galNeeded.toFixed(2) + ' gal liquid chlorine (~10%)</span>';
+        parts.push('<br><span style="font-size:1em; color:#74c0fc;">≈ ' + galNeeded.toFixed(2) + ' gal liquid chlorine (~10%)</span>');
     } else if (netToDose <= 0) {
-        html += '<br><span style="font-size:0.85em; color:#40c057;">FC already at breakpoint — no shock needed</span>';
+        parts.push('<br><span style="font-size:0.85em; color:#40c057;">FC already at breakpoint — no shock needed</span>');
     } else {
-        html += '<br><span style="font-size:0.85em; color:#fab005;">Enter pool volume for dosage</span>';
+        parts.push('<br><span style="font-size:0.85em; color:#fab005;">Enter pool volume for dosage</span>');
     }
     
-    gbyId('p-d-bp-preview').innerHTML = html;
+    gbyId('p-d-bp-preview').innerHTML = parts.join('');
     
     return { fc: fc, tc: tc, cc: cc, mult: mult, breakpointPPM: breakpointPPM, netToDose: netToDose, lbsNeeded: lbsNeeded, galNeeded: galNeeded };
 }
@@ -5401,7 +5392,7 @@ function pCalc_taCorrection() {
     }
 }
 
-gbyId('p-btn-tacorr').onclick = pCalc_taCorrection;
+var _el = gbyId('p-btn-tacorr'); if (_el) _el.addEventListener('click', pCalc_taCorrection);
 
 function pCalc_demand() {
     var fc = Number(gv('p-i-fc'));
@@ -5504,9 +5495,9 @@ function pCalc_demand() {
     }
 }
 
-gbyId('p-btn-demand').onclick = pCalc_demand;
+var _el = gbyId('p-btn-demand'); if (_el) _el.addEventListener('click', pCalc_demand);
 
-gbyId('p-btn-copy').onclick = function() {
+var _el = gbyId('p-btn-copy'); if (_el) _el.addEventListener('click', function() {
     var res = _pResult; if (!res) { pCalc_dose(); res = _pResult; }
     if (!res) return;
 
@@ -5532,10 +5523,10 @@ gbyId('p-btn-copy').onclick = function() {
     }
     
     navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
-};
+});
 
 // === P-CALC: Water Quality Alerts ===
-gbyId('p-btn-alerts').onclick = function() {
+var _el = gbyId('p-btn-alerts'); if (_el) _el.addEventListener('click', function() {
     var fc = Number(gv('p-i-fc')), ph = Number(gv('p-i-pH')), ta = Number(gv('p-i-measTA'));
     var cya = Number(gv('p-i-cya')), ch = Number(gv('p-i-ch')), salt = Number(gv('p-i-salt'));
     var temp = Number(gv('p-i-temp')), borates = Number(gv('p-i-borates'));
@@ -5687,7 +5678,7 @@ gbyId('p-btn-alerts').onclick = function() {
     var statsLines = [];
     normal.forEach(function(n) { statsLines.push('<span style="color:#40c057;">&nbsp;&nbsp;' + n + '</span>'); });
     gbyId('p-d-alerts-stats').innerHTML = statsLines.join('<br>');
-};
+});
 
 })(); // end P-CALC IIFE
 
@@ -6076,55 +6067,55 @@ gbyId('p-btn-alerts').onclick = function() {
 
             if (target === null || isNaN(target)) { gbyId('d-d-tap').innerHTML = 'Invalid calculation'; return; }
 
-            var html = '';
             var isImperial = (profile === 'imperial_std');
+            var parts = [];
 
             if (isImperial) {
                 var targetInches = mmToIn(target);
                 var fracResult = getBitSuggestions(targetInches, _fractionalBitSet);
                 if (!fracResult) { gbyId('d-d-tap').innerHTML = 'No bit set available'; return; }
 
-                html += '<b>Target drill size:</b> ' + target.toFixed(2) + ' mm (' + targetInches.toFixed(4) + '" )<br>';
-                html += '<b>Closest fractional:</b> ' + formatFraction(fracResult.closest) + '" (' + (fracResult.closest * 25.4).toFixed(2) + ' mm)';
+                parts.push('<b>Target drill size:</b> ' + target.toFixed(2) + ' mm (' + targetInches.toFixed(4) + '" )<br>');
+                parts.push('<b>Closest fractional:</b> ' + formatFraction(fracResult.closest) + '" (' + (fracResult.closest * 25.4).toFixed(2) + ' mm)');
                 if (!fracResult.isExactMatch) {
-                    html += ' (diff: ' + Math.abs(fracResult.closest - targetInches).toFixed(4) + '" )';
+                    parts.push(' (diff: ' + Math.abs(fracResult.closest - targetInches).toFixed(4) + '" )');
                 } else {
-                    html += ' (exact match!)';
+                    parts.push(' (exact match!)');
                 }
                 if (fracResult.nextUp !== null) {
-                    html += '<br><b>Next fractional up:</b> ' + formatFraction(fracResult.nextUp) + '" (' + (fracResult.nextUp * 25.4).toFixed(2) + ' mm)';
+                    parts.push('<br><b>Next fractional up:</b> ' + formatFraction(fracResult.nextUp) + '" (' + (fracResult.nextUp * 25.4).toFixed(2) + ' mm)');
                 }
 
                 var metricResult = getBitSuggestions(target, _metricBitSet);
                 if (metricResult) {
-                    html += '<br><b>Closest metric bit:</b> ' + metricResult.closest.toFixed(1) + ' mm';
+                    parts.push('<br><b>Closest metric bit:</b> ' + metricResult.closest.toFixed(1) + ' mm');
                     if (metricResult.nextUp !== null) {
-                        html += '<br><b>Next metric up:</b> ' + metricResult.nextUp.toFixed(1) + ' mm';
+                        parts.push('<br><b>Next metric up:</b> ' + metricResult.nextUp.toFixed(1) + ' mm');
                     }
                 }
             } else {
                 var result = getBitSuggestions(target, bitSet);
                 if (!result) { gbyId('d-d-tap').innerHTML = 'No bit set available'; return; }
 
-                html += '<b>Target drill size:</b> ' + target.toFixed(2) + ' mm<br>';
-                html += '<b>Closest bit:</b> ' + result.closest.toFixed(1) + ' mm';
+                parts.push('<b>Target drill size:</b> ' + target.toFixed(2) + ' mm<br>');
+                parts.push('<b>Closest bit:</b> ' + result.closest.toFixed(1) + ' mm');
                 if (!result.isExactMatch) {
-                    html += ' (diff: ' + Math.abs(result.closest - target).toFixed(2) + ' mm)';
+                    parts.push(' (diff: ' + Math.abs(result.closest - target).toFixed(2) + ' mm)');
                 } else {
-                    html += ' (exact match!)';
+                    parts.push(' (exact match!)');
                 }
                 if (result.nextUp !== null) {
-                    html += '<br><b>Next size up:</b> ' + result.nextUp.toFixed(1) + ' mm (for harder materials)';
+                    parts.push('<br><b>Next size up:</b> ' + result.nextUp.toFixed(1) + ' mm (for harder materials)');
                 }
 
                 var targetInches = mmToIn(target);
                 var fracResult = getBitSuggestions(targetInches, _fractionalBitSet);
                 if (fracResult) {
-                    html += '<br><b>Closest fractional:</b> ' + formatFraction(fracResult.closest) + '" (' + (fracResult.closest * 25.4).toFixed(2) + ' mm)';
+                    parts.push('<br><b>Closest fractional:</b> ' + formatFraction(fracResult.closest) + '" (' + (fracResult.closest * 25.4).toFixed(2) + ' mm)');
                 }
             }
 
-            gbyId('d-d-tap').innerHTML = html;
+            gbyId('d-d-tap').innerHTML = parts.join('');
             var statsHtml = '<b>Profile:</b> ' + label + '<br>';
             if (profile === 'metric_coarse' || profile === 'metric_fine') {
                 statsHtml += '<b>Formula:</b> target = diameter - pitch<br>';
@@ -6242,19 +6233,20 @@ gbyId('p-btn-alerts').onclick = function() {
             var result = getBitSuggestions(target, bitSet);
             if (!result) { gbyId('d-d-fasten').innerHTML = 'No bit set available'; return; }
 
-            var html = '<b>Target drill size:</b> ' + target.toFixed(3) + ' mm<br>';
-            html += '<b>Closest bit:</b> ' + result.closest + ' mm';
+            var parts = [];
+            parts.push('<b>Target drill size:</b> ' + target.toFixed(3) + ' mm<br>');
+            parts.push('<b>Closest bit:</b> ' + result.closest + ' mm');
             if (!result.isExactMatch) {
-                html += ' (diff: ' + Math.abs(result.closest - target).toFixed(3) + ' mm)';
+                parts.push(' (diff: ' + Math.abs(result.closest - target).toFixed(3) + ' mm)');
             } else {
-                html += ' (exact match!)';
+                parts.push(' (exact match!)');
             }
             if (result.nextUp !== null) {
-                html += '<br><b>Next size up:</b> ' + result.nextUp + ' mm';
+                parts.push('<br><b>Next size up:</b> ' + result.nextUp + ' mm');
             }
-            html += warning;
+            parts.push(warning);
 
-            gbyId('d-d-fasten').innerHTML = html;
+            gbyId('d-d-fasten').innerHTML = parts.join('');
             var statsHtml = '<b>Mode:</b> ' + mode + '<br>';
             if (mode === 'wood') {
                 statsHtml += '<b>Formula:</b> target = diameter × 0.' + ((woodType === 'hardwood') ? '82' : '75') + '<br>';
@@ -6297,23 +6289,24 @@ gbyId('p-btn-alerts').onclick = function() {
             var unitLabel = (bitSet === _fractionalBitSet) ? 'in' : 'mm';
             var bitSetLabel = (bitSet === _fractionalBitSet) ? 'Fractional' : 'Metric standard';
 
-            var html = '<b>Target drill size:</b> ' + target + ' "' + (bitSet === _fractionalBitSet ? '' : 'mm') + '<br>';
+            var parts = [];
+            parts.push('<b>Target drill size:</b> ' + target + ' "' + (bitSet === _fractionalBitSet ? '' : 'mm') + '<br>');
             if (bitSet === _fractionalBitSet) {
-                html += '<b>Closest fractional:</b> ' + formatFraction(result.closest) + '" (' + result.closest.toFixed(4) + '" )';
+                parts.push('<b>Closest fractional:</b> ' + formatFraction(result.closest) + '" (' + result.closest.toFixed(4) + '" )');
             } else {
-                html += '<b>Closest bit:</b> ' + result.closest + ' mm';
+                parts.push('<b>Closest bit:</b> ' + result.closest + ' mm');
             }
             if (!result.isExactMatch) {
-                html += ' (diff: ' + Math.abs((bitSet === _fractionalBitSet ? result.closest : result.closest) - target).toFixed(4) + ' )';
+                parts.push(' (diff: ' + Math.abs((bitSet === _fractionalBitSet ? result.closest : result.closest) - target).toFixed(4) + ' )');
             } else {
-                html += ' (exact match!)';
+                parts.push(' (exact match!)');
             }
             if (result.nextUp !== null) {
                 var nextLabel = (bitSet === _fractionalBitSet) ? formatFraction(result.nextUp) + '"' : result.nextUp + ' mm';
-                html += '<br><b>Next size up:</b> ' + nextLabel;
+                parts.push('<br><b>Next size up:</b> ' + nextLabel);
             }
 
-            gbyId('d-d-insert').innerHTML = html;
+            gbyId('d-d-insert').innerHTML = parts.join('');
             var statsHtml = '<b>Insert:</b> ' + label + '<br>';
             statsHtml += '<b>Method:</b> lookup from Insert Lookup DB<br>';
             statsHtml += '<b>Bit set:</b> ' + bitSetLabel;
@@ -6341,14 +6334,15 @@ gbyId('p-btn-alerts').onclick = function() {
                 gbyId('d-d-conv').innerHTML = 'Invalid conversion'; return;
             }
 
-            var html = '<b>' + val + ' ' + from + ' = ' + result.toFixed(4) + (to === 'mm' ? ' mm' : '"') + '</b><br>';
+            var parts = [];
+            parts.push('<b>' + val + ' ' + from + ' = ' + result.toFixed(4) + (to === 'mm' ? ' mm' : '"') + '</b><br>');
             if (to === 'in') {
-                html += '<b>As fraction:</b> ' + formatFraction(result) + '"';
+                parts.push('<b>As fraction:</b> ' + formatFraction(result) + '"');
             } else {
-                html += '<b>As mm:</b> ' + result.toFixed(3) + ' mm';
+                parts.push('<b>As mm:</b> ' + result.toFixed(3) + ' mm');
             }
 
-            gbyId('d-d-conv').innerHTML = html;
+            gbyId('d-d-conv').innerHTML = parts.join('');
             var statsHtml = '<b>Formula:</b> ' + (from === 'mm' ? val + ' / 25.4' : val + ' × 25.4') + '<br>';
             statsHtml += '<b>Direction:</b> ' + from + ' → ' + to;
             gbyId('d-d-conv-stats').innerHTML = statsHtml;
