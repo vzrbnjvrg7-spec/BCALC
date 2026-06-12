@@ -673,7 +673,7 @@
                 <option value="stainless">Stainless Steel</option>
                 <option value="aluminum">Aluminum</option>
             </select></div>
-            <div class="col"><label>Thickness (in)</label><input type="number" id="w-i-thick" placeholder="e.g. 0.125 (1/8)" value="0.125" step="any"></div>
+            <div class="col"><label>Thickness (in)</label><input type="text" id="w-i-thick" placeholder="e.g. 0.125 (1/8)" value="0.125" inputmode="decimal"></div>
         </div>
         <button class="btn btn-calc" id="w-btn-calc">Calculate Heat Input</button>
         <div class="result-box" id="w-d-res">Enter parameters</div>
@@ -4390,6 +4390,17 @@ function toFraction32(inches) {
     return whole > 0 ? whole + " " + num + '/' + den : num + '/' + den;
 }
 
+function parseInch(val) {
+    if (val === '' || val == null) return NaN;
+    var s = String(val).trim().replace(/\"/g, '');
+    if (/^\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+    var wholeFrac = s.match(/^(\d+)\s+(\d+)\/(\d+)$/);
+    if (wholeFrac) { return parseInt(wholeFrac[1]) + parseFloat(wholeFrac[2]) / parseFloat(wholeFrac[3]); }
+    var frac = s.match(/^(\d+)\/(\d+)$/);
+    if (frac) return parseFloat(frac[1]) / parseFloat(frac[2]);
+    return NaN;
+}
+
 function getTravelSpeedInfo(speed) {
     var pairs = [];
     var intervals = [5, 10, 15, 20, 30];
@@ -4445,7 +4456,7 @@ function wCalc_heat() {
 
     // Burn-through risk based on material thickness + dynamic heat input comparison
     var matKey = gs('w-i-material') || 'mildsteel';
-    var thick = gv('w-i-thick');
+    var thick = parseInch(gbyId('w-i-thick').value);
     var burnRiskHTML = '';
     var recRangeStr = '';
     var thickFrac = '';
@@ -4596,7 +4607,7 @@ var _el = gbyId('w-btn-copy'); if (_el) _el.addEventListener('click', function()
 
     var matKey = gs('w-i-material') || 'mildsteel';
     var proc = gs('w-i-process') || 'mig';
-    var thick = gv('w-i-thick');
+    var thick = parseInch(gbyId('w-i-thick').value);
 
     // Get burn-through status from stats display
     var statsHTML = gbyId('w-d-stats').innerHTML;
@@ -6447,3 +6458,4 @@ window.addEventListener('load', function() {
 </script>
 </body>
 </html>
+
