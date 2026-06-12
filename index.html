@@ -4376,6 +4376,41 @@ var _el = gbyId('w-i-process'); if (_el) _el.addEventListener('change', function
     }
 })();
 
+function toFraction32(inches) {
+    var whole = Math.floor(inches);
+    var frac = inches - whole;
+    if (frac < 0.03125) return whole > 0 ? whole.toString() : '0';
+    var nearest32 = Math.round(frac * 32);
+    if (nearest32 >= 32) return (whole + 1).toString();
+    var num = nearest32;
+    if (num % 2 === 0) { num /= 2; }
+    if (num % 2 === 0) { num /= 2; }
+    if (num % 2 === 0) { num /= 2; }
+    return whole > 0 ? whole + ' ' + num + '/32' : num + '/32';
+}
+
+function getTravelSpeedInfo(speed) {
+    var pairs = [];
+    var intervals = [5, 10, 15, 20, 30];
+    for (var i = 0; i < intervals.length; i++) {
+        var mins = intervals[i];
+        var distInches = speed * mins;
+        var wholeDist = Math.floor(distInches);
+        var fracPart = distInches - wholeDist;
+        var nearest16 = Math.round(fracPart * 16);
+        if (nearest16 >= 16) { wholeDist++; nearest16 = 0; }
+        var fracStr = '';
+        if (nearest16 > 0) {
+            if (nearest16 === 8) fracStr = '/2';
+            else if (nearest16 % 2 === 0) fracStr = (nearest16 / 2) + '/4';
+            else fracStr = nearest16 + '/16';
+        }
+        var distStr = wholeDist > 0 ? (fracStr ? wholeDist + ' ' + fracStr : wholeDist.toString()) : (fracStr ? fracStr : '0');
+        pairs.push({ mins: mins, dist: distStr });
+    }
+    return pairs;
+}
+
 function wCalc_heat() {
     var volts = gv('w-i-volts');
     var amps = gv('w-i-amps');
@@ -4424,7 +4459,7 @@ function wCalc_heat() {
 
         // Dynamic heat input vs recommended range check
         var rec = WELD_THICK_RANGES[matKey].recommendedHI;
-        recRangeStr = ' Recommended HI: ' + rec.min + '–' + rec.max + ' kJ/in';
+        recRangeStr = ' (guideline: ' + rec.min + '–' + rec.max + ' kJ/in)';
 
         var hiColor = '#40c057';
         if (heatInputKJPerIn > rec.max) {
@@ -4435,7 +4470,7 @@ function wCalc_heat() {
                     ' kJ/in exceeds recommended max ' + rec.max + ' kJ/in for ' + thick.toFixed(3) + '" material (' + excessPct + '% over)</span>';
                 burnRiskHTML += '<br><span style="color:#fab005; font-size:0.85em;">→ Increase travel speed (current: ' + speed.toFixed(0) + '"/min), lower amperage, or both</span>';
             } else {
-                burnRiskHTML += '<br><span style="color:#fab005;">⚠ Heat input exceeds recommended range — may cause distortion</span>';
+                burnRiskHTML += '<br><span style="color:#fab005;">⚠ Heat input is relatively high for this thickness — verify with WPS/project requirements</span>';
                 burnRiskHTML += '<br><span style="color:#aaa; font-size:0.85em;">HI is ' + excessPct + '% above max (' + rec.max + ' kJ/in) for this material</span>';
             }
         } else if (heatInputKJPerIn < rec.min) {
@@ -4486,11 +4521,28 @@ function wCalc_heat() {
         '<br><span style="font-size:0.85em; color:#aaa;">' + heatRating + '</span>' +
         '<br><span style="font-size:0.85em; color:#aaa;">' + speedBand + '</span>';
 
+    var speedFtMin = (speed / 12).toFixed(2);
+    var speedMmMin = (speed * 25.4).toFixed(0);
+
+    var travelPairs = getTravelSpeedInfo(speed);
+    var travelHTML = '';
+    for (var i = 0; i < travelPairs.length; i++) {
+        travelHTML += '<br>' + travelPairs[i].dist + '" in ' + travelPairs[i].mins + ' min';
+    }
+
+    var thickHTML = '';
+    if (thick > 0) {
+        var thickFrac = toFraction32(thick);
+        thickHTML = '<br>Thickness: ' + thickFrac + '" (' + thick.toFixed(3) + '" decimal)';
+    }
+
     gbyId('w-d-stats').innerHTML =
-        'Power: ' + (volts * amps).toFixed(0) + ' W' + recRangeStr +
+        volts.toFixed(1) + ' V × ' + amps.toFixed(0) + ' A = ' + (volts * amps).toFixed(0) + ' W' + recRangeStr +
         '<br>Process: ' + (process === 'mig' ? 'MIG/GMAW' : process === 'stick' ? 'Stick/SMAW' : process === 'tig' ? 'TIG/GTAW' : 'Flux-Core/FCAW') +
-        '<br>Travel: ' + speed.toFixed(1) + '"/min | η: ' + eff.toFixed(2) +
+        '<br>Travel: ' + speed.toFixed(1) + ' in/min (' + speedFtMin + ' ft/min, ' + speedMmMin + ' mm/min) | η: ' + eff.toFixed(2) +
         '<br>Heat Input (60×V×A×η/speed): ' + heatInputKJPerIn.toFixed(1) + ' kJ/in' +
+        travelHTML +
+        thickHTML +
         '<br><br>' + burnRiskHTML;
 
     return _wResult;
