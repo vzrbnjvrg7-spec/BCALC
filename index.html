@@ -1,4 +1,4 @@
-<!-- STATE 6/2026 - SWAT CALC v1.7 -->
+<!-- STATE 6/2026 - SWAT CALC v1.7 - Classic v1.2 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -4377,16 +4377,17 @@ var _el = gbyId('w-i-process'); if (_el) _el.addEventListener('change', function
 })();
 
 function toFraction32(inches) {
-    var whole = Math.floor(inches);
-    var frac = inches - whole;
-    if (frac < 0.03125) return whole > 0 ? whole.toString() : '0';
-    var nearest32 = Math.round(frac * 32);
-    if (nearest32 >= 32) return (whole + 1).toString();
-    var num = nearest32;
-    if (num % 2 === 0) { num /= 2; }
-    if (num % 2 === 0) { num /= 2; }
-    if (num % 2 === 0) { num /= 2; }
-    return whole > 0 ? whole + ' ' + num + '/32' : num + '/32';
+    if (isNaN(inches) || inches <= 0) return '—';
+    var thirtySeconds = Math.round(inches * 32);
+    if (thirtySeconds <= 0) return '0';
+    var whole = Math.floor(thirtySeconds / 32);
+    var rem = thirtySeconds % 32;
+    if (rem === 0) return whole > 0 ? whole.toString() : '0';
+    var gcd = function(a, b) { return b === 0 ? a : gcd(b, a % b); };
+    var divisor = gcd(rem, 32);
+    var num = rem / divisor;
+    var den = 32 / divisor;
+    return whole > 0 ? whole + " " + num + '/' + den : num + '/' + den;
 }
 
 function getTravelSpeedInfo(speed) {
@@ -4439,20 +4440,25 @@ function wCalc_heat() {
         heatInputBTUPerIn: heatInputBTUPerIn
     };
 
+    // Arc energy (raw, η=1.0) and heat input (efficiency-adjusted)
+    var arcEnergyKJPerIn = (60 * volts * amps) / (speed * 1000);
+
     // Burn-through risk based on material thickness + dynamic heat input comparison
     var matKey = gs('w-i-material') || 'mildsteel';
     var thick = gv('w-i-thick');
     var burnRiskHTML = '';
     var recRangeStr = '';
+    var thickFrac = '';
 
     if (!isNaN(thick) && thick > 0 && WELD_THICK_RANGES[matKey]) {
+        thickFrac = toFraction32(thick);
         var ranges = WELD_THICK_RANGES[matKey].thin;
         for (var r = 0; r < ranges.length; r++) {
             var inRange = true;
             if (ranges[r].max !== undefined && thick > ranges[r].max) inRange = false;
             if (ranges[r].min !== undefined && thick < ranges[r].min) inRange = false;
             if (inRange) {
-                burnRiskHTML = 'Material thickness: <b>' + ranges[r].label + '</b>';
+                burnRiskHTML = 'Thickness: <b>' + thickFrac + '" (' + thick.toFixed(3) + '" decimal)</b> — ' + ranges[r].label;
                 break;
             }
         }
@@ -4464,21 +4470,18 @@ function wCalc_heat() {
         var hiColor = '#40c057';
         if (heatInputKJPerIn > rec.max) {
             hiColor = '#ff6b6b';
-            var excessPct = ((heatInputKJPerIn - rec.max) / rec.max * 100).toFixed(0);
             if (thick <= 0.125) {
-                burnRiskHTML += '<br><span style="color:#ff6b6b; font-weight:bold;">⚠ HIGH BURN-THROUGH RISK: Heat input ' + heatInputKJPerIn.toFixed(1) + 
-                    ' kJ/in exceeds recommended max ' + rec.max + ' kJ/in for ' + thick.toFixed(3) + '" material (' + excessPct + '% over)</span>';
-                burnRiskHTML += '<br><span style="color:#fab005; font-size:0.85em;">→ Increase travel speed (current: ' + speed.toFixed(0) + '"/min), lower amperage, or both</span>';
+                burnRiskHTML += '<br><span style="color:#ff6b6b; font-weight:bold;">⚠ High heat input for ' + thickFrac + '" material</span>';
+                burnRiskHTML += '<br><span style="color:#fab005; font-size:0.85em;">Burn-through and distortion risk increased depending on joint fit-up, gap, and technique. Verify against applicable WPS.</span>';
+                burnRiskHTML += '<br><span style="color:#aaa; font-size:0.85em;">→ Increase travel speed, reduce wire feed speed (lowers current), or lower voltage if applicable</span>';
             } else {
-                burnRiskHTML += '<br><span style="color:#fab005;">⚠ Heat input is relatively high for this thickness — verify with WPS/project requirements</span>';
-                burnRiskHTML += '<br><span style="color:#aaa; font-size:0.85em;">HI is ' + excessPct + '% above max (' + rec.max + ' kJ/in) for this material</span>';
+                burnRiskHTML += '<br><span style="color:#fab005;">⚠ Heat input is relatively high for ' + thickFrac + '" ' + matKey.replace(/([A-Z])/g, ' $1').trim() + '. Distortion and HAZ size may increase. Verify against applicable WPS.</span>';
             }
         } else if (heatInputKJPerIn < rec.min) {
             hiColor = '#fab005';
-            burnRiskHTML += '<br><span style="color:#fab005;">⚠ Heat input below recommended range — may lack penetration</span>';
-            burnRiskHTML += '<br><span style="color:#aaa; font-size:0.85em;">HI is ' + ((rec.min - heatInputKJPerIn) / rec.min * 100).toFixed(0) + '% below min (' + rec.min + ' kJ/in)</span>';
+            burnRiskHTML += '<br><span style="color:#fab005;">⚠ Heat input below recommended range for ' + thickFrac + '" ' + matKey.replace(/([A-Z])/g, ' $1').trim() + '. May lack penetration — verify against applicable WPS.</span>';
         } else {
-            burnRiskHTML += '<br><span style="color:#40c057;">✓ Heat input ' + heatInputKJPerIn.toFixed(1) + ' kJ/in within recommended range for material</span>';
+            burnRiskHTML += '<br><span style="color:#40c057;">✓ Heat input ' + heatInputKJPerIn.toFixed(2) + ' kJ/in within recommended range for ' + thickFrac + '" ' + matKey.replace(/([A-Z])/g, ' $1').trim() + '</span>';
         }
 
     } else {
@@ -4503,14 +4506,14 @@ function wCalc_heat() {
     var process = gs('w-i-process') || 'mig';
     var speedBand = '';
     if (process === 'tig' || process === 'stick') {
-        if (speed < 5) speedBand = '<span style="color:#fab005;">Typical TIG/Stick range</span>';
-        else if (speed <= 15) speedBand = '<span style="color:#40c057;">Typical TIG/Stick range</span>';
+        if (speed < 5) speedBand = '<span style="color:#fab005;">Typical TIG/Stick range (guideline)</span>';
+        else if (speed <= 15) speedBand = '<span style="color:#40c057;">Typical TIG/Stick range (guideline)</span>';
         else if (speed <= 30) speedBand = '<span style="color:#fab005;">Fast for TIG/Stick</span>';
         else speedBand = '<span style="color:#ff6b6b;">Typical only for MIG — very fast for TIG/Stick</span>';
     } else {
         if (speed < 10) speedBand = '<span style="color:#ff6b6b;">⚠ Very slow — high heat input</span>';
         else if (speed < 20) speedBand = '<span style="color:#fab005;">Slow — typical for thick sections</span>';
-        else if (speed <= 45) speedBand = '<span style="color:#40c057;">✓ Typical MIG range</span>';
+        else if (speed <= 45) speedBand = '<span style="color:#40c057;">✓ Typical MIG range (guideline)</span>';
         else if (speed <= 60) speedBand = '<span style="color:#fab005;">Fast — good for thin metal</span>';
         else speedBand = '<span style="color:#ff6b6b;">Very fast — may lack penetration</span>';
     }
@@ -4530,19 +4533,26 @@ function wCalc_heat() {
         travelHTML += '<br>' + travelPairs[i].dist + '" in ' + travelPairs[i].mins + ' min';
     }
 
-    var thickHTML = '';
+    var thickFrac = '';
     if (thick > 0) {
-        var thickFrac = toFraction32(thick);
-        thickHTML = '<br>Thickness: ' + thickFrac + '" (' + thick.toFixed(3) + '" decimal)';
+        thickFrac = toFraction32(thick);
     }
 
     gbyId('w-d-stats').innerHTML =
-        volts.toFixed(1) + ' V × ' + amps.toFixed(0) + ' A = ' + (volts * amps).toFixed(0) + ' W' + recRangeStr +
-        '<br>Process: ' + (process === 'mig' ? 'MIG/GMAW' : process === 'stick' ? 'Stick/SMAW' : process === 'tig' ? 'TIG/GTAW' : 'Flux-Core/FCAW') +
-        '<br>Travel: ' + speed.toFixed(1) + ' in/min (' + speedFtMin + ' ft/min, ' + speedMmMin + ' mm/min) | η: ' + eff.toFixed(2) +
-        '<br>Heat Input (60×V×A×η/speed): ' + heatInputKJPerIn.toFixed(1) + ' kJ/in' +
+        '<b style="color:#74c0fc;">Electrical input</b><br>' +
+        volts.toFixed(1) + ' V × ' + amps.toFixed(0) + ' A = ' + (volts * amps).toFixed(0) + ' W' +
+        '<br><b style="color:#74c0fc;">Energy per length</b><br>' +
+        'Arc Energy (η = 1.0): ' + arcEnergyKJPerIn.toFixed(2) + ' kJ/in' +
+        '<br><b style="color:#74c0fc;">Adjusted</b><br>' +
+        'Heat Input = ' + heatInputKJPerIn.toFixed(2) + ' kJ/in (Arc Energy × η)' + recRangeStr +
+        '<br><b style="color:#74c0fc;">Process</b><br>' +
+        (process === 'mig' ? 'MIG/GMAW' : process === 'stick' ? 'Stick/SMAW' : process === 'tig' ? 'TIG/GTAW' : 'Flux-Core/FCAW') +
+        '<br><b style="color:#74c0fc;">Travel speed</b><br>' +
+        speed.toFixed(1) + ' in/min (' + speedFtMin + ' ft/min, ' + speedMmMin + ' mm/min)' +
+        '<br><b style="color:#74c0fc;">Efficiency (η)</b><br>' +
+        eff.toFixed(2) +
+        (thickFrac ? '<br><b style="color:#74c0fc;">Thickness</b><br>' + thickFrac + '" (' + thick.toFixed(3) + '" decimal)' : '') +
         travelHTML +
-        thickHTML +
         '<br><br>' + burnRiskHTML;
 
     return _wResult;
