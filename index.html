@@ -1,4 +1,5 @@
 <!-- STATE 6/2026 - SWAT CALC v1.7 - Classic v1.2 -->
+<!-- STATE 5/2026 - SWAT CALC v1.7 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -211,6 +212,7 @@
         <button class="btn btn-graph" id="b-btn-go">Show Trajectory</button>
         <div class="result-box" id="b-d-res">Energy: 0.00 ft-lbs</div>
         <div id="b-traj-container"></div>
+        <div id="b-traj-graph" style="margin-top:12px;"></div>
     </div>
 
     <!-- PV-CALC -->
@@ -1666,6 +1668,7 @@ var _el = gbyId('b-btn-go'); if (_el) _el.addEventListener('click', function() {
         trajParts.push('</tr></thead><tbody>');
 
         var summaryRows = {};
+
         for (var y3 = 0; y3 <= maxYards; y3 += step) {
             var d3 = y3 * 3;
             if (d3 > vxPts.length - 1) break;
@@ -1736,6 +1739,103 @@ var _el = gbyId('b-btn-go'); if (_el) _el.addEventListener('click', function() {
         }
         trajParts.push('</div>');
         container.innerHTML = trajParts.join('');
+
+        // Build full-resolution trajectory data (1-ft steps) for graph
+        var trajPoints = [];
+        for (var fi = 0; fi <= vxPts.length - 1; fi++) {
+            var ftYards = fi / 3;
+            if (ftYards > maxYards) break;
+            var tFt = _cumT(fi);
+            var yBulFt = v0y * tFt - 0.5 * g * tFt * tFt;
+            var dropIn = (yBulFt - sightHtFt) * 12;
+            trajPoints.push({ yards: ftYards, drop: dropIn });
+        }
+
+        // Render SVG trajectory graph
+        (function() {
+            var graphDiv = document.getElementById('b-traj-graph');
+            if (!graphDiv || trajPoints.length < 2) return;
+
+            var W = 500, H = 180;
+            var padL = 45, padR = 15, padT = 15, padB = 30;
+            var plotW = W - padL - padR, plotH = H - padT - padB;
+
+            var maxDist = trajPoints[trajPoints.length - 1].yards;
+            var drops = trajPoints.map(function(p) { return p.drop; });
+            var minDrop = Math.min.apply(null, drops);
+            var maxDrop = Math.max.apply(null, drops);
+
+            if (minDrop >= 0) minDrop = -Math.abs(maxDrop) * 0.1;
+            if (maxDrop <= 0) maxDrop = Math.abs(minDrop) * 0.1;
+
+            var dropRange = maxDrop - minDrop || 1;
+            var margin = dropRange * 0.08;
+            minDrop -= margin;
+            maxDrop += margin;
+            dropRange = maxDrop - minDrop;
+
+            function xMap(yd) { return padL + (yd / maxDist) * plotW; }
+            function yMap(d) { return padT + (1 - (d - minDrop) / dropRange) * plotH; }
+
+            var svgParts = [];
+            svgParts.push('<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 ' + W + ' ' + H + '" style="max-width:' + W + 'px;background:#1a1a2e;border-radius:6px;">');
+
+            // Grid lines
+            var yTicks = 5;
+            for (var i = 0; i <= yTicks; i++) {
+                var dVal = minDrop + (dropRange * i / yTicks);
+                var yPos = yMap(dVal).toFixed(1);
+                svgParts.push('<line x1="' + padL + '" y1="' + yPos + '" x2="' + (W - padR) + '" y2="' + yPos + '" stroke="#333" stroke-width="0.5"/>');
+                var label = dVal >= 0 ? '+' + dVal.toFixed(1) : dVal.toFixed(1);
+                svgParts.push('<text x="' + (padL - 5) + '" y="' + (parseFloat(yPos) + 4) + '" fill="#888" font-size="9" text-anchor="end">' + label + '"</text>');
+            }
+
+            var xTicks = Math.min(maxDist / 50, 6);
+            for (var j = 0; j <= xTicks; j++) {
+                var ydVal = Math.round(j * maxDist / xTicks);
+                var xPos = xMap(ydVal).toFixed(1);
+                svgParts.push('<line x1="' + xPos + '" y1="' + padT + '" x2="' + xPos + '" y2="' + (H - padB) + '" stroke="#333" stroke-width="0.5"/>');
+                svgParts.push('<text x="' + parseFloat(xPos) + '" y="' + (H - padB + 14) + '" fill="#888" font-size="9" text-anchor="middle">' + ydVal + 'y</text>');
+            }
+
+            // Zero line (sight height reference)
+            if (minDrop < 0 && maxDrop > 0) {
+                var zeroY = yMap(0).toFixed(1);
+                svgParts.push('<line x1="' + padL + '" y1="' + zeroY + '" x2="' + (W - padR) + '" y2="' + zeroY + '" stroke="#4a9" stroke-width="1" stroke-dasharray="4,3"/>');
+            }
+
+            // Build polyline points string (sample for performance if too many points)
+            var sampleStep = trajPoints.length > 300 ? Math.ceil(trajPoints.length / 300) : 1;
+            var pts = [];
+            for (var k = 0; k < trajPoints.length; k += sampleStep) {
+                var p = trajPoints[k];
+                pts.push(xMap(p.yards).toFixed(1) + ',' + yMap(p.drop).toFixed(1));
+            }
+
+            svgParts.push('<polyline points="' + pts.join(' ') + '" fill="none" stroke="#58a6ff" stroke-width="2" stroke-linejoin="round"/>');
+
+            // Mark zero crossings
+            if (firstCrossYards > 0 && firstCrossYards <= maxDist) {
+                var nzX = xMap(firstCrossYards).toFixed(1);
+                var nzY = yMap(0).toFixed(1);
+                svgParts.push('<circle cx="' + nzX + '" cy="' + nzY + '" r="4" fill="#3fb950"/>');
+                svgParts.push('<text x="' + nzX + '" y="' + (parseFloat(nzY) - 8) + '" fill="#3fb950" font-size="8" text-anchor="middle">▲</text>');
+            }
+            if (secondCrossYards > 0 && secondCrossYards <= maxDist) {
+                var szX = xMap(secondCrossYards).toFixed(1);
+                var szY = yMap(0).toFixed(1);
+                svgParts.push('<circle cx="' + szX + '" cy="' + szY + '" r="4" fill="#f85149"/>');
+                svgParts.push('<text x="' + szX + '" y="' + (parseFloat(szY) - 8) + '" fill="#f85149" font-size="8" text-anchor="middle">▼</text>');
+            }
+
+            // Axis labels
+            svgParts.push('<text x="' + (W / 2) + '" y="' + (H - 3) + '" fill="#aaa" font-size="10" text-anchor="middle">Distance (yards)</text>');
+            svgParts.push('<text x="8" y="' + (H / 2) + '" fill="#aaa" font-size="10" text-anchor="middle" transform="rotate(-90,8,' + (H / 2) + ')">Drop (inches)</text>');
+
+            svgParts.push('</svg>');
+            graphDiv.innerHTML = svgParts.join('');
+        })();
+
     } else {
         // Pure gravity drop (no zero — bullet fired horizontally, drops by gravity only)
         var tofFmtG = function(t) {
@@ -1766,6 +1866,71 @@ var _el = gbyId('b-btn-go'); if (_el) _el.addEventListener('click', function() {
 
         gravParts.push('</tbody></table>');
         container.innerHTML = gravParts.join('');
+
+        // Render SVG gravity drop graph
+        (function() {
+            var graphDiv = document.getElementById('b-traj-graph');
+            if (!graphDiv) return;
+
+            var gravPoints = [];
+            for (var gi = 0; gi <= vxPts.length - 1; gi++) {
+                var gYards = gi / 3;
+                if (gYards > maxYards) break;
+                var gT = _cumT(gi);
+                gravPoints.push({ yards: gYards, drop: -(0.5 * g * gT * gT) * 12 });
+            }
+            if (gravPoints.length < 2) return;
+
+            var W = 500, H = 180;
+            var padL = 45, padR = 15, padT = 15, padB = 30;
+            var plotW = W - padL - padR, plotH = H - padT - padB;
+
+            var maxDist = gravPoints[gravPoints.length - 1].yards;
+            var drops = gravPoints.map(function(p) { return p.drop; });
+            var minDrop = Math.min.apply(null, drops);
+            var maxDrop = 0;
+
+            var dropRange = maxDrop - minDrop || 1;
+            var margin = Math.abs(dropRange) * 0.08;
+            minDrop -= margin;
+            dropRange = maxDrop - minDrop;
+
+            function xMap(yd) { return padL + (yd / maxDist) * plotW; }
+            function yMap(d) { return padT + (1 - (d - minDrop) / dropRange) * plotH; }
+
+            var svgParts = [];
+            svgParts.push('<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 ' + W + ' ' + H + '" style="max-width:' + W + 'px;background:#1a1a2e;border-radius:6px;">');
+
+            var yTicks = 5;
+            for (var i = 0; i <= yTicks; i++) {
+                var dVal = minDrop + (dropRange * i / yTicks);
+                var yPos = yMap(dVal).toFixed(1);
+                svgParts.push('<line x1="' + padL + '" y1="' + yPos + '" x2="' + (W - padR) + '" y2="' + yPos + '" stroke="#333" stroke-width="0.5"/>');
+                var label = dVal >= 0 ? '+' + dVal.toFixed(1) : dVal.toFixed(1);
+                svgParts.push('<text x="' + (padL - 5) + '" y="' + (parseFloat(yPos) + 4) + '" fill="#888" font-size="9" text-anchor="end">' + label + '"</text>');
+            }
+
+            var xTicks = Math.min(maxDist / 50, 6);
+            for (var j = 0; j <= xTicks; j++) {
+                var ydVal = Math.round(j * maxDist / xTicks);
+                var xPos = xMap(ydVal).toFixed(1);
+                svgParts.push('<line x1="' + xPos + '" y1="' + padT + '" x2="' + xPos + '" y2="' + (H - padB) + '" stroke="#333" stroke-width="0.5"/>');
+                svgParts.push('<text x="' + parseFloat(xPos) + '" y="' + (H - padB + 14) + '" fill="#888" font-size="9" text-anchor="middle">' + ydVal + 'y</text>');
+            }
+
+            var sampleStep = gravPoints.length > 300 ? Math.ceil(gravPoints.length / 300) : 1;
+            var pts = [];
+            for (var k = 0; k < gravPoints.length; k += sampleStep) {
+                var p = gravPoints[k];
+                pts.push(xMap(p.yards).toFixed(1) + ',' + yMap(p.drop).toFixed(1));
+            }
+
+            svgParts.push('<polyline points="' + pts.join(' ') + '" fill="none" stroke="#f0883e" stroke-width="2" stroke-linejoin="round"/>');
+            svgParts.push('<text x="' + (W / 2) + '" y="' + (H - 3) + '" fill="#aaa" font-size="10" text-anchor="middle">Distance (yards)</text>');
+            svgParts.push('<text x="8" y="' + (H / 2) + '" fill="#aaa" font-size="10" text-anchor="middle" transform="rotate(-90,8,' + (H / 2) + ')">Drop (inches)</text>');
+            svgParts.push('</svg>');
+            graphDiv.innerHTML = svgParts.join('');
+        })();
     }
 });
 
@@ -4443,6 +4608,23 @@ function wCalc_heat() {
     // Convert to kJ/in and BTU/in (exact: 1 BTU = 1055.06 J, 1 in = 0.0254 m)
     var heatInputKJPerIn = heatInputJPerIn / 1000;
     var heatInputBTUPerIn = heatInputJPerIn / 1055.06;
+
+    // Parse typical project speed (format: "X/Y" meaning X inches in Y minutes)
+    /*
+    var projSpeedRaw = gs('w-i-projspeed');
+    var projDist = NaN, projTime = NaN, projSpeed = NaN;
+    if (projSpeedRaw) {
+        var s = String(projSpeedRaw).trim();
+        var fracMatch = s.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+))$/);
+        if (fracMatch) {
+            projDist = parseFloat(fracMatch[1]);
+            projTime = parseFloat(fracMatch[2]);
+            if (projDist > 0 && projTime > 0) {
+                projSpeed = projDist / projTime; // implied in/min
+            }
+        }
+    }
+    */
 
     _wResult = {
         volts: volts, amps: amps, speed: speed, eff: eff,
