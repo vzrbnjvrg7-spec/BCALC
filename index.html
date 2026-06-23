@@ -1,5 +1,4 @@
-<!-- STATE 6/2026 - SWAT CALC v1.7 - Classic v1.2 -->
-<!-- STATE 5/2026 - SWAT CALC v1.7 -->
+<!-- STATE 6/23/2026 - SWAT CALC v1.7 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1255,6 +1254,10 @@ function debounce(fn, ms) { var t; return function() { var ctx = this, args = ar
 // Safe expression evaluator (uses Function constructor for boolean expressions)
 function fnEval(code) {
     var c = code.replace(/\btrue\b/g, '1').replace(/\bfalse\b/g, '0');
+    // Strict allowlist: only boolean vars (A-Z), operators (&, `, ^, ->, !, '), digits, parens, whitespace
+    if (!/^[A-Za-z&`\^>'!()\s01-]+$/.test(c)) {
+        throw new Error('Invalid characters in expression');
+    }
     var fn = new Function('return (' + c.replace(/\b\d+\s*\^\s*\d+/g, function(m) {
         // JS ^ is bitwise XOR; for boolean truth-table work this is fine since 0/1
         return m;
@@ -1448,26 +1451,8 @@ function switchView(viewId) {
         var wrap = document.querySelector('.wrap');
         if (wrap) wrap.scrollTop = 0;
     }
-    // Legacy nav-toggle label update (commented out — button removed)
-    /*
-    var names = ['bcalc', 'acalc', 'tcalc', 'scalc', 'wcalc', 'pcalc'];
-    var labels = ['B-CALC', 'A-CALC', 'T-CALC', 'S-CALC', 'W-CALC', 'P-CALC'];
-    var nextIdx = (names.indexOf(viewId) + 1) % names.length;
-    document.getElementById('nav-toggle').textContent = labels[nextIdx];
-    */
     currentView = viewId;
 }
-
-// Legacy nav-toggle cycle button (commented out — replaced by per-view calc-nav rows)
-/*
-var _el = gbyId('nav-toggle'); if (_el) _el.addEventListener('click', function() {
-    var sequence = ['bcalc', 'acalc', 'tcalc', 'scalc', 'wcalc', 'pcalc'];
-    var idx = sequence.indexOf(currentView);
-    switchView(sequence[(idx + 1) % sequence.length]);
-});
-
-// Legacy nav-toggle label update inside switchView (commented out)
-*/
 
 // Direct navigation via nav buttons at top of each view
 document.querySelectorAll('.calc-nav-btn').forEach(function(btn) {
@@ -1573,7 +1558,7 @@ var _el = gbyId('b-btn-copy'); if (_el) _el.addEventListener('click', function()
     var bc = parseFloat(gs('b-i-bc')); if (isNaN(bc)) bc = 0.2;
     var bcModel = res.bcModel || 'g7';
     var text = 'B-CALC v1.7\nWeight: ' + res.wt.toFixed(2) + 'gr\nVel: ' + res.actualVel.toFixed(0) + 'fps (Actual)\nBC: ' + bc + ' (' + (bcModel==='g7'?'G7':'G1') + ')\n\n--- Energy ---\nActual: ' + res.actualFpe.toFixed(2) + ' ft-lbs\nSL Equiv: ' + res.slEquivFpe.toFixed(2) + ' ft-lbs\nSL Equiv Vel: ' + res.slEquivVel.toFixed(0) + ' fps';
-    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
+    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); }).catch(function() { showToast('Copy failed — check permissions.'); });
 });
 
 var _el = gbyId('b-btn-go'); if (_el) _el.addEventListener('click', function() {
@@ -2231,9 +2216,9 @@ if (regionSelect) {
     var pshEl = gbyId('s-i-psp');
     if (soilingEl) soilingEl.addEventListener('change', function() { try { solarCalc(); } catch(e) {} });
     if (customSoilEl) customSoilEl.addEventListener('change', function() { try { solarCalc(); } catch(e) {} });
-    if (dailyDrawEl) { dailyDrawEl.addEventListener('input', function() { try { solarCalc(); } catch(e) {} });
+    if (dailyDrawEl) { dailyDrawEl.addEventListener('input', debounce(function() { try { solarCalc(); } catch(e) {} }, 200));
                       dailyDrawEl.addEventListener('change', function() { try { solarCalc(); } catch(e) {} }); }
-    if (pshEl) { pshEl.addEventListener('input', function() { try { solarCalc(); } catch(e) {} });
+    if (pshEl) { pshEl.addEventListener('input', debounce(function() { try { solarCalc(); } catch(e) {} }, 200));
                 pshEl.addEventListener('change', function() { try { solarCalc(); } catch(e) {} }); }
 })();
 
@@ -2362,7 +2347,7 @@ var _el = gbyId('solar-btn-copy'); if (_el) _el.addEventListener('click', functi
 
     navigator.clipboard.writeText(text).then(function() {
         showToast('PV report copied!');
-    });
+    }).catch(function() { showToast('Copy failed — check permissions.'); });
 });
 
 })(); // end PV-CALC IIFE
@@ -3659,7 +3644,7 @@ var _el = gbyId('a-btn-copy'); if (_el) _el.addEventListener('click', function()
     }
 
     var text = lines.join('\n');
-    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
+    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); }).catch(function() { showToast('Copy failed — check permissions.'); });
 });
 
 })(); // end A-CALC IIFE
@@ -3808,7 +3793,7 @@ var _el = gbyId('t-btn-copy'); if (_el) _el.addEventListener('click', function()
         text += '\n\n--- Prospect ---\nSize: ' + t2.label + '\nDia: ' + t2.dia.toFixed(2) + '"\nCirc: ' + t2.circ.toFixed(2) + '"\nRev/Mi: ' + Math.round(t2.revs);
         text += '\n\n--- Delta ---\nDia: ' + (delta.dia > 0 ? '+' : '') + delta.dia.toFixed(2) + '" (' + (delta.perc > 0 ? '+' : '') + delta.perc.toFixed(1) + '%)\nRev/Mi: ' + (delta.rev > 0 ? '+' : '') + delta.rev.toFixed(2);
     }
-    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
+    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); }).catch(function() { showToast('Copy failed — check permissions.'); });
 });
 
 })(); // end T-CALC IIFE
@@ -4456,7 +4441,7 @@ function sCalc_updateSmod() {
 }
 var _el = gbyId('s-i-shape'); if (_el) _el.addEventListener('change', sCalc_updateSmod);
 ['s-i-rectB','s-i-rectH','s-i-tubeOD','s-i-tubeID','s-i-roundD'].forEach(function(id) {
-    var el = gbyId(id); if (el) el.addEventListener('input', sCalc_updateSmod);
+    var el = gbyId(id); if (el) el.addEventListener('input', debounce(sCalc_updateSmod, 150));
 });
 
 var _el = gbyId('s-btn-copy'); if (_el) _el.addEventListener('click', function() {
@@ -4487,7 +4472,7 @@ var _el = gbyId('s-btn-copy'); if (_el) _el.addEventListener('click', function()
     }
 
     var text = 'S-CALC v1.7\n--- Servo Stall ---\nTorque: ' + result.torque.toFixed(0) + ' in-lbf\nArm Length: ' + result.arm.toFixed(2) + '"\nLinkage Ratio: ' + result.ma.toFixed(2) + '\n\n--- Output Force ---\nBase force (direct): ' + (result.torque / result.arm).toFixed(1) + ' lbf\nEffective force (×' + result.ma.toFixed(2) + '): ' + result.forceLb.toFixed(2) + ' lbf\nContinuous (est. 25% stall): ~' + ((result.torque * 0.25 / result.arm) * result.ma).toFixed(0) + ' lbf' + stressLine;
-    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
+    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); }).catch(function() { showToast('Copy failed — check permissions.'); });
 });
 
 })(); // end S-CALC IIFE
@@ -4798,7 +4783,7 @@ var _el = gbyId('w-btn-copy'); if (_el) _el.addEventListener('click', function()
         res.heatInputKJPerIn.toFixed(1) + ' kJ/in\n' + res.heatInputBTUPerIn.toFixed(1) + ' BTU/in' +
         '\n\nMaterial: ' + matKey + (isNaN(thick) ? '' : ' | Thick: ' + thick.toFixed(3) + '"') +
         '\n\n' + statsHTML.replace(/<[^>]+>/g, '');
-    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
+    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); }).catch(function() { showToast('Copy failed — check permissions.'); });
 });
 })(); // end W-CALC IIFE
 
@@ -5788,7 +5773,7 @@ var _el = gbyId('p-btn-copy'); if (_el) _el.addEventListener('click', function()
         else if (res.lbsNeeded > 0) { text += '\nDosage: ' + res.lbsNeeded.toFixed(2) + ' lb cal-hypo (65%)'; }
     }
     
-    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); });
+    navigator.clipboard.writeText(text).then(function() { showToast('Copied!'); }).catch(function() { showToast('Copy failed — check permissions.'); });
 });
 
 // === P-CALC: Water Quality Alerts ===
@@ -6035,6 +6020,10 @@ var _el = gbyId('p-btn-alerts'); if (_el) _el.addEventListener('click', function
             item.className = 'coin-history-item ' + (isHeads ? 'h' : 't');
             item.textContent = label;
             coinHistory.appendChild(item);
+
+            while (coinHistory.children.length > 20) {
+                coinHistory.removeChild(coinHistory.firstChild);
+            }
 
             _flipping = false;
         }, 1000);
@@ -6640,4 +6629,3 @@ window.addEventListener('load', function() {
 </script>
 </body>
 </html>
-
